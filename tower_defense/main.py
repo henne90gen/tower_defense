@@ -10,7 +10,7 @@ from tile_map import KeyPresses, MouseClick
 pygame.init()
 pygame.font.init()
 
-size = width, height = 800, 600
+size = width, height = 1280, 720
 window_parameters = pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE
 screen = pygame.display.set_mode(size, window_parameters)
 pygame.display.set_caption("Tower Defense")
@@ -30,6 +30,12 @@ def handle_keypress(event, kp: KeyPresses, is_key_down: bool):
         kp.left = is_key_down
     elif event.key == pygame.K_d:
         kp.right = is_key_down
+
+    if 'unicode' in event.dict:
+        kp.text = kp.text + event.unicode
+    if not is_key_down:
+        kp.text = ""
+
     return kp
 
 
@@ -70,8 +76,8 @@ while True:
     screen.fill((0, 0, 0))
     key_presses, mouse_clicks, mouse_position = poll_events()
 
-    game_state.hud.update(game_state, mouse_clicks)
-    game_state.tile_map.update(key_presses, mouse_position, mouse_clicks)
+    game_state.hud.update(game_state, key_presses, mouse_clicks)
+    game_state.tile_map.update(screen, key_presses, mouse_clicks, mouse_position)
 
     game_state.tile_map.render(screen, game_state.textures)
     game_state.hud.render(screen)
