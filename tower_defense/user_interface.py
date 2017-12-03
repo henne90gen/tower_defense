@@ -4,6 +4,7 @@ from typing import List
 import os
 import pygame
 
+from game_types import GameMode
 from helper import MouseClick, KeyPresses
 
 pygame.font.init()
@@ -84,8 +85,8 @@ class Dialog:
     def render(self, screen: pygame.Surface):
         pass
 
-    def update(self, game_state, key_presses: KeyPresses, mouse_clicks: List[MouseClick]):
-        key_presses.up = key_presses.down = key_presses.left = key_presses.right = False
+    def update(self, game_state):
+        game_state.key_presses.up = game_state.key_presses.down = game_state.key_presses.left = game_state.key_presses.right = False
 
 
 class NewMapDialog(Dialog):
@@ -119,12 +120,12 @@ class NewMapDialog(Dialog):
             for component in self.components:
                 self.components[component].render(screen)
 
-    def update(self, game_state, key_presses: KeyPresses, mouse_clicks: List[MouseClick]):
-        super().update(game_state, key_presses, mouse_clicks)
+    def update(self, game_state):
+        super().update(game_state)
 
         for component in self.components:
             if 'input' in component:
-                self.components[component].add_text(key_presses.text)
+                self.components[component].add_text(game_state.key_presses.text)
 
         def submit():
             try:
@@ -147,14 +148,14 @@ class NewMapDialog(Dialog):
             'cancel_button': cancel
         }
 
-        for click in mouse_clicks.copy():
+        for click in game_state.mouse_clicks.copy():
             for component in handlers:
                 if self.components[component].is_clicked(click):
                     if 'input' in component:
                         self.give_exclusive_focus(component)
                     else:
                         handlers[component]()
-                    mouse_clicks.remove(click)
+                    game_state.mouse_clicks.remove(click)
 
     def give_exclusive_focus(self, component: str):
         for other_component in self.components:
@@ -173,6 +174,7 @@ class LoadMapDialog(Dialog):
         self.cancel_button = TextComponent("Cancel", pygame.Rect((150, 100 + height * current_index), (100, height)))
 
     def refresh_maps(self):
+        self.maps = []
         current_index = 0
         height = 50
         for file in os.listdir(MAPS_PATH):
@@ -182,22 +184,22 @@ class LoadMapDialog(Dialog):
                 current_index += 1
         return current_index, height
 
-    def update(self, game_state, key_presses: KeyPresses, mouse_clicks: List[MouseClick]):
-        super().update(game_state, key_presses, mouse_clicks)
+    def update(self, game_state):
+        super().update(game_state)
 
         current_index, height = self.refresh_maps()
         self.cancel_button = TextComponent("Cancel", pygame.Rect((150, 100 + height * current_index), (100, height)))
 
-        for click in mouse_clicks:
+        for click in game_state.mouse_clicks.copy():
             if self.cancel_button.is_clicked(click):
                 self.visible = False
-                mouse_clicks.remove(click)
+                game_state.mouse_clicks.remove(click)
                 return
             for tile_map in self.maps:
                 if tile_map.is_clicked(click):
                     game_state.tile_map.load(MAPS_PATH + tile_map.text)
                     self.visible = False
-                    mouse_clicks.remove(click)
+                    game_state.mouse_clicks.remove(click)
                     return
 
     def render(self, screen: pygame.Surface):
@@ -212,24 +214,32 @@ class HUD:
         button_height = 50
         self.components = {
             'menu_button': TextComponent("Menu", pygame.Rect(0, 0, 100, button_height)),
-            'new_button': TextComponent("New", pygame.Rect(0, button_height, 100, button_height), visible=False),
-            'save_button': TextComponent("Save", pygame.Rect(0, 2 * button_height, 100, button_height), visible=False),
-            'load_button': TextComponent("Load", pygame.Rect(0, 3 * button_height, 100, button_height), visible=False)
+            'mode_button': TextComponent("", pygame.Rect(0, button_height, 300, button_height), visible=False),
+            'new_button': TextComponent("New", pygame.Rect(0, 2*button_height, 100, button_height), visible=False),
+            'save_button': TextComponent("Save", pygame.Rect(0, 3 * button_height, 100, button_height), visible=False),
+            'load_button': TextComponent("Load", pygame.Rect(0, 4 * button_height, 100, button_height), visible=False)
         }
         self.new_dialog: Dialog = NewMapDialog()
         self.load_dialog: Dialog = LoadMapDialog()
 
-    def update(self, game_state, key_presses: KeyPresses, mouse_clicks: List[MouseClick]):
+    def update(self, game_state):
         if self.new_dialog.visible:
-            self.new_dialog.update(game_state, key_presses, mouse_clicks)
+            self.new_dialog.update(game_state)
         elif self.load_dialog.visible:
-            self.load_dialog.update(game_state, key_presses, mouse_clicks)
+            self.load_dialog.update(game_state)
         else:
-            def save():
-                game_state.tile_map.save()
+            def menu():
                 self.toggle_menu()
 
-            def menu():
+            def mode():
+                if game_state.mode == GameMode.EDITOR:
+                    game_state.mode = GameMode.ENTITY_PLACEMENT
+                elif game_state.mode == GameMode.ENTITY_PLACEMENT:
+                    game_state.mode = GameMode.EDITOR
+                self.toggle_menu()
+
+            def save():
+                game_state.tile_map.save()
                 self.toggle_menu()
 
             def new():
@@ -241,19 +251,23 @@ class HUD:
                 self.load_dialog.open()
 
             handlers = {
-                'save_button': save,
                 'menu_button': menu,
+                'mode_button': mode,
+                'save_button': save,
                 'new_button': new,
                 'load_button': load
             }
 
-            for click in mouse_clicks.copy():
+            self.components['mode_button'].text = game_state.mode.name
+
+            for click in game_state.mouse_clicks.copy():
                 for component in handlers:
                     if self.components[component].is_clicked(click):
                         handlers[component]()
-                        mouse_clicks.remove(click)
+                        game_state.mouse_clicks.remove(click)
 
     def toggle_menu(self):
+        self.components['mode_button'].toggle_visibility()
         self.components['new_button'].toggle_visibility()
         self.components['save_button'].toggle_visibility()
         self.components['load_button'].toggle_visibility()

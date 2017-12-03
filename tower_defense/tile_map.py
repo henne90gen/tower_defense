@@ -1,12 +1,10 @@
 import os
 import pickle
-from typing import List, Dict
+from typing import List
 
 import pygame
 
 from game_types import TileType
-from graphics import Textures
-from helper import KeyPresses, MouseClick
 
 
 class Tile:
@@ -23,30 +21,32 @@ class Tile:
     def __str__(self):
         return "Tile: " + str(self.rect) + " - " + str(self.tile_type)
 
+    @property
+    def is_walkable(self):
+        return self.direction != (0, 0)
+
     def next_type(self):
         type_list = list(TileType)
         index = type_list.index(self.tile_type)
         index += 1
 
         if index >= len(type_list):
-            return False
+            index = 0
 
         self.tile_type = type_list[index]
         return True
 
-    def render(self, screen: pygame.Surface, x_offset: int, y_offset: int, textures: Dict[TileType, pygame.Surface]):
-        x = self.rect.left + x_offset
-        y = self.rect.top + y_offset
+    def render(self, game_state, screen: pygame.Surface):
+        x = self.rect.left + game_state.world_offset_x
+        y = self.rect.top + game_state.world_offset_y
         area = pygame.Rect(0, 0, self.rect.width, self.rect.height)
-        screen.blit(textures[self.tile_type], (x, y), area=area)
+        screen.blit(game_state.textures.tiles[self.tile_type], (x, y), area=area)
 
 
 class TileMap:
     def __init__(self):
         self.path = ""
         self.border_width = 50
-        self.x_offset = self.border_width * 2
-        self.y_offset = self.border_width * 2
         self.cursor_position = (0, 0)
         self.tile_width = 100
         self.tile_height = 100
@@ -54,11 +54,20 @@ class TileMap:
         self.max_tiles_y = 10
         self.tiles: List[Tile] = []
 
+    def generate_tiles(self):
+        self.tiles = []
+        for x in range(self.max_tiles_x):
+            for y in range(self.max_tiles_y):
+                tile = Tile(
+                    pygame.Rect((x * self.tile_width, y * self.tile_height), (self.tile_width, self.tile_height)),
+                    TileType.GRASS)
+                self.tiles.append(tile)
+
     def new(self, path: str, width: int, height: int):
         self.path = path.strip()
-        self.tiles = []
         self.max_tiles_x = width
         self.max_tiles_y = height
+        self.generate_tiles()
         self.save()
 
     def load(self, path: str):
@@ -74,17 +83,14 @@ class TileMap:
                 pickle.dump((self.tiles, self.max_tiles_x, self.max_tiles_y), f)
                 print("Saved tile map", self.path)
 
-    def to_tile_map_space(self, pos: (int, int)) -> (int, int):
-        return pos[0] - self.x_offset, pos[1] - self.y_offset
-
-    def render_cursor(self, screen: pygame.Surface):
+    def render_cursor(self, game_state, screen: pygame.Surface):
         x, y = self.cursor_position
-        x += self.x_offset
-        y += self.y_offset
+        x += game_state.world_offset_x
+        y += game_state.world_offset_y
         rect = pygame.Rect((x - 5, y - 5), (10, 10))
         screen.fill((0, 255, 255), rect)
 
-    def render_border(self, screen: pygame.Surface):
+    def render_border(self, game_state, screen: pygame.Surface):
         white = (255, 255, 255)
 
         surface_width = self.tile_map_width + self.border_width * 2
@@ -109,7 +115,8 @@ class TileMap:
         left_rect = pygame.Rect((0, 0), (self.border_width, left_height))
         border_surface.fill(white, left_rect)
 
-        screen.blit(border_surface, (self.x_offset - self.border_width, self.y_offset - self.border_width))
+        screen.blit(border_surface,
+                    (game_state.world_offset_x - self.border_width, game_state.world_offset_y - self.border_width))
 
     @property
     def tile_map_width(self):
@@ -119,62 +126,60 @@ class TileMap:
     def tile_map_height(self):
         return self.tile_height * self.max_tiles_y
 
-    def is_on_tile_map(self, pos: (int, int)):
-        x, y = pos
+    def is_on_map(self, game_state, position: (int, int), pos_is_in_tile_map_space: bool = True):
+        if not pos_is_in_tile_map_space:
+            position = game_state.to_world_space(position)
+        x, y = position
         return 0 < x < self.tile_map_width and 0 < y < self.tile_map_height
 
-    def render(self, screen: pygame.Surface, textures: Textures):
-        self.render_border(screen)
+    def get_tile(self, game_state, position: (int, int), pos_is_in_tile_map_space: bool = True):
+        if not pos_is_in_tile_map_space:
+            position = game_state.to_world_space(position)
 
         for tile in self.tiles:
-            tile.render(screen, self.x_offset, self.y_offset, textures.tiles)
+            if tile.rect.contains(pygame.Rect(position, (0, 0))):
+                return tile
 
-    def update(self, screen: pygame.Surface, key_presses: KeyPresses, mouse_clicks: List[MouseClick],
-               mouse_position: (int, int)):
-        scroll_speed = 5
-        if key_presses.up:
-            self.y_offset += scroll_speed
-        if key_presses.down:
-            self.y_offset -= scroll_speed
-        if key_presses.left:
-            self.x_offset += scroll_speed
-        if key_presses.right:
-            self.x_offset -= scroll_speed
+    def render(self, game_state, screen: pygame.Surface):
+        self.render_border(game_state, screen)
 
-        self.x_offset, self.y_offset = self.constrain_to_bounds(screen, self.x_offset, self.y_offset,
-                                                                self.tile_map_width, self.tile_map_height)
+        for tile in self.tiles:
+            tile.render(game_state, screen)
 
-        self.cursor_position = self.to_tile_map_space(mouse_position)
+    def update(self, game_state):
+        mouse_position = game_state.mouse_position
 
-        for click in mouse_clicks:
-            pos = self.to_tile_map_space(click.pos)
-            if not self.is_on_tile_map(pos):
+        self.cursor_position = game_state.to_world_space(mouse_position)
+
+        self.handle_clicks(game_state)
+
+    def handle_clicks(self, game_state):
+        if not game_state.editor_mode:
+            return
+
+        for click in game_state.mouse_clicks.copy():
+            pos = game_state.to_world_space(click.pos)
+            if not self.is_on_map(game_state, pos, True):
                 continue
 
-            found_tile = False
             for tile in self.tiles.copy():
                 if tile.rect.contains(pygame.Rect(pos, (0, 0))):
-                    found_tile = True
-                    if not tile.next_type():
-                        self.tiles.remove(tile)
+                    tile.next_type()
+                    self.calculate_directions(game_state)
 
-            if not found_tile:
-                x = int(self.cursor_position[0] / self.tile_width) * self.tile_width
-                y = int(self.cursor_position[1] / self.tile_height) * self.tile_height
-                rect = pygame.Rect((x, y), (self.tile_width, self.tile_height))
-                tile_type = TileType(0)
-                self.tiles.append(Tile(rect, tile_type))
-
-    @staticmethod
-    def constrain_to_bounds(screen, x, y, width, height) -> (int, int):
-        screen_width_half = screen.get_width() / 2
-        screen_height_half = screen.get_height() / 2
-        if x > screen_width_half:
-            x = screen_width_half
-        elif x < -(width - screen_width_half):
-            x = -(width - screen_width_half)
-        if y > screen_height_half:
-            y = screen_height_half
-        elif y < -(height - screen_height_half):
-            y = -(height - screen_height_half)
-        return x, y
+    def calculate_directions(self, game_state):
+        for tile in self.tiles:
+            if tile.tile_type == TileType.GRASS:
+                tile.direction = (0, 0)
+            elif tile.tile_type == TileType.SAND:
+                x, y = tile.rect.left, tile.rect.top
+                if self.get_tile(game_state, (x + self.tile_width, y)).is_walkable:
+                    tile.direction = (1, 0)
+                elif self.get_tile(game_state, (x - self.tile_width, y)).is_walkable:
+                    tile.direction = (-1, 0)
+                elif self.get_tile(game_state, (x, y + self.tile_height)).is_walkable:
+                    tile.direction = (0, 1)
+                elif self.get_tile(game_state, (x, y - self.tile_height)).is_walkable:
+                    tile.direction = (0, -1)
+                else:
+                    tile.direction = (1, 0)

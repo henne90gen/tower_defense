@@ -12,5 +12,5 @@ class Textures:
             TileType.SAND: pygame.image.load('./res/sand.jpg')
         }
         self.entities: Dict[EntityType, pygame.Surface] = {
-            # EntityType.WARRIOR: pygame.image.load('./res/warrior.')
+            EntityType.WARRIOR: pygame.image.load('./res/ball.png')
         }
