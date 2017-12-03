@@ -1,42 +1,19 @@
 import os
 import pickle
-from enum import Enum
 from typing import List, Dict
 
 import pygame
 
-
-class KeyPresses:
-    def __init__(self):
-        self.left = False
-        self.right = False
-        self.up = False
-        self.down = False
-        self.text = ""
-
-
-class MouseClick:
-    def __init__(self):
-        self.pos = (0, 0)
-        self.button = None
-
-
-class Textures:
-    def __init__(self):
-        self.tiles: Dict[TileType, pygame.Surface] = {}
-        self.tiles[TileType.GRASS] = pygame.image.load('./res/grass.jpg')
-        self.tiles[TileType.SAND] = pygame.image.load('./res/sand.jpg')
-
-
-class TileType(Enum):
-    GRASS = 0
-    SAND = 1
+from game_types import TileType
+from graphics import Textures
+from helper import KeyPresses, MouseClick
 
 
 class Tile:
     def __init__(self, rect: pygame.Rect, tile_type: TileType):
         self.rect: pygame.Rect = rect
         self.tile_type = tile_type
+        self.direction = (0, 0)
 
     def __eq__(self, other):
         if type(other) != Tile:
@@ -77,17 +54,25 @@ class TileMap:
         self.max_tiles_y = 10
         self.tiles: List[Tile] = []
 
+    def new(self, path: str, width: int, height: int):
+        self.path = path.strip()
+        self.tiles = []
+        self.max_tiles_x = width
+        self.max_tiles_y = height
+        self.save()
+
     def load(self, path: str):
         self.path = path.strip()
-        if os.path.isfile(path):
-            with open(path, "rb") as f:
-                self.tiles = pickle.load(f)
+        if os.path.isfile(self.path):
+            with open(self.path, "rb") as f:
+                self.tiles, self.max_tiles_x, self.max_tiles_y = pickle.load(f)
+                print("Loaded tile map", self.path)
 
     def save(self):
         if len(self.path) > 0:
             with open(self.path, "wb") as f:
-                pickle.dump(self.tiles, f)
-                print("Saved tile map")
+                pickle.dump((self.tiles, self.max_tiles_x, self.max_tiles_y), f)
+                print("Saved tile map", self.path)
 
     def to_tile_map_space(self, pos: (int, int)) -> (int, int):
         return pos[0] - self.x_offset, pos[1] - self.y_offset
@@ -120,7 +105,7 @@ class TileMap:
         bottom_rect = pygame.Rect((0, bottom_y), (bottom_width, self.border_width))
         border_surface.fill(white, bottom_rect)
 
-        left_height = self.tile_map_width + self.border_width
+        left_height = self.tile_map_height + self.border_width
         left_rect = pygame.Rect((0, 0), (self.border_width, left_height))
         border_surface.fill(white, left_rect)
 

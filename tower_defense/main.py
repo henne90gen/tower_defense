@@ -5,7 +5,7 @@ from datetime import datetime
 import pygame
 
 from game_state import GameState
-from tile_map import KeyPresses, MouseClick
+from helper import KeyPresses, MouseClick
 
 pygame.init()
 pygame.font.init()
@@ -31,10 +31,8 @@ def handle_keypress(event, kp: KeyPresses, is_key_down: bool):
     elif event.key == pygame.K_d:
         kp.right = is_key_down
 
-    if 'unicode' in event.dict:
+    if 'unicode' in event.dict and event.unicode not in kp.text:
         kp.text = kp.text + event.unicode
-    if not is_key_down:
-        kp.text = ""
 
     return kp
 
@@ -43,6 +41,7 @@ def poll_events() -> (KeyPresses, List[MouseClick]):
     global size, width, height, screen, key_presses, mouse_position
 
     mouse_clicks = []
+    key_presses.text = ""
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
@@ -77,9 +76,11 @@ while True:
     key_presses, mouse_clicks, mouse_position = poll_events()
 
     game_state.hud.update(game_state, key_presses, mouse_clicks)
+    game_state.entity_manager.update(game_state, key_presses, mouse_clicks)
     game_state.tile_map.update(screen, key_presses, mouse_clicks, mouse_position)
 
     game_state.tile_map.render(screen, game_state.textures)
+    game_state.entity_manager.render(screen, game_state.textures)
     game_state.hud.render(screen)
 
     pygame.display.flip()
