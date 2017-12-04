@@ -7,8 +7,10 @@ class GameMode(Enum):
 
 
 class TileType(Enum):
-    GRASS = 0
-    SAND = 1
+    BUILDING_GROUND = 0
+    PATH = 1
+    START = 2
+    FINISH = 3
 
 
 class EntityType(Enum):

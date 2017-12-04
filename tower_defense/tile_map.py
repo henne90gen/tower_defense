@@ -24,9 +24,9 @@ class Tile:
 
     @property
     def is_walkable(self):
-        return self.tile_type == TileType.SAND
+        return self.tile_type != TileType.BUILDING_GROUND
 
-    def next_type(self):
+    def next_type(self, allow_start: bool, allow_finish: bool):
         type_list = list(TileType)
         index = type_list.index(self.tile_type)
         index += 1
@@ -35,13 +35,22 @@ class Tile:
             index = 0
 
         self.tile_type = type_list[index]
+        if (not allow_start and self.tile_type == TileType.START) or \
+                (not allow_finish and self.tile_type == TileType.FINISH):
+            self.next_type(allow_start, allow_finish)
+
         return True
 
     def render(self, game_state, screen: pygame.Surface):
         x = self.rect.left + game_state.world_offset_x
         y = self.rect.top + game_state.world_offset_y
         area = pygame.Rect(0, 0, self.rect.width, self.rect.height)
-        screen.blit(game_state.textures.tiles[self.tile_type], (x, y), area)
+        if self.tile_type == TileType.START:
+            screen.fill((0, 255, 0), pygame.Rect((x, y), (self.rect.width, self.rect.height)))
+        elif self.tile_type == TileType.FINISH:
+            screen.fill((255, 0, 0), pygame.Rect((x, y), (self.rect.width, self.rect.height)))
+        else:
+            screen.blit(game_state.textures.tiles[self.tile_type], (x, y), area)
 
         arrow = game_state.textures.other['arrow']
         arrow = pygame.transform.scale(arrow, (self.rect.width, self.rect.height))
@@ -79,7 +88,7 @@ class TileMap:
             for y in range(self.max_tiles_y):
                 tile = Tile(
                     pygame.Rect((x * self.tile_width, y * self.tile_height), (self.tile_width, self.tile_height)),
-                    TileType.GRASS)
+                    TileType.BUILDING_GROUND)
                 self.tiles[(x, y)] = tile
 
     def new(self, path: str, width: int, height: int):
@@ -168,9 +177,6 @@ class TileMap:
     def update(self, game_state):
         self.cursor_position = game_state.to_world_space(game_state.mouse_position)
 
-        self.handle_clicks(game_state)
-
-    def handle_clicks(self, game_state):
         if not game_state.editor_mode:
             return
 
@@ -181,19 +187,21 @@ class TileMap:
 
             for tile in self.tiles.values():
                 if tile.rect.contains(pygame.Rect(pos, (0, 0))):
-                    tile.next_type()
-
-        self.calculate_directions(game_state)
-
-    def calculate_directions(self, game_state):
-        def set_direction(t: Tile, d: (int, int)):
-            t.direction = d
-            return t
+                    allow_start = True
+                    allow_finish = True
+                    for key in self.tiles:
+                        if self.tiles[key].tile_type == TileType.START:
+                            allow_start = False
+                        elif self.tiles[key].tile_type == TileType.FINISH:
+                            allow_finish = False
+                    tile.next_type(allow_start, allow_finish)
 
         for tile in self.tiles:
             self.tiles[tile].direction = None
 
         graph = {}
+
+        # setting up graph
         for position in self.tiles:
             if self.tiles[position].is_walkable:
                 graph[position] = []
@@ -216,11 +224,26 @@ class TileMap:
                 if left_pos in self.tiles and self.tiles[left_pos].is_walkable:
                     graph[position].append((left_pos, (-1, 0)))
 
+        # searching graph for paths
         not_visited_nodes = list(graph.keys())
         visited_nodes = []
         next_nodes = LifoQueue()
+        current_node = None
+        last_node = None
+        starting_node = None
+        for tile in self.tiles:
+            if self.tiles[tile].tile_type == TileType.START:
+                starting_node = tile
+            elif self.tiles[tile].tile_type == TileType.FINISH:
+                # not_visited_nodes.remove(tile)
+                graph[tile] = []
+
         while len(not_visited_nodes) > 0:
-            current_node = not_visited_nodes[0]
+            if starting_node:
+                current_node = starting_node
+                starting_node = None
+            else:
+                current_node = not_visited_nodes[0]
             not_visited_nodes.remove(current_node)
             visited_nodes.append(current_node)
 
@@ -230,11 +253,24 @@ class TileMap:
 
             while not next_nodes.empty():
                 next_node = next_nodes.get()
-                self.tiles[current_node].direction = next_node[1]
 
+                if next_node in graph[current_node]:
+                    self.tiles[current_node].direction = next_node[1]
+                else:
+                    self.tiles[current_node].direction = self.tiles[last_node].direction
+
+                last_node = current_node
                 current_node = next_node[0]
+                if current_node in not_visited_nodes:
+                    not_visited_nodes.remove(current_node)
                 visited_nodes.append(current_node)
+
+                if self.tiles[current_node].tile_type == TileType.FINISH:
+                    continue
 
                 for node in graph[current_node]:
                     if node[0] not in visited_nodes:
                         next_nodes.put(node)
+
+                        # if len(graph[current_node]) > 0 and self.tiles[graph[current_node][0][0]].direction != (0, 0):
+                        #     self.tiles[current_node].direction = graph[current_node][0][1]
