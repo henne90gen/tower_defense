@@ -1,6 +1,7 @@
 import os
 import pickle
-from typing import List
+from queue import LifoQueue, Queue
+from typing import Dict
 
 import pygame
 
@@ -11,7 +12,7 @@ class Tile:
     def __init__(self, rect: pygame.Rect, tile_type: TileType):
         self.rect: pygame.Rect = rect
         self.tile_type = tile_type
-        self.direction = (0, 0)
+        self.direction = None
 
     def __eq__(self, other):
         if type(other) != Tile:
@@ -23,7 +24,7 @@ class Tile:
 
     @property
     def is_walkable(self):
-        return self.direction != (0, 0)
+        return self.tile_type == TileType.SAND
 
     def next_type(self):
         type_list = list(TileType)
@@ -40,7 +41,24 @@ class Tile:
         x = self.rect.left + game_state.world_offset_x
         y = self.rect.top + game_state.world_offset_y
         area = pygame.Rect(0, 0, self.rect.width, self.rect.height)
-        screen.blit(game_state.textures.tiles[self.tile_type], (x, y), area=area)
+        screen.blit(game_state.textures.tiles[self.tile_type], (x, y), area)
+
+        arrow = game_state.textures.other['arrow']
+        arrow = pygame.transform.scale(arrow, (self.rect.width, self.rect.height))
+
+        if not self.direction:
+            return
+
+        dir_x, dir_y = self.direction
+
+        if dir_x < 0:
+            arrow = pygame.transform.flip(arrow, True, False)
+        elif dir_y < 0:
+            arrow = pygame.transform.rotate(arrow, 90)
+        elif dir_y > 0:
+            arrow = pygame.transform.rotate(arrow, -90)
+
+        screen.blit(arrow, (x, y), area)
 
 
 class TileMap:
@@ -52,16 +70,17 @@ class TileMap:
         self.tile_height = 100
         self.max_tiles_x = 10
         self.max_tiles_y = 10
-        self.tiles: List[Tile] = []
+        self.tiles: Dict[(int, int), Tile] = {}
+        self.generate_tiles()
 
     def generate_tiles(self):
-        self.tiles = []
+        self.tiles = {}
         for x in range(self.max_tiles_x):
             for y in range(self.max_tiles_y):
                 tile = Tile(
                     pygame.Rect((x * self.tile_width, y * self.tile_height), (self.tile_width, self.tile_height)),
                     TileType.GRASS)
-                self.tiles.append(tile)
+                self.tiles[(x, y)] = tile
 
     def new(self, path: str, width: int, height: int):
         self.path = path.strip()
@@ -136,20 +155,18 @@ class TileMap:
         if not pos_is_in_tile_map_space:
             position = game_state.to_world_space(position)
 
-        for tile in self.tiles:
+        for tile in self.tiles.values():
             if tile.rect.contains(pygame.Rect(position, (0, 0))):
                 return tile
 
     def render(self, game_state, screen: pygame.Surface):
         self.render_border(game_state, screen)
 
-        for tile in self.tiles:
+        for tile in self.tiles.values():
             tile.render(game_state, screen)
 
     def update(self, game_state):
-        mouse_position = game_state.mouse_position
-
-        self.cursor_position = game_state.to_world_space(mouse_position)
+        self.cursor_position = game_state.to_world_space(game_state.mouse_position)
 
         self.handle_clicks(game_state)
 
@@ -162,24 +179,62 @@ class TileMap:
             if not self.is_on_map(game_state, pos, True):
                 continue
 
-            for tile in self.tiles.copy():
+            for tile in self.tiles.values():
                 if tile.rect.contains(pygame.Rect(pos, (0, 0))):
                     tile.next_type()
-                    self.calculate_directions(game_state)
+
+        self.calculate_directions(game_state)
 
     def calculate_directions(self, game_state):
+        def set_direction(t: Tile, d: (int, int)):
+            t.direction = d
+            return t
+
         for tile in self.tiles:
-            if tile.tile_type == TileType.GRASS:
-                tile.direction = (0, 0)
-            elif tile.tile_type == TileType.SAND:
-                x, y = tile.rect.left, tile.rect.top
-                if self.get_tile(game_state, (x + self.tile_width, y)).is_walkable:
-                    tile.direction = (1, 0)
-                elif self.get_tile(game_state, (x - self.tile_width, y)).is_walkable:
-                    tile.direction = (-1, 0)
-                elif self.get_tile(game_state, (x, y + self.tile_height)).is_walkable:
-                    tile.direction = (0, 1)
-                elif self.get_tile(game_state, (x, y - self.tile_height)).is_walkable:
-                    tile.direction = (0, -1)
-                else:
-                    tile.direction = (1, 0)
+            self.tiles[tile].direction = None
+
+        graph = {}
+        for position in self.tiles:
+            if self.tiles[position].is_walkable:
+                graph[position] = []
+
+                x, y = position
+                left_pos = (x - 1, y)
+                right_pos = (x + 1, y)
+                top_pos = (x, y - 1)
+                bottom_pos = (x, y + 1)
+
+                if top_pos in self.tiles and self.tiles[top_pos].is_walkable:
+                    graph[position].append((top_pos, (0, -1)))
+
+                if right_pos in self.tiles and self.tiles[right_pos].is_walkable:
+                    graph[position].append((right_pos, (1, 0)))
+
+                if bottom_pos in self.tiles and self.tiles[bottom_pos].is_walkable:
+                    graph[position].append((bottom_pos, (0, 1)))
+
+                if left_pos in self.tiles and self.tiles[left_pos].is_walkable:
+                    graph[position].append((left_pos, (-1, 0)))
+
+        not_visited_nodes = list(graph.keys())
+        visited_nodes = []
+        next_nodes = LifoQueue()
+        while len(not_visited_nodes) > 0:
+            current_node = not_visited_nodes[0]
+            not_visited_nodes.remove(current_node)
+            visited_nodes.append(current_node)
+
+            for node in graph[current_node]:
+                if node[0] not in visited_nodes:
+                    next_nodes.put(node)
+
+            while not next_nodes.empty():
+                next_node = next_nodes.get()
+                self.tiles[current_node].direction = next_node[1]
+
+                current_node = next_node[0]
+                visited_nodes.append(current_node)
+
+                for node in graph[current_node]:
+                    if node[0] not in visited_nodes:
+                        next_nodes.put(node)

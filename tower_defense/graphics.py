@@ -14,3 +14,6 @@ class Textures:
         self.entities: Dict[EntityType, pygame.Surface] = {
             EntityType.WARRIOR: pygame.image.load('./res/ball.png')
         }
+        self.other: Dict[str, pygame.Surface] = {
+            'arrow': pygame.image.load('./res/arrow.png')
+        }

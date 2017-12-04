@@ -8,13 +8,35 @@ from game_types import EntityType
 class Entity:
     def __init__(self, position: (int, int)):
         self.position = position
+        self.velocity = (0, 0)
+        self.acceleration = 0.5
+        self.max_speed = 2
         self.entity_type = EntityType.WARRIOR
 
     def update(self, game_state):
         tile = game_state.tile_map.get_tile(game_state, self.position)
+        if not tile:
+            return
+        if not tile.direction:
+            return
+
+        import math
+
+        vel_x, vel_y = self.velocity
+        vel_x += tile.direction[0] * self.acceleration
+        vel_y += tile.direction[1] * self.acceleration
+        speed = math.sqrt(vel_x * vel_x + vel_y * vel_y)
+        if speed > self.max_speed:
+            vel_x /= speed
+            vel_x *= self.max_speed
+            vel_y /= speed
+            vel_y *= self.max_speed
+
+        self.velocity = vel_x, vel_y
+
         x, y = self.position
-        x += tile.direction[0]
-        y += tile.direction[1]
+        x += self.velocity[0]
+        y += self.velocity[1]
         self.position = x, y
 
     def render(self, game_state, screen: pygame.Surface):
