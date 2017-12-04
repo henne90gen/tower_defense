@@ -235,7 +235,7 @@ class TileMap:
             if self.tiles[tile].tile_type == TileType.START:
                 starting_node = tile
             elif self.tiles[tile].tile_type == TileType.FINISH:
-                # not_visited_nodes.remove(tile)
+                not_visited_nodes.remove(tile)
                 graph[tile] = []
 
         while len(not_visited_nodes) > 0:
@@ -256,7 +256,7 @@ class TileMap:
 
                 if next_node in graph[current_node]:
                     self.tiles[current_node].direction = next_node[1]
-                else:
+                elif self.tiles[current_node].tile_type != TileType.FINISH:
                     self.tiles[current_node].direction = self.tiles[last_node].direction
 
                 last_node = current_node
@@ -272,5 +272,5 @@ class TileMap:
                     if node[0] not in visited_nodes:
                         next_nodes.put(node)
 
-                        # if len(graph[current_node]) > 0 and self.tiles[graph[current_node][0][0]].direction != (0, 0):
-                        #     self.tiles[current_node].direction = graph[current_node][0][1]
+        if len(graph[current_node]) > 0 and self.tiles[graph[current_node][0][0]].direction != (0, 0):
+            self.tiles[current_node].direction = self.tiles[last_node].direction
