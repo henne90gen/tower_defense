@@ -199,9 +199,128 @@ class TileMap:
         for tile in self.tiles:
             self.tiles[tile].direction = None
 
-        graph = {}
+        self.breadth_first_search()
 
-        # setting up graph
+    def breadth_first_search(self):
+        graph = self.get_tile_graph()
+
+        not_visited_nodes = list(graph.keys())
+        next_nodes = Queue()
+        starting_node = None
+        finish_node = None
+
+        for tile in self.tiles:
+            if self.tiles[tile].tile_type == TileType.START:
+                starting_node = tile
+            elif self.tiles[tile].tile_type == TileType.FINISH:
+                finish_node = tile
+
+        while len(not_visited_nodes) > 0:
+            if starting_node:
+                current_node = starting_node
+                starting_node = None
+            else:
+                current_node = not_visited_nodes[0]
+
+            not_visited_nodes.remove(current_node)
+
+            for node in graph[current_node]:
+                if node[0] in not_visited_nodes:
+                    next_nodes.put(node)
+
+            while not next_nodes.empty():
+                next_node = next_nodes.get()
+
+                if self.tiles[next_node[0]].tile_type == TileType.FINISH:
+                    continue
+
+                if next_node[0] in not_visited_nodes:
+                    not_visited_nodes.remove(next_node[0])
+
+                previous_node = None
+                for node in graph[next_node[0]]:
+                    if node[0] not in not_visited_nodes:
+                        previous_node = node[0]
+
+                if previous_node:
+                    direction = None
+                    for node in graph[previous_node]:
+                        if node[0] == next_node[0]:
+                            direction = node[1]
+                    self.tiles[previous_node].direction = direction
+
+                for node in graph[next_node[0]]:
+                    if node[0] in not_visited_nodes:
+                        next_nodes.put(node)
+
+        if not finish_node:
+            return
+
+        for node in graph[finish_node]:
+            direction = None
+            for _node in graph[node[0]]:
+                if _node[0] == finish_node:
+                    direction = _node[1]
+            self.tiles[node[0]].direction = direction
+
+    def depth_first_search(self):
+        graph = self.get_tile_graph()
+
+        not_visited_nodes = list(graph.keys())
+        visited_nodes = []
+        next_nodes = LifoQueue()
+        current_node = None
+        last_node = None
+        starting_node = None
+
+        for tile in self.tiles:
+            if self.tiles[tile].tile_type == TileType.START:
+                starting_node = tile
+            elif self.tiles[tile].tile_type == TileType.FINISH:
+                not_visited_nodes.remove(tile)
+                graph[tile] = []
+
+        # TODO make it prefer straight lines over bends
+        while len(not_visited_nodes) > 0:
+            if starting_node:
+                current_node = starting_node
+                starting_node = None
+            else:
+                current_node = not_visited_nodes[0]
+            not_visited_nodes.remove(current_node)
+            visited_nodes.append(current_node)
+
+            for node in graph[current_node]:
+                if node[0] not in visited_nodes:
+                    next_nodes.put(node)
+
+            while not next_nodes.empty():
+                next_node = next_nodes.get()
+
+                if next_node in graph[current_node]:
+                    # next node is adjacent to current node
+                    self.tiles[current_node].direction = next_node[1]
+                elif self.tiles[current_node].tile_type != TileType.FINISH:
+                    self.tiles[current_node].direction = self.tiles[last_node].direction
+
+                last_node = current_node
+                current_node = next_node[0]
+                if current_node in not_visited_nodes:
+                    not_visited_nodes.remove(current_node)
+                visited_nodes.append(current_node)
+
+                if self.tiles[current_node].tile_type == TileType.FINISH:
+                    continue
+
+                for node in graph[current_node]:
+                    if node[0] not in visited_nodes:
+                        next_nodes.put(node)
+
+        if len(graph[current_node]) > 0 and self.tiles[graph[current_node][0][0]].direction != (0, 0):
+            self.tiles[current_node].direction = self.tiles[last_node].direction
+
+    def get_tile_graph(self) -> dict:
+        graph = {}
         for position in self.tiles:
             if self.tiles[position].is_walkable:
                 graph[position] = []
@@ -224,53 +343,4 @@ class TileMap:
                 if left_pos in self.tiles and self.tiles[left_pos].is_walkable:
                     graph[position].append((left_pos, (-1, 0)))
 
-        # searching graph for paths
-        not_visited_nodes = list(graph.keys())
-        visited_nodes = []
-        next_nodes = LifoQueue()
-        current_node = None
-        last_node = None
-        starting_node = None
-        for tile in self.tiles:
-            if self.tiles[tile].tile_type == TileType.START:
-                starting_node = tile
-            elif self.tiles[tile].tile_type == TileType.FINISH:
-                not_visited_nodes.remove(tile)
-                graph[tile] = []
-
-        while len(not_visited_nodes) > 0:
-            if starting_node:
-                current_node = starting_node
-                starting_node = None
-            else:
-                current_node = not_visited_nodes[0]
-            not_visited_nodes.remove(current_node)
-            visited_nodes.append(current_node)
-
-            for node in graph[current_node]:
-                if node[0] not in visited_nodes:
-                    next_nodes.put(node)
-
-            while not next_nodes.empty():
-                next_node = next_nodes.get()
-
-                if next_node in graph[current_node]:
-                    self.tiles[current_node].direction = next_node[1]
-                elif self.tiles[current_node].tile_type != TileType.FINISH:
-                    self.tiles[current_node].direction = self.tiles[last_node].direction
-
-                last_node = current_node
-                current_node = next_node[0]
-                if current_node in not_visited_nodes:
-                    not_visited_nodes.remove(current_node)
-                visited_nodes.append(current_node)
-
-                if self.tiles[current_node].tile_type == TileType.FINISH:
-                    continue
-
-                for node in graph[current_node]:
-                    if node[0] not in visited_nodes:
-                        next_nodes.put(node)
-
-        if len(graph[current_node]) > 0 and self.tiles[graph[current_node][0][0]].direction != (0, 0):
-            self.tiles[current_node].direction = self.tiles[last_node].direction
+        return graph
