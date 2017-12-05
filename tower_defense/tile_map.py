@@ -12,7 +12,9 @@ class Tile:
     def __init__(self, rect: pygame.Rect, tile_type: TileType):
         self.rect: pygame.Rect = rect
         self.tile_type = tile_type
-        self.direction = None
+        self.directions = []
+        self.direction_index = 0
+        self.timer = 0
 
     def __eq__(self, other):
         if type(other) != Tile:
@@ -55,10 +57,16 @@ class Tile:
         arrow = game_state.textures.other['arrow']
         arrow = pygame.transform.scale(arrow, (self.rect.width, self.rect.height))
 
-        if not self.direction:
+        if len(self.directions) == 0:
             return
+        if self.direction_index >= len(self.directions):
+            self.direction_index = 0
 
-        dir_x, dir_y = self.direction
+        dir_x, dir_y = self.directions[self.direction_index % len(self.directions)]
+        self.timer += 1
+        if self.timer > 50:
+            self.timer = 0
+            self.direction_index = self.direction_index + 1
 
         if dir_x < 0:
             arrow = pygame.transform.flip(arrow, True, False)
@@ -160,13 +168,16 @@ class TileMap:
         x, y = position
         return 0 < x < self.tile_map_width and 0 < y < self.tile_map_height
 
-    def get_tile(self, game_state, position: (int, int), pos_is_in_tile_map_space: bool = True):
+    def get_tile(self, game_state, position: (int, int), pos_is_in_tile_map_space: bool = True) -> Tile:
         if not pos_is_in_tile_map_space:
             position = game_state.to_world_space(position)
 
         for tile in self.tiles.values():
             if tile.rect.contains(pygame.Rect(position, (0, 0))):
                 return tile
+
+    def get_tile_index(self, position: (int, int)) -> (int, int):
+        return int(position[0] / self.tile_width), int(position[1] / self.tile_height)
 
     def render(self, game_state, screen: pygame.Surface):
         self.render_border(game_state, screen)
@@ -197,7 +208,7 @@ class TileMap:
                     tile.next_type(allow_start, allow_finish)
 
         for tile in self.tiles:
-            self.tiles[tile].direction = None
+            self.tiles[tile].directions = []
 
         self.breadth_first_search()
 
@@ -247,7 +258,8 @@ class TileMap:
                     for node in graph[previous_node]:
                         if node[0] == next_node[0]:
                             direction = node[1]
-                    self.tiles[previous_node].direction = direction
+                    if direction and direction not in self.tiles[previous_node].directions:
+                        self.tiles[previous_node].directions.append(direction)
 
                 for node in graph[next_node[0]]:
                     if node[0] in not_visited_nodes:
@@ -261,7 +273,8 @@ class TileMap:
             for _node in graph[node[0]]:
                 if _node[0] == finish_node:
                     direction = _node[1]
-            self.tiles[node[0]].direction = direction
+            if direction and direction not in self.tiles[node[0]].directions:
+                self.tiles[node[0]].directions.append(direction)
 
     def depth_first_search(self):
         graph = self.get_tile_graph()
@@ -299,9 +312,12 @@ class TileMap:
 
                 if next_node in graph[current_node]:
                     # next node is adjacent to current node
-                    self.tiles[current_node].direction = next_node[1]
+                    if next_node[1] not in self.tiles[current_node].directions:
+                        self.tiles[current_node].directions.append(next_node[1])
                 elif self.tiles[current_node].tile_type != TileType.FINISH:
-                    self.tiles[current_node].direction = self.tiles[last_node].direction
+                    # TODO find the correct direction before reaching the finish
+                    # self.tiles[current_node].direction = self.tiles[last_node].direction
+                    pass
 
                 last_node = current_node
                 current_node = next_node[0]
