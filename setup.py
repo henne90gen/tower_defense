@@ -12,7 +12,7 @@ setup(
     author="Hendrik Müller",
     author_email="",
     packages=['tower-defense', 'tests'],
-    install_requires=['pygame'],
+    install_requires=['pyglet'],
     long_description=read('README.md'),
     description="Tower defense game",
 )
