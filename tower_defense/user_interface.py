@@ -70,14 +70,14 @@ class Input(TextComponent):
             return True
         return False
 
-    def add_text(self, text: str):
+    def add_text(self, key_presses: KeyPresses):
         if not self.has_focus:
             return
 
-        if u"\u0008" in text:
+        if key_presses.back_space:
             self.text = self.text[:-1]
         else:
-            self.text = self.text + text
+            self.text = self.text + key_presses.text
 
 
 class Dialog:
@@ -122,6 +122,9 @@ class NewMapDialog(Dialog):
     def open(self, game_state):
         super().open(game_state)
         self.position.y = game_state.window_size.y - 200
+        self.components['width_input'].text = ""
+        self.components['height_input'].text = ""
+        self.components['name_input'].text = ""
 
     def render(self):
         if self.visible:
@@ -134,7 +137,7 @@ class NewMapDialog(Dialog):
 
         for component in self.components:
             if 'input' in component:
-                self.components[component].add_text(game_state.key_presses.text)
+                self.components[component].add_text(game_state.key_presses)
 
         def submit():
             try:

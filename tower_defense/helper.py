@@ -8,6 +8,7 @@ class KeyPresses:
         self.right = False
         self.up = False
         self.down = False
+        self.back_space = False
         self.text = ""
 
 

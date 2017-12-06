@@ -1,19 +1,38 @@
 import pyglet
 
 from game_state import GameState
-from helper import MouseClick, Vector
+from helper import MouseClick, Vector, KeyPresses
 
 game_state = GameState()
 
 
 @game_state.window.event
 def on_key_press(symbol, modifiers):
-    print(symbol, modifiers)
+    print("KeyPress", symbol, modifiers)
+    kp = game_state.key_presses
+    if symbol == pyglet.window.key.W:
+        kp.up = True
+    elif symbol == pyglet.window.key.S:
+        kp.down = True
+    elif symbol == pyglet.window.key.A:
+        kp.left = True
+    elif symbol == pyglet.window.key.D:
+        kp.right = True
+
+    if symbol == pyglet.window.key.BACKSPACE:
+        kp.back_space = True
+    else:
+        text = pyglet.window.key.symbol_string(symbol)
+        if len(text[1:]) > 0 and text[1:] in "0123456789":
+            text = text[1:]
+        kp.text = kp.text + text.lower()
+
+    game_state.key_presses = kp
 
 
 @game_state.window.event
 def on_mouse_press(x, y, button, modifiers):
-    print(x, y, button, modifiers)
+    print("MousePress", x, y, button, modifiers)
     mouse_click = MouseClick()
     mouse_click.position = Vector(x, y)
     mouse_click.button = button
@@ -35,6 +54,7 @@ def on_draw():
     game_state.hud.render()
 
     game_state.mouse_clicks = []
+    game_state.key_presses = KeyPresses()
 
 
 pyglet.app.run()
