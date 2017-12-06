@@ -87,6 +87,7 @@ class Dialog:
 
     def open(self, game_state):
         self.visible = True
+        self.position.y = game_state.window_size.y - 200
 
     def render(self):
         pass
@@ -121,7 +122,6 @@ class NewMapDialog(Dialog):
 
     def open(self, game_state):
         super().open(game_state)
-        self.position.y = game_state.window_size.y - 200
         self.components['width_input'].text = ""
         self.components['height_input'].text = ""
         self.components['name_input'].text = ""
@@ -185,9 +185,10 @@ class LoadMapDialog(Dialog):
     def __init__(self, visible: bool = False):
         super().__init__(visible)
         self.maps: List[TextComponent] = []
-        current_index, height = self.refresh_maps()
+        self.cancel_button: TextComponent = None
 
-        # self.cancel_button = TextComponent("Cancel", pygame.Rect((150, 100 + height * current_index), (100, height)))
+        current_index, height = self.refresh_maps()
+        self.update_cancel_button(current_index, height)
 
     def refresh_maps(self):
         self.maps = []
@@ -195,35 +196,43 @@ class LoadMapDialog(Dialog):
         height = 50
         for file in os.listdir(MAPS_PATH):
             if '.map' in file:
-                # text_component = TextComponent(file, pygame.Rect((150, 100 + height * current_index), (300, height)))
-                # self.maps.append(text_component)
+                text_component = TextComponent(file, Vector(150, 100 - height * current_index), Vector(300, height))
+                self.maps.append(text_component)
                 current_index += 1
         return current_index, height
+
+    def update_cancel_button(self, current_index, height):
+        self.cancel_button = TextComponent("Cancel", Vector(150, 100 - height * current_index), Vector(200, height))
+
+    def open(self, game_state):
+        super().open(game_state)
+        current_index, height = self.refresh_maps()
+        self.update_cancel_button(current_index, height)
 
     def update(self, game_state):
         super().update(game_state)
 
-        current_index, height = self.refresh_maps()
-        # self.cancel_button = TextComponent("Cancel", pygame.Rect((150, 100 + height * current_index), (100, height)))
-
         for click in game_state.mouse_clicks.copy():
-            # if self.cancel_button.is_clicked(click):
-            #     self.visible = False
-            #     game_state.mouse_clicks.remove(click)
-            #     return
+            copy_click = MouseClick()
+            copy_click.button = click.button
+            copy_click.position = click.position - self.position
+
+            if self.cancel_button.is_clicked(copy_click):
+                self.visible = False
+                game_state.mouse_clicks.remove(click)
+                return
             for tile_map in self.maps:
-                if tile_map.is_clicked(click):
+                if tile_map.is_clicked(copy_click):
                     game_state.tile_map.load(MAPS_PATH + tile_map.text)
                     self.visible = False
                     game_state.mouse_clicks.remove(click)
                     return
 
     def render(self):
-        # if self.visible:
-        #     for tile_map in self.maps:
-        #         tile_map.render(screen)
-        #     self.cancel_button.render(screen)
-        pass
+        if self.visible:
+            for tile_map in self.maps:
+                tile_map.render(self.position)
+            self.cancel_button.render(self.position)
 
 
 class HUD:

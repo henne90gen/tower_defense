@@ -24,6 +24,7 @@ def on_key_press(symbol, modifiers):
     else:
         text = pyglet.window.key.symbol_string(symbol)
         if len(text[1:]) > 0 and text[1:] in "0123456789":
+            # numbers come out as e.g. '_1'
             text = text[1:]
         kp.text = kp.text + text.lower()
 
