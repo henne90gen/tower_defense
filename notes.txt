@@ -1,0 +1,9 @@
+Path finding:
+
+1. find any path from start to finish
+    - take note of any junctions (other paths that need to be calculated)
+    - abort if there is no such path
+
+2. calculate all other paths
+    - bring path to finish
+    - bring path back to know finishing path
