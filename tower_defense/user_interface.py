@@ -2,13 +2,11 @@ from enum import Enum, auto
 from typing import List
 
 import os
-import pygame
+import pyglet
 
 from game_types import GameMode
-from helper import MouseClick, KeyPresses
+from helper import MouseClick, KeyPresses, Vector, rect_contains_point
 
-pygame.font.init()
-font = pygame.font.SysFont('Comic Sans MS', 35)
 MAPS_PATH = './res/maps/'
 
 
@@ -17,46 +15,53 @@ class TextComponent:
         CENTER = auto()
         LEFT = auto()
 
-    def __init__(self, text: str, rect: pygame.Rect, text_alignment: TextAlignment = TextAlignment.CENTER,
+    def __init__(self, text: str, position: Vector, size: Vector, font_size: int = 25,
+                 text_alignment: TextAlignment = TextAlignment.CENTER,
                  visible: bool = True):
         self.text = text
-        self.rect = rect
+        self.position = position
+        self.size = size
+        self.font_size = font_size
         self.visible = visible
         self.text_alignment = text_alignment
 
     def toggle_visibility(self):
         self.visible = not self.visible
 
-    def is_clicked(self, mouse_click: MouseClick):
-        return self.visible and self.rect.contains(pygame.Rect(mouse_click.pos, (0, 0)))
+    def is_clicked(self, mouse_click: MouseClick) -> bool:
+        if not self.visible:
+            return False
+        # print(self.text)
+        # print(self.position)
+        # print(self.size)
+        # print(mouse_click.position)
+        return rect_contains_point(mouse_click.position, self.position, self.size)
 
-    def render(self, screen: pygame.Surface):
+    def render(self, offset: Vector):
         if not self.visible:
             return
-        button_surface = pygame.Surface(self.rect.size)
 
-        color = (255, 100, 100)
-        button_surface.fill(color)
+        pos = self.position + offset
 
-        text_surface: pygame.Surface = font.render(self.text, True, (0, 0, 0))
+        label = pyglet.text.Label(self.text,
+                                  font_name='DejaVuSans',
+                                  font_size=self.font_size,
+                                  color=(255, 0, 255, 255),
+                                  x=pos.x + self.size.x / 2, y=pos.y - self.size.y / 2,
+                                  width=self.size.x, height=self.size.y,
+                                  anchor_x='center', anchor_y='center')
 
-        x_offset = 0
-        y_offset = 0
-        if self.text_alignment == TextComponent.TextAlignment.CENTER:
-            x_offset = (self.rect.width - text_surface.get_width()) / 2
-            y_offset = (self.rect.height - text_surface.get_height()) / 2
-        elif self.text_alignment == TextComponent.TextAlignment.LEFT:
-            x_offset = 10
-            y_offset = (self.rect.height - text_surface.get_height()) / 2
+        bottom_right = Vector(pos.x + self.size.x, pos.y - self.size.y)
+        pyglet.graphics.draw(4, pyglet.gl.GL_QUADS, (
+            'v2f', [pos.x, pos.y, bottom_right.x, pos.y, bottom_right.x, bottom_right.y, pos.x, bottom_right.y]))
 
-        button_surface.blit(text_surface, (x_offset, y_offset))
-
-        screen.blit(button_surface, (self.rect.left, self.rect.top))
+        label.draw()
 
 
 class Input(TextComponent):
-    def __init__(self, rect: pygame.Rect, visible: bool = True, has_focus: bool = False):
-        super().__init__("", rect, TextComponent.TextAlignment.LEFT, visible)
+    def __init__(self, position: Vector, size: Vector, font_size: int = 25, visible: bool = True,
+                 has_focus: bool = False):
+        super().__init__("", position, size, font_size, TextComponent.TextAlignment.LEFT, visible)
         self.has_focus = has_focus
 
     def is_clicked(self, mouse_click):
@@ -77,12 +82,13 @@ class Input(TextComponent):
 
 class Dialog:
     def __init__(self, visible: bool):
+        self.position = Vector()
         self.visible = visible
 
-    def open(self):
+    def open(self, game_state):
         self.visible = True
 
-    def render(self, screen: pygame.Surface):
+    def render(self):
         pass
 
     def update(self, game_state):
@@ -92,33 +98,36 @@ class Dialog:
 class NewMapDialog(Dialog):
     def __init__(self, visible: bool = False):
         super().__init__(visible)
-        text_x = 150
-        text_y = 150
-        text_width = 100
-        text_height = 50
-        input_x = text_x + text_width
+        self.position = Vector(200, 0)
+        text_width = 150
+        text_height = 40
         self.components = {
-            'width_text': TextComponent("Width:", pygame.Rect((text_x, text_y), (text_width, text_height))),
-            'width_input': Input(pygame.Rect((input_x, text_y), (300, text_height)), has_focus=True),
+            'width_text': TextComponent("Width:", Vector(0, 0), Vector(text_width, text_height)),
+            'width_input': Input(Vector(text_width, 0), Vector(300, text_height), has_focus=True),
 
             'height_text': TextComponent("Height:",
-                                         pygame.Rect((text_x, text_y + text_height), (text_width, text_height))),
-            'height_input': Input(pygame.Rect((input_x, text_y + text_height), (300, text_height))),
+                                         Vector(0, -text_height), Vector(text_width, text_height)),
+            'height_input': Input(Vector(text_width, -text_height), Vector(300, text_height)),
 
             'name_text': TextComponent("Name:",
-                                       pygame.Rect((text_x, text_y + text_height * 2), (text_width, text_height))),
-            'name_input': Input(pygame.Rect((input_x, text_y + text_height * 2), (300, text_height))),
+                                       Vector(0, -text_height * 2), Vector(text_width, text_height)),
+            'name_input': Input(Vector(text_width, -text_height * 2), Vector(300, text_height)),
 
             'submit_button': TextComponent("Create",
-                                           pygame.Rect((text_x, text_y + text_height * 3), (text_width, text_height))),
-            'cancel_button': TextComponent("Cancel", pygame.Rect((text_x + text_width, text_y + text_height * 3),
-                                                                 (text_width, text_height)))
+                                           Vector(0, -text_height * 3), Vector(text_width, text_height)),
+            'cancel_button': TextComponent("Cancel", Vector(text_width, -text_height * 3),
+                                           Vector(text_width, text_height))
         }
 
-    def render(self, screen: pygame.Surface):
+    def open(self, game_state):
+        super().open(game_state)
+        self.position.y = game_state.window_size.y - 200
+
+    def render(self):
         if self.visible:
+            print(self.position)
             for component in self.components:
-                self.components[component].render(screen)
+                self.components[component].render(self.position)
 
     def update(self, game_state):
         super().update(game_state)
@@ -150,7 +159,11 @@ class NewMapDialog(Dialog):
 
         for click in game_state.mouse_clicks.copy():
             for component in handlers:
-                if self.components[component].is_clicked(click):
+                copy_click = MouseClick()
+                copy_click.button = click.button
+                copy_click.position = click.position - self.position
+
+                if self.components[component].is_clicked(copy_click):
                     if 'input' in component:
                         self.give_exclusive_focus(component)
                     else:
@@ -171,7 +184,7 @@ class LoadMapDialog(Dialog):
         self.maps: List[TextComponent] = []
         current_index, height = self.refresh_maps()
 
-        self.cancel_button = TextComponent("Cancel", pygame.Rect((150, 100 + height * current_index), (100, height)))
+        # self.cancel_button = TextComponent("Cancel", pygame.Rect((150, 100 + height * current_index), (100, height)))
 
     def refresh_maps(self):
         self.maps = []
@@ -179,8 +192,8 @@ class LoadMapDialog(Dialog):
         height = 50
         for file in os.listdir(MAPS_PATH):
             if '.map' in file:
-                text_component = TextComponent(file, pygame.Rect((150, 100 + height * current_index), (300, height)))
-                self.maps.append(text_component)
+                # text_component = TextComponent(file, pygame.Rect((150, 100 + height * current_index), (300, height)))
+                # self.maps.append(text_component)
                 current_index += 1
         return current_index, height
 
@@ -188,13 +201,13 @@ class LoadMapDialog(Dialog):
         super().update(game_state)
 
         current_index, height = self.refresh_maps()
-        self.cancel_button = TextComponent("Cancel", pygame.Rect((150, 100 + height * current_index), (100, height)))
+        # self.cancel_button = TextComponent("Cancel", pygame.Rect((150, 100 + height * current_index), (100, height)))
 
         for click in game_state.mouse_clicks.copy():
-            if self.cancel_button.is_clicked(click):
-                self.visible = False
-                game_state.mouse_clicks.remove(click)
-                return
+            # if self.cancel_button.is_clicked(click):
+            #     self.visible = False
+            #     game_state.mouse_clicks.remove(click)
+            #     return
             for tile_map in self.maps:
                 if tile_map.is_clicked(click):
                     game_state.tile_map.load(MAPS_PATH + tile_map.text)
@@ -202,27 +215,32 @@ class LoadMapDialog(Dialog):
                     game_state.mouse_clicks.remove(click)
                     return
 
-    def render(self, screen: pygame.Surface):
-        if self.visible:
-            for tile_map in self.maps:
-                tile_map.render(screen)
-            self.cancel_button.render(screen)
+    def render(self):
+        # if self.visible:
+        #     for tile_map in self.maps:
+        #         tile_map.render(screen)
+        #     self.cancel_button.render(screen)
+        pass
 
 
 class HUD:
     def __init__(self):
         button_height = 50
+        size = Vector(150, button_height)
         self.components = {
-            'menu_button': TextComponent("Menu", pygame.Rect(0, 0, 100, button_height)),
-            'mode_button': TextComponent("", pygame.Rect(0, button_height, 300, button_height), visible=False),
-            'new_button': TextComponent("New", pygame.Rect(0, 2*button_height, 100, button_height), visible=False),
-            'save_button': TextComponent("Save", pygame.Rect(0, 3 * button_height, 100, button_height), visible=False),
-            'load_button': TextComponent("Load", pygame.Rect(0, 4 * button_height, 100, button_height), visible=False)
+            'menu_button': TextComponent("Menu", Vector(0, 0), size),
+            'mode_button': TextComponent("", Vector(0, -button_height), size, visible=False),
+            'new_button': TextComponent("New", Vector(0, -2 * button_height), size, visible=False),
+            'save_button': TextComponent("Save", Vector(0, -3 * button_height), size, visible=False),
+            'load_button': TextComponent("Load", Vector(0, -4 * button_height), size, visible=False)
         }
         self.new_dialog: Dialog = NewMapDialog()
         self.load_dialog: Dialog = LoadMapDialog()
+        self.offset = Vector(0, 0)
 
     def update(self, game_state):
+        self.offset.y = game_state.window_size.y
+
         if self.new_dialog.visible:
             self.new_dialog.update(game_state)
         elif self.load_dialog.visible:
@@ -244,11 +262,11 @@ class HUD:
 
             def new():
                 self.toggle_menu()
-                self.new_dialog.open()
+                self.new_dialog.open(game_state)
 
             def load():
                 self.toggle_menu()
-                self.load_dialog.open()
+                self.load_dialog.open(game_state)
 
             handlers = {
                 'menu_button': menu,
@@ -262,7 +280,10 @@ class HUD:
 
             for click in game_state.mouse_clicks.copy():
                 for component in handlers:
-                    if self.components[component].is_clicked(click):
+                    copy_click = MouseClick()
+                    copy_click.button = click.button
+                    copy_click.position = click.position - self.offset
+                    if self.components[component].is_clicked(copy_click):
                         handlers[component]()
                         game_state.mouse_clicks.remove(click)
 
@@ -272,9 +293,9 @@ class HUD:
         self.components['save_button'].toggle_visibility()
         self.components['load_button'].toggle_visibility()
 
-    def render(self, screen: pygame.Surface):
+    def render(self):
         for component in self.components:
-            self.components[component].render(screen)
+            self.components[component].render(self.offset)
 
-        self.new_dialog.render(screen)
-        self.load_dialog.render(screen)
+        self.new_dialog.render()
+        self.load_dialog.render()

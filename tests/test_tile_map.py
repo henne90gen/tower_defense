@@ -1,7 +1,5 @@
 from unittest import TestCase
 
-from tile_map import TileMap, Tile, TileType
-
 
 class TileMapTest(TestCase):
     def test_init_tiles(self):
@@ -15,6 +13,7 @@ class TileMapTest(TestCase):
         pass
 
     def test_tile_type(self):
-        items = list(TileType.__members__.values()).index(TileType.BALL)
-        print(items)
-        print(TileType(0))
+        # items = list(TileType.__members__.values()).index(TileType.BALL)
+        # print(items)
+        # print(TileType(0))
+        pass

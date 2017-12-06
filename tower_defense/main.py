@@ -1,42 +1,44 @@
-from datetime import datetime
-
 import pyglet
 
 from game_state import GameState
-from helper import poll_events
+from helper import MouseClick, Vector
 
-window = pyglet.window.Window()
-window.set_caption("Tower Defense")
-
-label = pyglet.text.Label('Hello, world',
-                          font_name='Times New Roman',
-                          font_size=36,
-                          x=window.width // 2, y=window.height // 2,
-                          anchor_x='center', anchor_y='center')
+game_state = GameState()
 
 
-@window.event
+@game_state.window.event
 def on_key_press(symbol, modifiers):
     print(symbol, modifiers)
 
 
-@window.event
+@game_state.window.event
 def on_mouse_press(x, y, button, modifiers):
     print(x, y, button, modifiers)
+    mouse_click = MouseClick()
+    mouse_click.position = Vector(x, y)
+    mouse_click.button = button
+    game_state.mouse_clicks.append(mouse_click)
 
 
-@window.event
+@game_state.window.event
 def on_draw():
-    window.clear()
-    label.draw()
+    game_state.window.clear()
+
+    game_state.update()
+
+    game_state.hud.update(game_state)
+    # game_state.entity_manager.update(game_state)
+    # game_state.tile_map.update(game_state)
+    #
+    # game_state.tile_map.render(game_state)
+    # game_state.entity_manager.render(game_state)
+    game_state.hud.render()
+
+    game_state.mouse_clicks = []
 
 
 pyglet.app.run()
 
-# pygame.init()
-# pygame.font.init()
-#
-# size = 1280, 720
 # window_parameters = pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE
 # screen = pygame.display.set_mode(size, window_parameters)
 # pygame.display.set_caption("Tower Defense")
