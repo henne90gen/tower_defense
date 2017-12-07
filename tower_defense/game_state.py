@@ -1,6 +1,5 @@
 from typing import List
 
-import pygame
 import pyglet
 
 from entity_manager import EntityManager

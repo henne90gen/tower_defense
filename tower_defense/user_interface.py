@@ -1,7 +1,7 @@
+import os
 from enum import Enum, auto
 from typing import List
 
-import os
 import pyglet
 
 from game_types import GameMode
@@ -147,7 +147,8 @@ class NewMapDialog(Dialog):
             except Exception as e:
                 print(e)
                 return
-            game_state.tile_map.new(game_state, MAPS_PATH + self.components['name_input'].text + '.map', new_width, new_height)
+            game_state.tile_map.new(game_state, MAPS_PATH + self.components['name_input'].text + '.map', new_width,
+                                    new_height)
             self.visible = False
 
         def cancel():

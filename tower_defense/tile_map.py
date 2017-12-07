@@ -1,8 +1,7 @@
+import copy
 import os
 import pickle
-from queue import LifoQueue, Queue
 from typing import Dict
-import copy
 
 import pyglet
 

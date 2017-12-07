@@ -1,8 +1,5 @@
 from typing import List, Dict
 
-import pygame
-import math
-
 import pyglet
 
 from game_types import EntityType, TileType

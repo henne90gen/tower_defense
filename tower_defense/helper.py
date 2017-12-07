@@ -1,6 +1,7 @@
-import pygame
-import sys
 import math
+import sys
+
+import pygame
 
 
 class KeyPresses:

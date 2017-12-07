@@ -73,36 +73,3 @@ def on_draw(value=None):
 pyglet.clock.schedule_interval(on_draw, 1 / 60.0)
 pyglet.clock.set_fps_limit(60)
 pyglet.app.run()
-
-# window_parameters = pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE
-# screen = pygame.display.set_mode(size, window_parameters)
-# pygame.display.set_caption("Tower Defense")
-#
-# game_state = GameState()
-#
-# timer = datetime.now()
-#
-# while True:
-#     start = datetime.now().timestamp()
-#
-#     screen.fill((0, 0, 0))
-#     screen, game_state = poll_events(screen, game_state, window_parameters)
-#
-#     game_state.update(screen)
-#
-#     game_state.hud.update(game_state)
-#     game_state.entity_manager.update(game_state)
-#     game_state.tile_map.update(game_state)
-#
-#     game_state.tile_map.render(game_state, screen)
-#     game_state.entity_manager.render(game_state, screen)
-#     game_state.hud.render(screen)
-#
-#     pygame.display.flip()
-#
-#     end = datetime.now().timestamp()
-#     fps = 1 / (end - start)
-#     now = datetime.now()
-#     if (now - timer).total_seconds() > 0.075:
-#         pygame.display.set_caption("Tower Defense (" + str(fps) + "fps)")
-#         timer = now
