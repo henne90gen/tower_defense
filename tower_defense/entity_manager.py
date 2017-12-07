@@ -34,13 +34,13 @@ class Entity:
             min_d = None
             for d in game_state.entity_manager.directions_graph[self.next_tile_index]:
                 if min_d is None:
-                    min_d = d
-                elif min_d[1] > d[1]:
-                    min_d = d
+                    min_d = d, game_state.entity_manager.directions_graph[self.next_tile_index][d]
+                elif min_d[1] > game_state.entity_manager.directions_graph[self.next_tile_index][d]:
+                    min_d = d, game_state.entity_manager.directions_graph[self.next_tile_index][d]
             if min_d:
                 direction = min_d[0]
-                index = game_state.entity_manager.directions_graph[self.next_tile_index].index(min_d)
-                game_state.entity_manager.directions_graph[self.next_tile_index][index] = min_d[0], min_d[1] + 1
+                game_state.entity_manager.directions_graph[self.next_tile_index][direction] = min_d[1] + 1
+
                 self.next_tile_index = self.next_tile_index[0] + direction[0], self.next_tile_index[1] + direction[1]
 
         # calculate movement of entity
@@ -87,7 +87,7 @@ class EntityManager:
         # holds a dictionary similar to the one in TileMap, the only difference being that this one doesn't have tiles
         # as values, but rather a list with the directions associated with that tile and a counter with each direction
         # The counter indicates how many time a certain direction has been taken already
-        self.directions_graph: Dict[(int, int), List[((int, int), int)]] = None
+        self.directions_graph: Dict[(int, int), List[((int, int), int)]] = {}
         self.spawn_timer = 0
 
     def render(self, game_state):
@@ -101,13 +101,16 @@ class EntityManager:
         self.entities.append(entity)
 
     def update(self, game_state):
-        # initialize tiles
-        if self.directions_graph is None:
-            self.directions_graph = {}
-            for tile in game_state.tile_map.tiles:
-                self.directions_graph[tile] = []
-                for direction in game_state.tile_map.tiles[tile].directions:
-                    self.directions_graph[tile].append((direction, 0))
+        # initialize directions graph
+        for tile in game_state.tile_map.tiles:
+            if tile not in self.directions_graph:
+                self.directions_graph[tile] = {}
+            for direction in self.directions_graph[tile].copy():
+                if direction not in game_state.tile_map.tiles[tile].directions:
+                    del self.directions_graph[tile][direction]
+            for direction in game_state.tile_map.tiles[tile].directions:
+                if direction not in self.directions_graph[tile]:
+                    self.directions_graph[tile][direction] = 0
 
         for entity in self.entities.copy():
             entity.update(game_state)
@@ -115,8 +118,8 @@ class EntityManager:
             if game_state.tile_map.tiles[tile_index].tile_type == TileType.FINISH:
                 self.entities.remove(entity)
 
-        if not game_state.entity_placement_mode:
-            return
+        # if not game_state.entity_placement_mode:
+        #     return
 
         self.spawn_timer += 1
         for tile_index in game_state.tile_map.tiles:

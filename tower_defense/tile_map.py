@@ -2,6 +2,7 @@ import os
 import pickle
 from queue import LifoQueue, Queue
 from typing import Dict
+import copy
 
 import pyglet
 
@@ -251,27 +252,151 @@ class TileMap:
         for tile in self.tiles:
             self.tiles[tile].directions = []
 
-        self.breadth_first_search()
-        # self.path_finding()
+        # self.breadth_first_search()
+        self.path_finding()
 
     def path_finding(self):
         graph = self.get_tile_graph()
+        paths = {}
+        for node in graph:
+            paths[node] = {}
+            paths[node]['open_directions'] = graph[node]
+            paths[node]['to_path'] = []
+            paths[node]['from_path'] = []
 
-        path = self.find_path_to_finish(graph)
+        starting_node = None
+        finish_node = None
+        for tile in self.tiles:
+            if self.tiles[tile].tile_type == TileType.START:
+                starting_node = tile
+            elif self.tiles[tile].tile_type == TileType.FINISH:
+                finish_node = tile
+        if starting_node is None:
+            return None
+        if finish_node is None:
+            return None
 
-        if path is None:
-            return
+        paths[starting_node]['to_path'] = [starting_node]
+        paths[finish_node]['open_directions'] = []
 
-        for index, node in enumerate(path):
-            if index > 0:
-                previous_node = path[index - 1]
-                tile = self.tiles[previous_node]
-                direction = node[0] - previous_node[0], node[1] - previous_node[1]
-                tile.directions.append(direction)
+        while True:
+            start_node = self.get_next_node(paths)
+            if start_node is None:
+                break
 
+            path = [start_node]
+            temp_paths = copy.deepcopy(paths)
+            current_node = start_node
+            while True:
+                open_directions = temp_paths[current_node]['open_directions']
+                if len(open_directions) > 0:
+                    direction = open_directions[0]
 
+                    next_node = direction[0]
+                    path.append(next_node)
 
-    def find_path_to_finish(self, graph):
+                    temp_paths[current_node]['open_directions'] = self.remove_node_from_open_directions(next_node,
+                                                                                                        open_directions)
+                    next_open_directions = temp_paths[next_node]['open_directions']
+                    temp_paths[next_node]['open_directions'] = self.remove_node_from_open_directions(current_node,
+                                                                                                     next_open_directions)
+                    current_node = next_node
+                elif current_node == finish_node:
+                    # path has successfully terminated
+                    break
+                elif len(paths[current_node]['to_path']) > 0:
+                    # path has met up with a path that is known to terminate successfully
+                    break
+                elif current_node == start_node:
+                    path = None
+                    break
+                else:
+                    # go back to last valid
+                    while len(temp_paths[current_node]['open_directions']) == 0:
+                        if current_node == start_node:
+                            path = None
+                            break
+                        path = path[:-1]
+                        current_node = path[-1]
+
+            if path is None:
+                paths[start_node]['open_directions'] = []
+                continue
+
+            # start_path = paths[start_node]['to_path']
+            rest_path = path
+            for index, node in enumerate(path):
+                paths[node]['to_path'] = path[:index + 1]
+                if rest_path not in paths[node]['from_path']:
+                    paths[node]['from_path'].append(rest_path)
+
+                if len(rest_path) > 0:
+                    rest_path = rest_path[1:]
+
+                if index > 0:
+                    paths[node]['open_directions'] = self.remove_node_from_open_directions(path[index - 1], paths[node][
+                        'open_directions'])
+                    paths[path[index - 1]]['open_directions'] = self.remove_node_from_open_directions(node, paths[
+                        path[index - 1]]['open_directions'])
+                else:
+                    paths[node]['open_directions'] = self.remove_node_from_open_directions(start_node, paths[node][
+                        'open_directions'])
+                    paths[start_node]['open_directions'] = self.remove_node_from_open_directions(node,
+                                                                                                 paths[start_node][
+                                                                                                     'open_directions'])
+
+        for node in paths:
+            directions = []
+            for p in paths[node]['from_path']:
+                if len(p) > 1:
+                    d = p[1][0] - p[0][0], p[1][1] - p[0][1]
+                    directions.append(d)
+            self.tiles[node].directions = directions
+
+    @staticmethod
+    def remove_node_from_open_directions(node: (int, int), open_directions: list):
+        for n in open_directions.copy():
+            if n[0] == node:
+                open_directions.remove(n)
+        return open_directions
+
+    @staticmethod
+    def get_next_node(paths):
+        for node in paths:
+            if len(paths[node]['to_path']) > 0 and len(paths[node]['open_directions']) > 0:
+                return node
+        return None
+
+    def _path_finding(self):
+        graph = self.get_tile_graph()
+        paths = []
+
+        not_included_nodes = list(graph.keys())
+
+        while len(not_included_nodes) > 0:
+            path = self.find_path_to_finish(graph, paths)
+
+            if path is None:
+                return
+
+            if path not in paths:
+                paths.append(path)
+            else:
+                break
+
+            for node in path:
+                if node in not_included_nodes:
+                    not_included_nodes.remove(node)
+
+        for path in paths:
+            for index, node in enumerate(path):
+                if index > 0:
+                    previous_node = path[index - 1]
+                    tile = self.tiles[previous_node]
+                    direction = node[0] - previous_node[0], node[1] - previous_node[1]
+                    tile.directions.append(direction)
+
+    def find_path_to_finish(self, graph, paths):
         # find start node and finish node
         starting_node = None
         finish_node = None
@@ -295,11 +420,6 @@ class TileMap:
             intersection_options[current_node].append(direction)
 
         while True:
-            if current_node == finish_node:
-                # path to finish has been found
-                print("Found one!")
-                return path
-
             if current_node in intersection_options:
                 options = intersection_options[current_node]
             else:
@@ -312,10 +432,14 @@ class TileMap:
 
             if len(options) == 0 and len(intersection_options.keys()) == 0:
                 # no more options left
-                print("Didn't find one!")
-                return None
+                # print("Didn't find one!")
+                return path
 
-            if len(options) > 0:
+            if current_node == finish_node and path not in paths:
+                # path to finish has been found
+                print("Found one!")
+                return path
+            elif len(options) > 0:
                 option = options[0]
                 options = options[1:]
                 for opt in options.copy():

@@ -6,4 +6,10 @@ Path finding:
 
 2. calculate all other paths
     - bring path to finish
-    - bring path back to know finishing path
+    - bring path back to known finishing path
+
+
+dict:
+    key: tile index (int, int)
+    value:
+        object: direction_options, path_until_this_point
