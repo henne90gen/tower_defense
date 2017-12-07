@@ -210,8 +210,8 @@ class TileMap:
         x, y = position.x, position.y
         return 0 < x < self.tile_map_width and 0 < y < self.tile_map_height
 
-    def get_tile_index(self, position: (int, int)) -> (int, int):
-        return int(position[0] / self.tile_width), int(position[1] / self.tile_height)
+    def get_tile_index(self, position: Vector) -> (int, int):
+        return int(position.x / self.tile_width), int(position.y / self.tile_height)
 
     def render(self, game_state):
         self.render_border(game_state)
@@ -222,10 +222,6 @@ class TileMap:
             tile.render(game_state, batch, arrow_batch)
         batch.draw()
         arrow_batch.draw()
-        # batch = pyglet.graphics.Batch()
-        # for tile in self.tiles.values():
-        #     tile.render_label(game_state, batch)
-        # batch.draw()
 
     def update(self, game_state):
         self.cursor_position = game_state.to_tile_map_space(game_state.mouse_position)

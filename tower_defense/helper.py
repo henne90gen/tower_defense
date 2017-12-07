@@ -1,5 +1,6 @@
 import pygame
 import sys
+import math
 
 
 class KeyPresses:
@@ -27,6 +28,9 @@ class Vector:
     def __init__(self, x: float = 0, y: float = 0):
         self.x = x
         self.y = y
+
+    def length(self):
+        return math.sqrt(self.x * self.x + self.y * self.y)
 
     def __str__(self):
         return '({}, {})'.format(self.x, self.y)
@@ -56,6 +60,14 @@ class Vector:
     def __mul__(self, other):
         if type(other) == float or type(other) == int:
             return Vector(self.x * other, self.y * other)
+
+    def __truediv__(self, other):
+        if type(other) == float or type(other) == int:
+            return Vector(self.x / other, self.y / other)
+
+    def __floordiv__(self, other):
+        if type(other) == float or type(other) == int:
+            return Vector(self.x // other, self.y // other)
 
 
 def rect_contains_point(point: Vector, rect_position: Vector, rect_size: Vector):
