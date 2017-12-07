@@ -92,7 +92,7 @@ class EntityManager:
             return
 
         for click in game_state.mouse_clicks.copy():
-            position = game_state.to_world_space(click.pos)
+            position = game_state.to_tile_map_space(click.pos)
             if game_state.tile_map.is_on_map(game_state, position, True):
                 if game_state.tile_map.get_tile(game_state, position, True).is_walkable:
                     self.spawn_random_entity(position)

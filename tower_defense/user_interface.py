@@ -21,7 +21,12 @@ class TextComponent:
         self.text = text
         self.position = position
         self.size = size
-        self.font_size = font_size
+        self.label = pyglet.text.Label(self.text,
+                                       font_name='DejaVuSans',
+                                       font_size=font_size,
+                                       color=(255, 0, 255, 255),
+                                       width=self.size.x, height=self.size.y,
+                                       anchor_x='center', anchor_y='center')
         self.visible = visible
         self.text_alignment = text_alignment
 
@@ -42,20 +47,17 @@ class TextComponent:
             return
 
         pos = self.position + offset
-
-        label = pyglet.text.Label(self.text,
-                                  font_name='DejaVuSans',
-                                  font_size=self.font_size,
-                                  color=(255, 0, 255, 255),
-                                  x=pos.x + self.size.x / 2, y=pos.y - self.size.y / 2,
-                                  width=self.size.x, height=self.size.y,
-                                  anchor_x='center', anchor_y='center')
+        self.label.begin_update()
+        self.label.x = pos.x + self.size.x / 2
+        self.label.y = pos.y - self.size.y / 2
+        self.label.text = self.text
+        self.label.end_update()
 
         bottom_right = Vector(pos.x + self.size.x, pos.y - self.size.y)
         pyglet.graphics.draw(4, pyglet.gl.GL_QUADS, (
             'v2f', [pos.x, pos.y, bottom_right.x, pos.y, bottom_right.x, bottom_right.y, pos.x, bottom_right.y]))
 
-        label.draw()
+        self.label.draw()
 
 
 class Input(TextComponent):
@@ -128,7 +130,6 @@ class NewMapDialog(Dialog):
 
     def render(self):
         if self.visible:
-            print(self.position)
             for component in self.components:
                 self.components[component].render(self.position)
 

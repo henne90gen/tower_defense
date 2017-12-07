@@ -31,7 +31,8 @@ class GameState:
         self.mouse_clicks: List[MouseClick] = []
         self.mouse_position: (int, int) = (0, 0)
 
-        self.world_offset_x = self.world_offset_y = self.tile_map.border_width * 2
+        self.world_offset: Vector = Vector(self.tile_map.border_width * 2,
+                                           self.tile_map.border_width * 2)
 
     @property
     def editor_mode(self) -> bool:
@@ -45,38 +46,34 @@ class GameState:
     def window_size(self) -> Vector:
         return Vector(*self.window.get_size())
 
-    def to_world_space(self, pos: (int, int)) -> (int, int):
-        x, y = pos
-        x -= self.world_offset_x
-        y -= self.world_offset_y
-        return x, y
+    def to_tile_map_space(self, pos: Vector) -> Vector:
+        return pos - self.world_offset
 
     def update(self):
         scroll_speed = 5
         if self.key_presses.up:
-            self.world_offset_y += scroll_speed
+            self.world_offset.y -= scroll_speed
         if self.key_presses.down:
-            self.world_offset_y -= scroll_speed
+            self.world_offset.y += scroll_speed
         if self.key_presses.left:
-            self.world_offset_x += scroll_speed
+            self.world_offset.x += scroll_speed
         if self.key_presses.right:
-            self.world_offset_x -= scroll_speed
+            self.world_offset.x -= scroll_speed
 
-        self.world_offset_x, self.world_offset_y = self.constrain_to_bounds(self.window_size, self.world_offset_x,
-                                                                            self.world_offset_y,
-                                                                            self.tile_map.tile_map_width,
-                                                                            self.tile_map.tile_map_height)
+        self.world_offset = self.constrain_to_bounds(self.window_size, self.world_offset,
+                                                     self.tile_map.tile_map_width,
+                                                     self.tile_map.tile_map_height)
 
     @staticmethod
-    def constrain_to_bounds(window_size: Vector, x: int, y: int, width: int, height: int) -> (int, int):
+    def constrain_to_bounds(window_size: Vector, pos: Vector, width: int, height: int) -> Vector:
         screen_width_half = window_size.x / 2
         screen_height_half = window_size.y / 2
-        if x > screen_width_half:
-            x = screen_width_half
-        elif x < -(width - screen_width_half):
-            x = -(width - screen_width_half)
-        if y > screen_height_half:
-            y = screen_height_half
-        elif y < -(height - screen_height_half):
-            y = -(height - screen_height_half)
-        return x, y
+        if pos.x > screen_width_half:
+            pos.x = screen_width_half
+        elif pos.x < -(width - screen_width_half):
+            pos.x = -(width - screen_width_half)
+        if pos.y > screen_height_half:
+            pos.y = screen_height_half
+        elif pos.y < -(height - screen_height_half):
+            pos.y = -(height - screen_height_half)
+        return pos
