@@ -32,15 +32,15 @@ class Entity:
         # update next tile to walk to
         if game_state.tile_map.get_tile_index(self.position) == self.next_tile_index:
             min_d = None
-            for d in game_state.entity_manager.tiles[self.next_tile_index]:
+            for d in game_state.entity_manager.directions_graph[self.next_tile_index]:
                 if min_d is None:
                     min_d = d
                 elif min_d[1] > d[1]:
                     min_d = d
             if min_d:
                 direction = min_d[0]
-                index = game_state.entity_manager.tiles[self.next_tile_index].index(min_d)
-                game_state.entity_manager.tiles[self.next_tile_index][index] = min_d[0], min_d[1] + 1
+                index = game_state.entity_manager.directions_graph[self.next_tile_index].index(min_d)
+                game_state.entity_manager.directions_graph[self.next_tile_index][index] = min_d[0], min_d[1] + 1
                 self.next_tile_index = self.next_tile_index[0] + direction[0], self.next_tile_index[1] + direction[1]
 
         # calculate movement of entity

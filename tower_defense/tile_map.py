@@ -252,6 +252,90 @@ class TileMap:
             self.tiles[tile].directions = []
 
         self.breadth_first_search()
+        # self.path_finding()
+
+    def path_finding(self):
+        graph = self.get_tile_graph()
+
+        path = self.find_path_to_finish(graph)
+
+        if path is None:
+            return
+
+        for index, node in enumerate(path):
+            if index > 0:
+                previous_node = path[index - 1]
+                tile = self.tiles[previous_node]
+                direction = node[0] - previous_node[0], node[1] - previous_node[1]
+                tile.directions.append(direction)
+
+
+
+    def find_path_to_finish(self, graph):
+        # find start node and finish node
+        starting_node = None
+        finish_node = None
+        for tile in self.tiles:
+            if self.tiles[tile].tile_type == TileType.START:
+                starting_node = tile
+            elif self.tiles[tile].tile_type == TileType.FINISH:
+                finish_node = tile
+        if starting_node is None:
+            return None
+        if finish_node is None:
+            return None
+
+        path = [starting_node]
+        intersection_options = {}  # key: node, value: [routes not taken yet]
+        current_node = starting_node
+
+        # initialize options dictionary with current node
+        intersection_options[current_node] = []
+        for direction in graph[current_node]:
+            intersection_options[current_node].append(direction)
+
+        while True:
+            if current_node == finish_node:
+                # path to finish has been found
+                print("Found one!")
+                return path
+
+            if current_node in intersection_options:
+                options = intersection_options[current_node]
+            else:
+                possible_directions = graph[current_node]
+                options = []
+                for direction in possible_directions:
+                    if direction[0] in path:
+                        continue
+                    options.append(direction)
+
+            if len(options) == 0 and len(intersection_options.keys()) == 0:
+                # no more options left
+                print("Didn't find one!")
+                return None
+
+            if len(options) > 0:
+                option = options[0]
+                options = options[1:]
+                for opt in options.copy():
+                    if opt[0] in path:
+                        options.remove(opt)
+                if len(options) == 0:
+                    if current_node in intersection_options:
+                        del intersection_options[current_node]
+                else:
+                    intersection_options[current_node] = options
+                current_node = option[0]
+                path.append(current_node)
+            else:
+                if current_node in intersection_options:
+                    del intersection_options[current_node]
+                for index, node in enumerate(path[::-1]):
+                    if node in intersection_options and len(intersection_options[node]) > 0:
+                        current_node = node
+                        break
+                path = path[:path.index(current_node) + 1]
 
     def breadth_first_search(self):
         graph = self.get_tile_graph()

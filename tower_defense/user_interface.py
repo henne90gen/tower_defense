@@ -265,8 +265,10 @@ class HUD:
             def mode():
                 if game_state.mode == GameMode.EDITOR:
                     game_state.mode = GameMode.ENTITY_PLACEMENT
+                    self.components['mode_button'].text = "TEST"
                 elif game_state.mode == GameMode.ENTITY_PLACEMENT:
                     game_state.mode = GameMode.EDITOR
+                    self.components['mode_button'].text = game_state.mode.name
                 self.toggle_menu()
 
             def save():
@@ -289,7 +291,8 @@ class HUD:
                 'load_button': load
             }
 
-            self.components['mode_button'].text = game_state.mode.name
+            if self.components['mode_button'].text == "":
+                self.components['mode_button'].text = game_state.mode.name
 
             for click in game_state.mouse_clicks.copy():
                 for component in handlers:
