@@ -2,8 +2,8 @@ from enum import Enum
 
 
 class GameMode(Enum):
-    EDITOR = 0
-    ENTITY_PLACEMENT = 1
+    NORMAL = 0
+    TEST = 1
 
 
 class TileType(Enum):

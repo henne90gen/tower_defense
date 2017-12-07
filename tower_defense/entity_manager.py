@@ -96,6 +96,11 @@ class EntityManager:
             entity.render(game_state, batch)
         batch.draw()
 
+    def reset(self):
+        self.directions_graph = {}
+        self.entities = []
+        self.spawn_timer = 0
+
     def spawn_random_entity(self, position: Vector):
         entity = Entity(position, Vector(100, 100))
         self.entities.append(entity)
@@ -118,22 +123,13 @@ class EntityManager:
             if game_state.tile_map.tiles[tile_index].tile_type == TileType.FINISH:
                 self.entities.remove(entity)
 
-        # if not game_state.entity_placement_mode:
-        #     return
+        if not game_state.entity_placement_mode:
+            return
 
         self.spawn_timer += 1
         for tile_index in game_state.tile_map.tiles:
             tile = game_state.tile_map.tiles[tile_index]
-            if tile.tile_type == TileType.START and self.spawn_timer > 15:
+            if tile.tile_type == TileType.START and self.spawn_timer > 60:
                 self.spawn_timer = 0
                 self.spawn_random_entity(tile.world_position + (tile.size / 2))
                 break
-
-        for click in game_state.mouse_clicks.copy():
-            position = game_state.to_tile_map_space(click.position)
-
-            if game_state.tile_map.is_on_map(game_state, position):
-                tile_index = game_state.tile_map.get_tile_index(position)
-                if game_state.tile_map.tiles[tile_index].is_walkable:
-                    self.spawn_random_entity(position)
-                    game_state.mouse_clicks.remove(click)

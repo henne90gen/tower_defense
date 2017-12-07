@@ -147,7 +147,7 @@ class NewMapDialog(Dialog):
             except Exception as e:
                 print(e)
                 return
-            game_state.tile_map.new(MAPS_PATH + self.components['name_input'].text + '.map', new_width, new_height)
+            game_state.tile_map.new(game_state, MAPS_PATH + self.components['name_input'].text + '.map', new_width, new_height)
             self.visible = False
 
         def cancel():
@@ -224,7 +224,7 @@ class LoadMapDialog(Dialog):
                 return
             for tile_map in self.maps:
                 if tile_map.is_clicked(copy_click):
-                    game_state.tile_map.load(MAPS_PATH + tile_map.text)
+                    game_state.tile_map.load(game_state, MAPS_PATH + tile_map.text)
                     self.visible = False
                     game_state.mouse_clicks.remove(click)
                     return
@@ -263,11 +263,11 @@ class HUD:
                 self.toggle_menu()
 
             def mode():
-                if game_state.mode == GameMode.EDITOR:
-                    game_state.mode = GameMode.ENTITY_PLACEMENT
+                if game_state.mode == GameMode.NORMAL:
+                    game_state.mode = GameMode.TEST
                     self.components['mode_button'].text = "TEST"
-                elif game_state.mode == GameMode.ENTITY_PLACEMENT:
-                    game_state.mode = GameMode.EDITOR
+                elif game_state.mode == GameMode.TEST:
+                    game_state.mode = GameMode.NORMAL
                     self.components['mode_button'].text = game_state.mode.name
                 self.toggle_menu()
 

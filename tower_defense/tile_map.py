@@ -155,14 +155,16 @@ class TileMap:
                 tile = Tile(Vector(x, y), Vector(self.tile_width, self.tile_height), TileType.BUILDING_GROUND)
                 self.tiles[(x, y)] = tile
 
-    def new(self, path: str, width: int, height: int):
+    def new(self, game_state, path: str, width: int, height: int):
+        game_state.entity_manager.reset()
         self.path = path.strip()
         self.max_tiles.x = width
         self.max_tiles.y = height
         self.generate_tiles()
         self.save()
 
-    def load(self, path: str):
+    def load(self, game_state, path: str):
+        game_state.entity_manager.reset()
         self.path = path.strip()
         if os.path.isfile(self.path):
             with open(self.path, "rb") as f:
@@ -227,14 +229,9 @@ class TileMap:
     def update(self, game_state):
         self.cursor_position = game_state.to_tile_map_space(game_state.mouse_position)
 
-        if not game_state.editor_mode:
-            return
-
         for click in game_state.mouse_clicks.copy():
             pos = game_state.to_tile_map_space(click.position)
-            print(pos)
             if not self.is_on_map(game_state, pos):
-                print("click is not on map")
                 continue
 
             for tile in self.tiles.values():
@@ -247,15 +244,15 @@ class TileMap:
                             allow_start = False
                         elif self.tiles[key].tile_type == TileType.FINISH:
                             allow_finish = False
+
                     tile.next_type(allow_start, allow_finish)
 
+                    self.path_finding()
+
+    def path_finding(self):
         for tile in self.tiles:
             self.tiles[tile].directions = []
 
-        # self.breadth_first_search()
-        self.path_finding()
-
-    def path_finding(self):
         graph = self.get_tile_graph()
         paths = {}
         for node in graph:
@@ -272,34 +269,39 @@ class TileMap:
             elif self.tiles[tile].tile_type == TileType.FINISH:
                 finish_node = tile
         if starting_node is None:
-            return None
+            return
         if finish_node is None:
-            return None
+            return
 
         paths[starting_node]['to_path'] = [starting_node]
         paths[finish_node]['open_directions'] = []
 
         while True:
-            start_node = self.get_next_node(paths)
+            start_node = self.select_start_node(paths)
             if start_node is None:
+                # no start nodes left
                 break
 
             path = [start_node]
+            # create working copy of paths
             temp_paths = copy.deepcopy(paths)
             current_node = start_node
             while True:
                 open_directions = temp_paths[current_node]['open_directions']
                 if len(open_directions) > 0:
-                    direction = open_directions[0]
+                    # there are possible directions to go in
 
+                    direction = open_directions[0]
                     next_node = direction[0]
                     path.append(next_node)
 
+                    # remove the links between current_node and next_node
                     temp_paths[current_node]['open_directions'] = self.remove_node_from_open_directions(next_node,
                                                                                                         open_directions)
                     next_open_directions = temp_paths[next_node]['open_directions']
                     temp_paths[next_node]['open_directions'] = self.remove_node_from_open_directions(current_node,
                                                                                                      next_open_directions)
+
                     current_node = next_node
                 elif current_node == finish_node:
                     # path has successfully terminated
@@ -308,10 +310,11 @@ class TileMap:
                     # path has met up with a path that is known to terminate successfully
                     break
                 elif current_node == start_node:
+                    # we are back at the start and don't have any directions left to go
                     path = None
                     break
                 else:
-                    # go back to last valid
+                    # go back to last intersection with directions not yet processed
                     while len(temp_paths[current_node]['open_directions']) == 0:
                         if current_node == start_node:
                             path = None
@@ -320,10 +323,11 @@ class TileMap:
                         current_node = path[-1]
 
             if path is None:
+                # we can't go anywhere from start_node
                 paths[start_node]['open_directions'] = []
                 continue
 
-            # start_path = paths[start_node]['to_path']
+            # updating paths with newly discovered path
             rest_path = path
             for index, node in enumerate(path):
                 paths[node]['to_path'] = path[:index + 1]
@@ -334,17 +338,21 @@ class TileMap:
                     rest_path = rest_path[1:]
 
                 if index > 0:
-                    paths[node]['open_directions'] = self.remove_node_from_open_directions(path[index - 1], paths[node][
+                    # remove the links between node and previous_node
+                    previous_node = path[index - 1]
+                    paths[node]['open_directions'] = self.remove_node_from_open_directions(previous_node, paths[node][
                         'open_directions'])
-                    paths[path[index - 1]]['open_directions'] = self.remove_node_from_open_directions(node, paths[
-                        path[index - 1]]['open_directions'])
+                    paths[previous_node]['open_directions'] = self.remove_node_from_open_directions(node, paths[
+                        previous_node]['open_directions'])
                 else:
+                    # remove the links between node and start_node
                     paths[node]['open_directions'] = self.remove_node_from_open_directions(start_node, paths[node][
                         'open_directions'])
                     paths[start_node]['open_directions'] = self.remove_node_from_open_directions(node,
                                                                                                  paths[start_node][
                                                                                                      'open_directions'])
 
+        # updating directions in tile map
         for node in paths:
             directions = []
             for p in paths[node]['from_path']:
@@ -361,7 +369,7 @@ class TileMap:
         return open_directions
 
     @staticmethod
-    def get_next_node(paths):
+    def select_start_node(paths):
         for node in paths:
             if len(paths[node]['to_path']) > 0 and len(paths[node]['open_directions']) > 0:
                 return node

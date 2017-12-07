@@ -13,19 +13,19 @@ from user_interface import HUD
 
 class GameState:
     def __init__(self):
-        self.mode = GameMode.EDITOR
+        self.mode = GameMode.NORMAL
 
         self.window = pyglet.window.Window(width=1280, height=720, resizable=True)
         self.window.set_caption("Tower Defense")
-
-        self.tile_map: TileMap = TileMap()
-        self.tile_map.load("./res/maps/basic.map")
 
         self.hud: HUD = HUD()
 
         self.textures: Textures = Textures()
 
         self.entity_manager: EntityManager = EntityManager()
+
+        self.tile_map: TileMap = TileMap()
+        self.tile_map.load(self, "./res/maps/basic.map")
 
         self.key_presses: KeyPresses = KeyPresses()
         self.mouse_clicks: List[MouseClick] = []
@@ -36,11 +36,11 @@ class GameState:
 
     @property
     def editor_mode(self) -> bool:
-        return self.mode == GameMode.EDITOR
+        return self.mode == GameMode.NORMAL
 
     @property
     def entity_placement_mode(self) -> bool:
-        return self.mode == GameMode.ENTITY_PLACEMENT
+        return self.mode == GameMode.TEST
 
     @property
     def window_size(self) -> Vector:
