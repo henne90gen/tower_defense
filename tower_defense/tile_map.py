@@ -6,7 +6,8 @@ from typing import Dict
 import pyglet
 
 from game_types import TileType
-from helper import Vector, rect_contains_point
+from graphics import render_textured_rectangle, render_colored_rectangle
+from helper import Vector, rect_contains_point, process_clicks
 
 
 class Tile:
@@ -35,6 +36,7 @@ class Tile:
         return Vector(self.position.x * self.size.x, self.position.y * self.size.y)
 
     def next_type(self, allow_start: bool, allow_finish: bool):
+        # noinspection PyTypeChecker
         type_list = list(TileType)
         index = type_list.index(self.tile_type)
         index += 1
@@ -72,26 +74,15 @@ class Tile:
         if x > game_state.window_size.x or y - self.size.y > game_state.window_size.y:
             return
 
-        top_left = Vector(x, y + self.size.y)
-        bottom_right = Vector(top_left.x + self.size.x, top_left.y - self.size.y)
-        vertices = [bottom_right.x, bottom_right.y,
-                    bottom_right.x, top_left.y,
-                    top_left.x, top_left.y,
-                    top_left.x, bottom_right.y]
-
         if self.tile_type == TileType.START or self.tile_type == TileType.FINISH:
             if self.tile_type == TileType.START:
                 color = (0, 255, 0)
             else:
                 color = (255, 0, 0)
-            batch.add(4, pyglet.graphics.GL_QUADS, None, ('v2f', vertices), ('c3B', (*color, *color, *color, *color)))
+            render_colored_rectangle(batch, color, Vector(x, y), self.size)
         else:
-            texture_coords = [0.75, 0.0,
-                              0.75, 0.75,
-                              0.0, 0.75,
-                              0.0, 0.0]
-            batch.add(4, pyglet.graphics.GL_QUADS, game_state.textures.tiles[self.tile_type], ('v2f/static', vertices),
-                      ('t2f/static', texture_coords))
+            render_textured_rectangle(batch, game_state.textures.tiles[self.tile_type], Vector(x, y), self.size,
+                                      tex_max=0.75)
 
         if len(self.directions) == 0:
             return
@@ -104,36 +95,37 @@ class Tile:
             self.timer = 0
             self.direction_index = self.direction_index + 1
 
-        tex_top_left = Vector(0, 0.75)
-        tex_top_right = Vector(0.75, 0.75)
+        tex_max = 0.8
+        tex_top_left = Vector(0, tex_max)
+        tex_top_right = Vector(tex_max, tex_max)
         tex_bottom_left = Vector()
-        tex_bottom_right = Vector(0.75, 0)
+        tex_bottom_right = Vector(tex_max, 0)
 
         if dir_x < 0:
             # flip horizontally
-            tex_top_left = Vector(0.75, 0.75)
-            tex_top_right = Vector(0, 0.75)
-            tex_bottom_left = Vector(0.75, 0)
+            tex_top_left = Vector(tex_max, tex_max)
+            tex_top_right = Vector(0, tex_max)
+            tex_bottom_left = Vector(tex_max, 0)
             tex_bottom_right = Vector()
         elif dir_y < 0:
             # rotate down
             tex_top_left = Vector()
-            tex_top_right = Vector(0, 0.75)
-            tex_bottom_left = Vector(0.75, 0)
-            tex_bottom_right = Vector(0.75, 0.75)
+            tex_top_right = Vector(0, tex_max)
+            tex_bottom_left = Vector(tex_max, 0)
+            tex_bottom_right = Vector(tex_max, tex_max)
         elif dir_y > 0:
             # rotate up
-            tex_top_left = Vector(0.75, 0.75)
-            tex_top_right = Vector(0.75, 0)
-            tex_bottom_left = Vector(0, 0.75)
+            tex_top_left = Vector(tex_max, tex_max)
+            tex_top_right = Vector(tex_max, 0)
+            tex_bottom_left = Vector(0, tex_max)
             tex_bottom_right = Vector()
 
         texture_coords = [tex_bottom_right.x, tex_bottom_right.y,
                           tex_top_right.x, tex_top_right.y,
                           tex_top_left.x, tex_top_left.y,
                           tex_bottom_left.x, tex_bottom_left.y]
-        arrow_batch.add(4, pyglet.graphics.GL_QUADS, game_state.textures.other['arrow'], ('v2f/static', vertices),
-                        ('t2f/static', texture_coords))
+        render_textured_rectangle(arrow_batch, game_state.textures.other['arrow'], Vector(x, y), self.size,
+                                  texture_coords=texture_coords)
 
 
 class TileMap:
@@ -141,8 +133,7 @@ class TileMap:
         self.path = ""
         self.border_width = 50
         self.cursor_position = Vector()
-        self.tile_width = 100
-        self.tile_height = 100
+        self.tile_size = Vector(100, 100)
         self.max_tiles = Vector(10, 10)
         self.tiles: Dict[(int, int), Tile] = {}
         self.generate_tiles()
@@ -151,7 +142,7 @@ class TileMap:
         self.tiles = {}
         for x in range(self.max_tiles.x):
             for y in range(self.max_tiles.y):
-                tile = Tile(Vector(x, y), Vector(self.tile_width, self.tile_height), TileType.BUILDING_GROUND)
+                tile = Tile(Vector(x, y), self.tile_size, TileType.BUILDING_GROUND)
                 self.tiles[(x, y)] = tile
 
     def new(self, game_state, path: str, width: int, height: int):
@@ -169,6 +160,10 @@ class TileMap:
             with open(self.path, "rb") as f:
                 self.tiles, self.max_tiles = pickle.load(f)
                 print("Loaded tile map", self.path)
+
+            # update tile size to current tile size
+            for tile in self.tiles:
+                self.tiles[tile].size = self.tile_size
 
     def save(self):
         if len(self.path) > 0:
@@ -200,11 +195,11 @@ class TileMap:
 
     @property
     def tile_map_width(self):
-        return self.tile_width * self.max_tiles.x
+        return self.tile_size.x * self.max_tiles.x
 
     @property
     def tile_map_height(self):
-        return self.tile_height * self.max_tiles.y
+        return self.tile_size.y * self.max_tiles.y
 
     def is_on_map(self, game_state, position: (int, int), pos_is_in_tile_map_space: bool = True):
         if not pos_is_in_tile_map_space:
@@ -212,8 +207,10 @@ class TileMap:
         x, y = position.x, position.y
         return 0 < x < self.tile_map_width and 0 < y < self.tile_map_height
 
-    def get_tile_index(self, position: Vector) -> (int, int):
-        return int(position.x / self.tile_width), int(position.y / self.tile_height)
+    def get_tile_index(self, game_state, position: Vector, pos_is_in_tile_map_space: bool = True) -> (int, int):
+        if not pos_is_in_tile_map_space:
+            position = game_state.to_tile_map_space(position)
+        return int(position.x / self.tile_size.x), int(position.y / self.tile_size.y)
 
     def render(self, game_state):
         self.render_border(game_state)
@@ -228,25 +225,30 @@ class TileMap:
     def update(self, game_state):
         self.cursor_position = game_state.to_tile_map_space(game_state.mouse_position)
 
-        for click in game_state.mouse_clicks.copy():
-            pos = game_state.to_tile_map_space(click.position)
-            if not self.is_on_map(game_state, pos):
-                continue
+        if game_state.building_mode:
+            return
 
-            for tile in self.tiles.values():
-                if rect_contains_point(pos, Vector(tile.world_position.x, tile.world_position.y + tile.size.y),
-                                       tile.size):
-                    allow_start = True
-                    allow_finish = True
-                    for key in self.tiles:
-                        if self.tiles[key].tile_type == TileType.START:
-                            allow_start = False
-                        elif self.tiles[key].tile_type == TileType.FINISH:
-                            allow_finish = False
+        process_clicks(game_state, self.mouse_click_handler)
 
-                    tile.next_type(allow_start, allow_finish)
+    def mouse_click_handler(self, game_state, click):
+        pos = game_state.to_tile_map_space(click.position)
+        if not self.is_on_map(game_state, pos):
+            return False
 
-                    self.path_finding()
+        for tile in self.tiles.values():
+            if rect_contains_point(pos, Vector(tile.world_position.x, tile.world_position.y + tile.size.y),
+                                   tile.size):
+                allow_start = True
+                allow_finish = True
+                for key in self.tiles:
+                    if self.tiles[key].tile_type == TileType.START:
+                        allow_start = False
+                    elif self.tiles[key].tile_type == TileType.FINISH:
+                        allow_finish = False
+
+                tile.next_type(allow_start, allow_finish)
+
+                self.path_finding()
 
     def path_finding(self):
         for tile in self.tiles:

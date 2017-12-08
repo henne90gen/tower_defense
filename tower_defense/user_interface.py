@@ -5,7 +5,7 @@ from typing import List
 import pyglet
 
 from game_types import GameMode
-from helper import MouseClick, KeyPresses, Vector, rect_contains_point
+from helper import MouseClick, KeyPresses, Vector, rect_contains_point, process_clicks
 
 MAPS_PATH = './res/maps/'
 
@@ -264,12 +264,8 @@ class HUD:
                 self.toggle_menu()
 
             def mode():
-                if game_state.mode == GameMode.NORMAL:
-                    game_state.mode = GameMode.TEST
-                    self.components['mode_button'].text = "TEST"
-                elif game_state.mode == GameMode.TEST:
-                    game_state.mode = GameMode.NORMAL
-                    self.components['mode_button'].text = game_state.mode.name
+                game_state.next_game_mode()
+                self.components['mode_button'].text = game_state.mode.name
                 self.toggle_menu()
 
             def save():
@@ -295,14 +291,14 @@ class HUD:
             if self.components['mode_button'].text == "":
                 self.components['mode_button'].text = game_state.mode.name
 
-            for click in game_state.mouse_clicks.copy():
+            def processor(_game_state, click):
                 for component in handlers:
-                    copy_click = MouseClick()
-                    copy_click.button = click.button
-                    copy_click.position = click.position - self.offset
-                    if self.components[component].is_clicked(copy_click):
+                    if self.components[component].is_clicked(click):
                         handlers[component]()
-                        game_state.mouse_clicks.remove(click)
+                        return True
+                return False
+
+            process_clicks(game_state, processor, self.offset * -1)
 
     def toggle_menu(self):
         self.components['mode_button'].toggle_visibility()

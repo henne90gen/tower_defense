@@ -3,6 +3,7 @@ from typing import List, Dict
 import pyglet
 
 from game_types import EntityType, TileType
+from graphics import render_textured_rectangle
 from helper import Vector
 
 
@@ -17,17 +18,17 @@ class Entity:
         self.next_tile_index = None
 
     def update(self, game_state):
-        tile_index = game_state.tile_map.get_tile_index(self.position)
+        tile_index = game_state.tile_map.get_tile_index(game_state, self.position)
         tile = game_state.tile_map.tiles[tile_index]
         if not tile:
             return
         if len(tile.directions) == 0:
             return
         if self.next_tile_index is None:
-            self.next_tile_index = game_state.tile_map.get_tile_index(self.position)
+            self.next_tile_index = game_state.tile_map.get_tile_index(game_state, self.position)
 
         # update next tile to walk to
-        if game_state.tile_map.get_tile_index(self.position) == self.next_tile_index:
+        if game_state.tile_map.get_tile_index(game_state, self.position) == self.next_tile_index:
             min_d = None
             for d in game_state.entity_manager.directions_graph[self.next_tile_index]:
                 if min_d is None:
@@ -63,19 +64,7 @@ class Entity:
         x -= self.size.x / 2 - game_state.world_offset.x
         y -= self.size.y / 2 - game_state.world_offset.y
 
-        top_left = Vector(x, y + self.size.y)
-        bottom_right = Vector(top_left.x + self.size.x, top_left.y - self.size.y)
-        vertices = [bottom_right.x, bottom_right.y,
-                    bottom_right.x, top_left.y,
-                    top_left.x, top_left.y,
-                    top_left.x, bottom_right.y]
-
-        texture_coords = [1, 0.0,
-                          1, 1,
-                          0.0, 1,
-                          0.0, 0.0]
-        batch.add(4, pyglet.graphics.GL_QUADS, game_state.textures.entities[self.entity_type], ('v2f/static', vertices),
-                  ('t2f/static', texture_coords))
+        render_textured_rectangle(batch, game_state.textures.entities[self.entity_type], Vector(x, y), self.size)
 
 
 class EntityManager:
@@ -116,11 +105,11 @@ class EntityManager:
 
         for entity in self.entities.copy():
             entity.update(game_state)
-            tile_index = game_state.tile_map.get_tile_index(entity.position)
+            tile_index = game_state.tile_map.get_tile_index(game_state, entity.position)
             if game_state.tile_map.tiles[tile_index].tile_type == TileType.FINISH:
                 self.entities.remove(entity)
 
-        if not game_state.entity_placement_mode:
+        if not game_state.test_mode:
             return
 
         self.spawn_timer += 1

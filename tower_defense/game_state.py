@@ -2,6 +2,7 @@ from typing import List
 
 import pyglet
 
+from building_manager import BuildingManager
 from entity_manager import EntityManager
 from game_types import GameMode
 from graphics import Textures
@@ -23,6 +24,8 @@ class GameState:
 
         self.entity_manager: EntityManager = EntityManager()
 
+        self.building_manager: BuildingManager = BuildingManager()
+
         self.tile_map: TileMap = TileMap()
         self.tile_map.load(self, "./res/maps/basic.map")
 
@@ -38,8 +41,23 @@ class GameState:
         return self.mode == GameMode.NORMAL
 
     @property
-    def entity_placement_mode(self) -> bool:
+    def test_mode(self) -> bool:
         return self.mode == GameMode.TEST
+
+    @property
+    def building_mode(self) -> bool:
+        return self.mode == GameMode.BUILDING
+
+    def next_game_mode(self):
+        # noinspection PyTypeChecker
+        type_list = list(GameMode)
+        index = type_list.index(self.mode)
+        index += 1
+
+        if index >= len(type_list):
+            index = 0
+
+        self.mode = type_list[index]
 
     @property
     def window_size(self) -> Vector:

@@ -60,10 +60,12 @@ def on_draw(value=None):
 
     game_state.hud.update(game_state)
     game_state.entity_manager.update(game_state)
+    game_state.building_manager.update(game_state)
     game_state.tile_map.update(game_state)
 
     game_state.tile_map.render(game_state)
     game_state.entity_manager.render(game_state)
+    game_state.building_manager.render(game_state)
     game_state.hud.render()
 
     game_state.mouse_clicks = []
