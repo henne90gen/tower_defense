@@ -1,5 +1,6 @@
 from typing import Dict, List
 
+import os
 import pyglet
 
 from game_types import TileType, EntityType, BuildingType
@@ -7,19 +8,27 @@ from helper import Vector
 
 
 class Textures:
-    def __init__(self):
+    def __init__(self, base_path: str = "./res"):
+        grass_texture = pyglet.image.load(os.path.join(base_path, 'grass.jpg')).get_texture()
+        sand_texture = pyglet.image.load(os.path.join(base_path, 'sand.jpg')).get_texture()
         self.tiles: Dict[TileType, pyglet.graphics.TextureGroup] = {
-            TileType.BUILDING_GROUND: pyglet.graphics.TextureGroup(pyglet.image.load('./res/grass.jpg').get_texture()),
-            TileType.PATH: pyglet.graphics.TextureGroup(pyglet.image.load('./res/sand.jpg').get_texture())
+            TileType.BUILDING_GROUND: pyglet.graphics.TextureGroup(grass_texture),
+            TileType.PATH: pyglet.graphics.TextureGroup(sand_texture)
         }
+
+        ball_texture = pyglet.image.load(os.path.join(base_path, 'ball.png')).get_texture()
         self.entities: Dict[EntityType, pyglet.graphics.TextureGroup] = {
-            EntityType.WARRIOR: pyglet.graphics.TextureGroup(pyglet.image.load('./res/ball.png').get_texture())
+            EntityType.WARRIOR: pyglet.graphics.TextureGroup(ball_texture)
         }
+
+        tower_texture = pyglet.image.load(os.path.join(base_path, 'tower.png')).get_texture()
         self.buildings: Dict[BuildingType, pyglet.graphics.TextureGroup] = {
-            BuildingType.TOWER: pyglet.graphics.TextureGroup(pyglet.image.load('./res/tower.png').get_texture())
+            BuildingType.TOWER: pyglet.graphics.TextureGroup(tower_texture)
         }
+
+        arrow_texture = pyglet.image.load(os.path.join(base_path, 'arrow.png')).get_texture()
         self.other: Dict[str, pyglet.graphics.TextureGroup] = {
-            'arrow': pyglet.graphics.TextureGroup(pyglet.image.load('./res/arrow.png').get_texture())
+            'arrow': pyglet.graphics.TextureGroup(arrow_texture)
         }
 
 
@@ -32,6 +41,7 @@ def render_textured_rectangle(batch, texture, position: Vector, size: Vector, te
     :param size:
     :param tex_max:
     :param tex_min:
+    :param texture_coords:
     :return:
     """
     top_left = Vector(position.x, position.y + size.y)
@@ -50,13 +60,10 @@ def render_textured_rectangle(batch, texture, position: Vector, size: Vector, te
 
 def render_colored_rectangle(batch, color, position: Vector, size: Vector):
     """
-
     :param batch:
     :param color:
     :param position: bottom left of rectangle
     :param size:
-    :param tex_max:
-    :param tex_min:
     :return:
     """
     top_left = Vector(position.x, position.y + size.y)

@@ -1,15 +1,28 @@
 Path finding:
 
-1. find any path from start to finish
-    - take note of any junctions (other paths that need to be calculated)
-    - abort if there is no such path
-
-2. calculate all other paths
-    - bring path to finish
-    - bring path back to known finishing path
+# 1. find any path from start to finish
+#     - take note of any junctions (other paths that need to be calculated)
+#     - abort if there is no such path
+# 2. calculate all other paths
+#     - bring path to finish
+#     - bring path back to known finishing path
+find path from current tile to finish
+start with start node
+choose next: node that is already on a valid path and has directions left unprocessed
 
 
 dict:
     key: tile index (int, int)
     value:
-        object: direction_options, path_until_this_point
+        object: direction_options, to_path, from_path
+
+
+2 different ways to play
+    - free building: There is no path. The players buildings a the only obstacles for the entities. (Dijkstra at beginning of each round to find shortest path, prevent player from closing off the finish)
+    - path is given: Player can only build to the side of the path
+
+
+3 different coordinate spaces:
+    - screen space (mouse positions, hud)
+    - world space (entities)
+    - index space (tiles, buildings)

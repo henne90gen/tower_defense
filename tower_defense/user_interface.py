@@ -298,7 +298,7 @@ class HUD:
                         return True
                 return False
 
-            process_clicks(game_state, processor, self.offset * -1)
+            process_clicks(game_state, processor, False, offset=self.offset * -1)
 
     def toggle_menu(self):
         self.components['mode_button'].toggle_visibility()

@@ -7,7 +7,7 @@ import pyglet
 
 from game_types import TileType
 from graphics import render_textured_rectangle, render_colored_rectangle
-from helper import Vector, rect_contains_point, process_clicks
+from helper import Vector, rect_contains_point, process_clicks, MouseClick
 
 
 class Tile:
@@ -135,15 +135,16 @@ class TileMap:
         self.cursor_position = Vector()
         self.tile_size = Vector(100, 100)
         self.max_tiles = Vector(10, 10)
-        self.tiles: Dict[(int, int), Tile] = {}
-        self.generate_tiles()
+        self.tiles: Dict[(int, int), Tile] = self.generate_tiles(self.max_tiles, self.tile_size)
 
-    def generate_tiles(self):
-        self.tiles = {}
-        for x in range(self.max_tiles.x):
-            for y in range(self.max_tiles.y):
-                tile = Tile(Vector(x, y), self.tile_size, TileType.BUILDING_GROUND)
-                self.tiles[(x, y)] = tile
+    @staticmethod
+    def generate_tiles(max_tiles: Vector, tile_size: Vector) -> dict:
+        tiles = {}
+        for x in range(max_tiles.x):
+            for y in range(max_tiles.y):
+                tile = Tile(Vector(x, y), tile_size, TileType.BUILDING_GROUND)
+                tiles[(x, y)] = tile
+        return tiles
 
     def new(self, game_state, path: str, width: int, height: int):
         game_state.entity_manager.reset()
@@ -201,16 +202,14 @@ class TileMap:
     def tile_map_height(self):
         return self.tile_size.y * self.max_tiles.y
 
-    def is_on_map(self, game_state, position: (int, int), pos_is_in_tile_map_space: bool = True):
-        if not pos_is_in_tile_map_space:
-            position = game_state.to_tile_map_space(position)
-        x, y = position.x, position.y
-        return 0 < x < self.tile_map_width and 0 < y < self.tile_map_height
+    def is_on_map(self, position: Vector):
+        return 0 < position.x < self.tile_map_width and 0 < position.y < self.tile_map_height
 
-    def get_tile_index(self, game_state, position: Vector, pos_is_in_tile_map_space: bool = True) -> (int, int):
-        if not pos_is_in_tile_map_space:
-            position = game_state.to_tile_map_space(position)
+    def get_tile_index(self, position: Vector) -> (int, int):
         return int(position.x / self.tile_size.x), int(position.y / self.tile_size.y)
+
+    def get_tile_position(self, position: Vector) -> Vector:
+        return Vector(position.x * self.tile_size.x, position.y * self.tile_size.y)
 
     def render(self, game_state):
         self.render_border(game_state)
@@ -230,13 +229,12 @@ class TileMap:
 
         process_clicks(game_state, self.mouse_click_handler)
 
-    def mouse_click_handler(self, game_state, click):
-        pos = game_state.to_tile_map_space(click.position)
-        if not self.is_on_map(game_state, pos):
+    def mouse_click_handler(self, game_state, click: MouseClick):
+        if not self.is_on_map(click.position):
             return False
 
         for tile in self.tiles.values():
-            if rect_contains_point(pos, Vector(tile.world_position.x, tile.world_position.y + tile.size.y),
+            if rect_contains_point(click.position, Vector(tile.world_position.x, tile.world_position.y + tile.size.y),
                                    tile.size):
                 allow_start = True
                 allow_finish = True

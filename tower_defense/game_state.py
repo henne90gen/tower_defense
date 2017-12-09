@@ -48,6 +48,10 @@ class GameState:
     def building_mode(self) -> bool:
         return self.mode == GameMode.BUILDING
 
+    @property
+    def window_size(self) -> Vector:
+        return Vector(*self.window.get_size())
+
     def next_game_mode(self):
         # noinspection PyTypeChecker
         type_list = list(GameMode)
@@ -58,10 +62,6 @@ class GameState:
             index = 0
 
         self.mode = type_list[index]
-
-    @property
-    def window_size(self) -> Vector:
-        return Vector(*self.window.get_size())
 
     def to_tile_map_space(self, pos: Vector) -> Vector:
         return pos - self.world_offset

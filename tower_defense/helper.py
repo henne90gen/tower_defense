@@ -1,8 +1,5 @@
 import math
-import sys
 from typing import Callable
-
-import pygame
 
 
 class KeyPresses:
@@ -27,9 +24,13 @@ class MouseClick:
 
 
 class Vector:
-    def __init__(self, x: float = 0, y: float = 0):
-        self.x = x
-        self.y = y
+    def __init__(self, x: float = 0, y: float = 0, point: (float, float) = None):
+        if point is not None:
+            self.x = point[0]
+            self.y = point[1]
+        else:
+            self.x = x
+            self.y = y
 
     def length(self):
         return math.sqrt(self.x * self.x + self.y * self.y)
@@ -85,10 +86,14 @@ def rect_contains_point(point: Vector, rect_position: Vector, rect_size: Vector)
     return False
 
 
-def process_clicks(game_state, processor: Callable[[object, MouseClick], bool], offset: Vector = Vector()):
+def process_clicks(game_state, processor: Callable[[object, MouseClick], bool], map_to_world_space: bool = True,
+                   offset: Vector = Vector()):
     for click in game_state.mouse_clicks.copy():
-        offset_click = MouseClick()
-        offset_click.button = click.button
-        offset_click.position = click.position + offset
-        if processor(game_state, offset_click):
+        copy_click = MouseClick()
+        copy_click.button = click.button
+        if map_to_world_space:
+            copy_click.position = game_state.to_tile_map_space(click.position)
+        else:
+            copy_click.position = click.position + offset
+        if processor(game_state, copy_click):
             game_state.mouse_clicks.remove(click)

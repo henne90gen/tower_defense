@@ -1,6 +1,6 @@
 import unittest
 
-from helper import Vector
+from helper import Vector, rect_contains_point
 
 
 class VectorTest(unittest.TestCase):
@@ -29,3 +29,38 @@ class VectorTest(unittest.TestCase):
     def test_mul(self):
         vec = Vector(1, 2)
         self.assertEqual(Vector(3, 6), vec * 3)
+
+    def test_divide(self):
+        vec = Vector(3, 6)
+        self.assertEqual(Vector(1, 2), vec / 3)
+
+    def test_floor_divide(self):
+        vec = Vector(3, 6)
+        self.assertEqual(Vector(1, 2), vec // 3)
+
+    def test_str(self):
+        vec = Vector(1, 2)
+        self.assertEqual("(1, 2)", str(vec))
+
+    def test_length(self):
+        vec = Vector()
+        self.assertEqual(0, vec.length())
+
+        vec = Vector(2, 0)
+        self.assertEqual(2, vec.length())
+
+        vec = Vector(3, 4)
+        self.assertEqual(5, vec.length())
+
+
+class MethodTest(unittest.TestCase):
+    def test_rect_contains_point(self):
+        point = Vector(10, 10)
+        rect_position = Vector(0, 20)
+        rect_size = Vector(20, 20)
+        self.assertTrue(rect_contains_point(point, rect_position, rect_size))
+
+        point = Vector(0, 0)
+        rect_position = Vector(0, 20)
+        rect_size = Vector(20, 20)
+        self.assertFalse(rect_contains_point(point, rect_position, rect_size))

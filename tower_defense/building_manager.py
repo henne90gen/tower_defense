@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 
 import pyglet
 
@@ -25,32 +25,42 @@ class Building:
                                   tex_max=0.8)
 
     def update(self, game_state):
-        pass
+        for entity in game_state.entity_manager.entities:
+            world_position = game_state.tile_map.get_tile_position(self.position)
+            world_position = world_position + self.size / 2
+            distance = (entity.position - world_position).length()
+            if distance < 200:
+                print("In range")
 
 
 class BuildingManager:
     def __init__(self):
-        self.buildings: List[Building] = []
+        self.buildings: Dict[(int, int), Building] = {}
 
     def render(self, game_state):
         batch = pyglet.graphics.Batch()
-        for building in self.buildings:
-            building.render(game_state, batch)
+        for index in self.buildings:
+            self.buildings[index].render(game_state, batch)
         batch.draw()
 
     def update(self, game_state):
-        for building in self.buildings:
-            building.update(game_state)
+        for index in self.buildings:
+            self.buildings[index].update(game_state)
 
-        process_clicks(game_state, self.mouse_click_handler)
+        if game_state.building_mode:
+            process_clicks(game_state, self.mouse_click_handler)
 
-    def spawn_building(self, game_state, position: Vector):
+    def spawn_building(self, game_state, tile_index: (int, int)):
+        position = Vector(point=tile_index)
         building = Building(position, game_state.tile_map.tile_size)
-        self.buildings.append(building)
+        self.buildings[tile_index] = building
 
     def mouse_click_handler(self, game_state, click):
-        if game_state.tile_map.is_on_map(game_state, click.position, False):
-            position = game_state.tile_map.get_tile_index(game_state, click.position, False)
-            self.spawn_building(game_state, Vector(position[0], position[1]))
+        if game_state.tile_map.is_on_map(click.position):
+            tile_index = game_state.tile_map.get_tile_index(click.position)
+            if tile_index not in self.buildings:
+                self.spawn_building(game_state, tile_index)
+            else:
+                del self.buildings[tile_index]
             return True
         return False
