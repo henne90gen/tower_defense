@@ -3,7 +3,7 @@ from typing import Dict, List
 import os
 import pyglet
 
-from game_types import TileType, EntityType, BuildingType
+from game_types import TileType, EntityType, BuildingType, BulletType
 from helper import Vector
 
 
@@ -19,6 +19,11 @@ class Textures:
         ball_texture = pyglet.image.load(os.path.join(base_path, 'ball.png')).get_texture()
         self.entities: Dict[EntityType, pyglet.graphics.TextureGroup] = {
             EntityType.WARRIOR: pyglet.graphics.TextureGroup(ball_texture)
+        }
+
+        # TODO find bullet texture
+        self.bullets: Dict[BulletType, pyglet.graphics.TextureGroup] = {
+            BulletType.STANDARD: pyglet.graphics.TextureGroup(ball_texture)
         }
 
         tower_texture = pyglet.image.load(os.path.join(base_path, 'tower.png')).get_texture()

@@ -20,3 +20,7 @@ class EntityType(Enum):
 
 class BuildingType(Enum):
     TOWER = 0
+
+
+class BulletType(Enum):
+    STANDARD = 0

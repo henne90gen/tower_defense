@@ -10,7 +10,7 @@ from helper import Vector
 class Entity:
     def __init__(self, position: Vector, size: Vector):
         self.entity_type = EntityType.WARRIOR
-        self.position = position
+        self.position = position  # center of sprite
         self.size = size
         self.velocity = Vector()
         self.acceleration = Vector()
@@ -45,18 +45,18 @@ class Entity:
         tile = game_state.tile_map.tiles[self.next_tile_index]
         target = tile.world_position
         half_tile_size = tile.size / 2
-        target = target + half_tile_size
+        target += half_tile_size
 
         desired_velocity = target - self.position
         desired_speed = desired_velocity.length()
-        desired_velocity = desired_velocity / desired_speed
-        desired_velocity = desired_velocity * self.max_speed
+        desired_velocity /= desired_speed
+        desired_velocity *= self.max_speed
 
         steer = desired_velocity - self.velocity
 
-        self.acceleration = self.acceleration + steer
-        self.velocity = self.velocity + self.acceleration
-        self.position = self.position + self.velocity
+        self.acceleration += steer
+        self.velocity += self.acceleration
+        self.position += self.velocity
         self.acceleration = (0, 0)
 
     def render(self, game_state, batch: pyglet.graphics.Batch):
@@ -65,6 +65,9 @@ class Entity:
         y -= self.size.y / 2 - game_state.world_offset.y
 
         render_textured_rectangle(batch, game_state.textures.entities[self.entity_type], Vector(x, y), self.size)
+
+    def take_damage(self, damage):
+        print("Took", damage, "damage")
 
 
 class EntityManager:
