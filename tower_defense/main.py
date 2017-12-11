@@ -12,6 +12,7 @@ def handle_key(symbol, modifiers, key_down):
     print("KeyEvent", key_down, symbol, modifiers)
 
     kp = game_state.key_presses
+
     if symbol == pyglet.window.key.W:
         kp.up = key_down
     elif symbol == pyglet.window.key.S:
@@ -23,11 +24,15 @@ def handle_key(symbol, modifiers, key_down):
 
     if symbol == pyglet.window.key.BACKSPACE:
         kp.back_space = key_down
-    else:
+    elif key_down:
         text = pyglet.window.key.symbol_string(symbol)
+        print(text)
         if len(text[1:]) > 0 and text[1:] in "0123456789":
             # numbers come out as e.g. '_1'
             text = text[1:]
+        if 'NUM_' in text:
+            # numpad keys come out as e.g. 'NUM_1'
+            text = text[4:]
         kp.text = kp.text + text.lower()
 
     game_state.key_presses = kp
@@ -68,8 +73,7 @@ def on_draw(value=None):
     game_state.building_manager.render(game_state)
     game_state.hud.render()
 
-    game_state.mouse_clicks = []
-    game_state.key_presses.text = ""
+    game_state.clean_up()
 
 
 pyglet.clock.schedule_interval(on_draw, 1 / 60.0)

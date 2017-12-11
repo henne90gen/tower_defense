@@ -248,7 +248,7 @@ class HUD:
             'load_button': TextComponent("Load", Vector(0, -3 * button_height), size, visible=False),
             'mode_button': TextComponent("Mode", Vector(size.x, 0), size),
         }
-        for index, mode in enumerate(list(GameMode)):
+        for index, mode in enumerate(GameMode):
             position = Vector(size.x, -(index + 1) * button_height)
             self.components[mode] = TextComponent(str(mode)[9:], position, size, visible=False)
 
@@ -297,7 +297,7 @@ class HUD:
 
                 return setter
 
-            for mode in list(GameMode):
+            for mode in GameMode:
                 handlers[mode] = create_setter(mode)
 
             def processor(_game_state, click):
@@ -315,7 +315,7 @@ class HUD:
         self.components['load_button'].toggle_visibility()
 
     def toggle_mode_menu(self):
-        for mode in list(GameMode):
+        for mode in GameMode:
             self.components[mode].toggle_visibility()
 
     def render(self):

@@ -55,6 +55,11 @@ class GameState:
     def to_tile_map_space(self, pos: Vector) -> Vector:
         return pos - self.world_offset
 
+    def clean_up(self):
+        self.mouse_clicks = []
+        self.key_presses.text = ""
+        self.key_presses.back_space = False
+
     def update(self):
         scroll_speed = 5
         if self.key_presses.up:
