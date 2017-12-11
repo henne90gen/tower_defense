@@ -2,18 +2,18 @@ from typing import List
 
 import pyglet
 
-from building_manager import BuildingManager
-from entity_manager import EntityManager
+from buildings.building_manager import BuildingManager
+from entities.entity_manager import EntityManager
 from game_types import GameMode
 from graphics import Textures
 from helper import KeyPresses, MouseClick, Vector
-from tile_map import TileMap
-from user_interface import HUD
+from tiles.tile_map import TileMap
+from user_interface.user_interface import HUD
 
 
 class GameState:
     def __init__(self):
-        self.mode = GameMode.NORMAL
+        self.mode = GameMode.BUILDING
 
         self.window = pyglet.window.Window(width=1280, height=720, resizable=True)
         self.window.set_caption("Tower Defense")

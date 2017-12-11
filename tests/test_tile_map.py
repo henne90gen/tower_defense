@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from game_types import TileType
 from helper import Vector
-from tile_map import Tile, TileMap
+from tiles.tile_map import Tile, TileMap
 
 
 class TileMapTest(TestCase):
