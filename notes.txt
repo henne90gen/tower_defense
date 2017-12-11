@@ -23,6 +23,6 @@ dict:
 
 
 3 different coordinate spaces:
-    - screen space (mouse positions, hud)
+    - window space (mouse positions, hud)
     - world space (entities)
     - index space (tiles, buildings)

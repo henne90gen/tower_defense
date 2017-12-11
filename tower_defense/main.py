@@ -3,7 +3,11 @@ import pyglet
 from game_state import GameState
 from helper import MouseClick, Vector
 
+window = pyglet.window.Window(width=1280, height=720, resizable=True)
+window.set_caption("Tower Defense")
 game_state = GameState()
+game_state.init()
+
 pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
 pyglet.gl.glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
 
@@ -37,17 +41,17 @@ def handle_key(symbol, modifiers, key_down):
     game_state.key_presses = kp
 
 
-@game_state.window.event
+@window.event
 def on_key_press(symbol, modifiers):
     handle_key(symbol, modifiers, True)
 
 
-@game_state.window.event
+@window.event
 def on_key_release(symbol, modifiers):
     handle_key(symbol, modifiers, False)
 
 
-@game_state.window.event
+@window.event
 def on_mouse_press(x, y, button, modifiers):
     print("MousePress", x, y, button, modifiers)
     mouse_click = MouseClick()
@@ -56,11 +60,11 @@ def on_mouse_press(x, y, button, modifiers):
     game_state.mouse_clicks.append(mouse_click)
 
 
-@game_state.window.event
+@window.event
 def on_draw(value=None):
-    game_state.window.clear()
+    window.clear()
 
-    game_state.update()
+    game_state.update(Vector(*window.get_size()))
 
     game_state.hud.update(game_state)
     game_state.entity_manager.update(game_state)

@@ -104,7 +104,7 @@ class TileMap:
         arrow_batch.draw()
 
     def update(self, game_state):
-        self.cursor_position = game_state.to_tile_map_space(game_state.mouse_position)
+        self.cursor_position = game_state.window_to_world_space(game_state.mouse_position)
 
         if game_state.building_mode:
             return

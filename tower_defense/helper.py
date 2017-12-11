@@ -92,7 +92,7 @@ def process_clicks(game_state, processor: Callable[[object, MouseClick], bool], 
         copy_click = MouseClick()
         copy_click.button = click.button
         if map_to_world_space:
-            copy_click.position = game_state.to_tile_map_space(click.position)
+            copy_click.position = game_state.window_to_world_space(click.position)
         else:
             copy_click.position = click.position + offset
         if processor(game_state, copy_click):

@@ -8,31 +8,38 @@ from helper import Vector
 
 
 class Textures:
-    def __init__(self, base_path: str = "./res"):
+    def __init__(self):
+        self.tiles: Dict[TileType, pyglet.graphics.TextureGroup] = {}
+        self.entities: Dict[EntityType, pyglet.graphics.TextureGroup] = {}
+        self.bullets: Dict[BulletType, pyglet.graphics.TextureGroup] = {}
+        self.buildings: Dict[BuildingType, pyglet.graphics.TextureGroup] = {}
+        self.other: Dict[str, pyglet.graphics.TextureGroup] = {}
+
+    def load(self, base_path: str = "./res"):
         grass_texture = pyglet.image.load(os.path.join(base_path, 'grass.jpg')).get_texture()
         sand_texture = pyglet.image.load(os.path.join(base_path, 'sand.jpg')).get_texture()
-        self.tiles: Dict[TileType, pyglet.graphics.TextureGroup] = {
+        self.tiles = {
             TileType.BUILDING_GROUND: pyglet.graphics.TextureGroup(grass_texture),
             TileType.PATH: pyglet.graphics.TextureGroup(sand_texture)
         }
 
         ball_texture = pyglet.image.load(os.path.join(base_path, 'ball.png')).get_texture()
-        self.entities: Dict[EntityType, pyglet.graphics.TextureGroup] = {
+        self.entities = {
             EntityType.WARRIOR: pyglet.graphics.TextureGroup(ball_texture)
         }
 
         # TODO find bullet texture
-        self.bullets: Dict[BulletType, pyglet.graphics.TextureGroup] = {
+        self.bullets = {
             BulletType.STANDARD: pyglet.graphics.TextureGroup(ball_texture)
         }
 
         tower_texture = pyglet.image.load(os.path.join(base_path, 'tower.png')).get_texture()
-        self.buildings: Dict[BuildingType, pyglet.graphics.TextureGroup] = {
+        self.buildings = {
             BuildingType.TOWER: pyglet.graphics.TextureGroup(tower_texture)
         }
 
         arrow_texture = pyglet.image.load(os.path.join(base_path, 'arrow.png')).get_texture()
-        self.other: Dict[str, pyglet.graphics.TextureGroup] = {
+        self.other = {
             'arrow': pyglet.graphics.TextureGroup(arrow_texture)
         }
 

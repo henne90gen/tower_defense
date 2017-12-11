@@ -115,9 +115,6 @@ class LoadMapDialog(Dialog):
         self.maps: List[TextComponent] = []
         self.cancel_button: TextComponent = None
 
-        current_index, height = self.refresh_maps()
-        self.update_cancel_button(current_index, height)
-
     def refresh_maps(self):
         self.maps = []
         current_index = 0
