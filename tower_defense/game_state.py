@@ -52,17 +52,6 @@ class GameState:
     def window_size(self) -> Vector:
         return Vector(*self.window.get_size())
 
-    def next_game_mode(self):
-        # noinspection PyTypeChecker
-        type_list = list(GameMode)
-        index = type_list.index(self.mode)
-        index += 1
-
-        if index >= len(type_list):
-            index = 0
-
-        self.mode = type_list[index]
-
     def to_tile_map_space(self, pos: Vector) -> Vector:
         return pos - self.world_offset
 

@@ -151,7 +151,7 @@ class TileMap:
         self.path = path.strip()
         self.max_tiles.x = width
         self.max_tiles.y = height
-        self.generate_tiles()
+        self.tiles = self.generate_tiles(self.max_tiles, self.tile_size)
         self.save()
 
     def load(self, game_state, path: str):

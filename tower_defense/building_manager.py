@@ -13,6 +13,13 @@ class Building:
         self.size = size
         self.building_type = BuildingType.TOWER
 
+    @property
+    def range(self):
+        if self.building_type == BuildingType.TOWER:
+            return 200
+        else:
+            return 200
+
     def render(self, game_state, batch):
         x = self.position.x * self.size.x + game_state.world_offset.x
         y = self.position.y * self.size.y + game_state.world_offset.y
@@ -29,13 +36,35 @@ class Building:
             world_position = game_state.tile_map.get_tile_position(self.position)
             world_position = world_position + self.size / 2
             distance = (entity.position - world_position).length()
-            if distance < 200:
-                print("In range")
+            # if distance < self.range:
+            #     game_state.building_manager.shoot(world_position)
+
+
+class Bullet:
+    def __init__(self, position, velocity, size):
+        self.position = position
+        self.size = size
+        self.velocity = velocity
+
+    def render(self, batch, game_state):
+        x = self.position.x + game_state.world_offset.x
+        y = self.position.y + game_state.world_offset.y
+        if x + self.size.x < 0 or y + self.size.y < 0:
+            return
+        if x > game_state.window_size.x or y - self.size.y > game_state.window_size.y:
+            return
+
+        render_textured_rectangle(batch, game_state.textures.buildings[self.building_type], Vector(x, y), self.size,
+                                  tex_max=0.8)
+
+    def update(self, game_state):
+        pass
 
 
 class BuildingManager:
     def __init__(self):
         self.buildings: Dict[(int, int), Building] = {}
+        self.bullets: List[Bullet] = []
 
     def render(self, game_state):
         batch = pyglet.graphics.Batch()

@@ -240,14 +240,18 @@ class LoadMapDialog(Dialog):
 class HUD:
     def __init__(self):
         button_height = 50
-        size = Vector(150, button_height)
+        size = Vector(180, button_height)
         self.components = {
-            'menu_button': TextComponent("Menu", Vector(0, 0), size),
-            'mode_button': TextComponent("", Vector(0, -button_height), size, visible=False),
-            'new_button': TextComponent("New", Vector(0, -2 * button_height), size, visible=False),
-            'save_button': TextComponent("Save", Vector(0, -3 * button_height), size, visible=False),
-            'load_button': TextComponent("Load", Vector(0, -4 * button_height), size, visible=False)
+            'map_button': TextComponent("Map", Vector(0, 0), size),
+            'new_button': TextComponent("New", Vector(0, -1 * button_height), size, visible=False),
+            'save_button': TextComponent("Save", Vector(0, -2 * button_height), size, visible=False),
+            'load_button': TextComponent("Load", Vector(0, -3 * button_height), size, visible=False),
+            'mode_button': TextComponent("Mode", Vector(size.x, 0), size),
         }
+        for index, mode in enumerate(list(GameMode)):
+            position = Vector(size.x, -(index + 1) * button_height)
+            self.components[mode] = TextComponent(str(mode)[9:], position, size, visible=False)
+
         self.new_dialog: Dialog = NewMapDialog()
         self.load_dialog: Dialog = LoadMapDialog()
         self.offset = Vector(0, 0)
@@ -261,35 +265,40 @@ class HUD:
             self.load_dialog.update(game_state)
         else:
             def menu():
-                self.toggle_menu()
+                self.toggle_map_menu()
 
             def mode():
-                game_state.next_game_mode()
-                self.components['mode_button'].text = game_state.mode.name
-                self.toggle_menu()
+                self.toggle_mode_menu()
 
             def save():
                 game_state.tile_map.save()
-                self.toggle_menu()
+                self.toggle_map_menu()
 
             def new():
-                self.toggle_menu()
+                self.toggle_map_menu()
                 self.new_dialog.open(game_state)
 
             def load():
-                self.toggle_menu()
+                self.toggle_map_menu()
                 self.load_dialog.open(game_state)
 
             handlers = {
-                'menu_button': menu,
-                'mode_button': mode,
+                'map_button': menu,
                 'save_button': save,
                 'new_button': new,
-                'load_button': load
+                'load_button': load,
+                'mode_button': mode,
             }
 
-            if self.components['mode_button'].text == "":
-                self.components['mode_button'].text = game_state.mode.name
+            def create_setter(mode):
+                def setter():
+                    game_state.mode = mode
+                    self.toggle_mode_menu()
+
+                return setter
+
+            for mode in list(GameMode):
+                handlers[mode] = create_setter(mode)
 
             def processor(_game_state, click):
                 for component in handlers:
@@ -300,11 +309,14 @@ class HUD:
 
             process_clicks(game_state, processor, False, offset=self.offset * -1)
 
-    def toggle_menu(self):
-        self.components['mode_button'].toggle_visibility()
+    def toggle_map_menu(self):
         self.components['new_button'].toggle_visibility()
         self.components['save_button'].toggle_visibility()
         self.components['load_button'].toggle_visibility()
+
+    def toggle_mode_menu(self):
+        for mode in list(GameMode):
+            self.components[mode].toggle_visibility()
 
     def render(self):
         for component in self.components:
