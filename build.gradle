@@ -2,6 +2,18 @@ description = """
 Tower Defense game, written in python
 """
 
+def executeCommand(String command) {
+    def proc = command.execute()
+    proc.consumeProcessOutput(System.out, System.err)
+    proc.waitForOrKill(120000)
+    if (proc.exitValue()) {
+        throw new TaskExecutionException( it,
+            new Exception( "Command '$command' failed; "
+                          + "see task output for details." )
+        )
+    }
+}
+
 task requirements(type: Exec) {
     executable 'pip'
     args = ['install', '-r', 'requirements.txt']
@@ -16,9 +28,7 @@ task buildSetup() {
 task build(dependsOn: ['requirements', 'buildSetup']) {
     doLast {
         def command = 'pyinstaller --onefile --specpath bin --distpath bin/dist --workpath bin/build tower_defense/main.py'
-        def proc = command.execute()
-        proc.consumeProcessOutput(System.out, System.err)
-        proc.waitForOrKill(120000)
+        executeCommand command
     }
 }
 
@@ -29,16 +39,16 @@ task clean() {
     }
 }
 
-task test(type: Exec, dependsOn: 'requirements') {
-    executable 'python'
-    args = ['run_tests.py']
+task test(dependsOn: 'requirements') {
+    doLast {
+        def command = 'python run_tests.py'
+        executeCommand command
+    }
 }
 
 task coverage(dependsOn: 'requirements') {
     doLast {
         def command = 'coverage run run_tests.py'
-        def proc = command.execute()
-        proc.consumeProcessOutput(System.out, System.err)
-        proc.waitForOrKill(120000)
+        executeCommand command
     }
 }
