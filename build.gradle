@@ -33,3 +33,12 @@ task test(type: Exec, dependsOn: 'requirements') {
     executable 'python'
     args = ['run_tests.py']
 }
+
+task coverage(dependsOn: 'requirements') {
+    doLast {
+        def command = 'coverage run run_tests.py'
+        def proc = command.execute()
+        proc.consumeProcessOutput(System.out, System.err)
+        proc.waitForOrKill(120000)
+    }
+}
