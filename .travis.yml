@@ -4,7 +4,7 @@ python:
   - "3.6"
 install:
   - pip install coveralls
-  - apt -y install xorg-server
+  - sudo apt-get -y install xorg-server
 script:
   - gradle coverage
   - gradle build
