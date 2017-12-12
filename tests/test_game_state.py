@@ -39,6 +39,13 @@ class TestGameState(unittest.TestCase):
         actual = game_state.index_to_world_space(Vector(1, 0))
         self.assertEqual(Vector(100, 0), actual, str(actual))
 
+    def test_init(self):
+        game_state = GameState()
+        game_state.init("./tower_defense/res")
+
+        self.assertIsNotNone(Vector(10, 10), game_state.tile_map.max_tiles)
+        self.assertIsNotNone(100, len(game_state.tile_map.tiles))
+
     def test_clean_up(self):
         game_state = GameState()
 

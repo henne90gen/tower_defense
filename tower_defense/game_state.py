@@ -26,9 +26,9 @@ class GameState:
         self.world_offset: Vector = Vector(self.tile_map.border_width * 2,
                                            self.tile_map.border_width * 2)
 
-    def init(self):
-        self.tile_map.load(self, "./res/maps/basic.map")
-        self.textures.load()
+    def init(self, base_path: str = './res'):
+        self.tile_map.load(self, base_path + "/maps/basic.map")
+        self.textures.load(base_path)
 
     @property
     def editor_mode(self) -> bool:
