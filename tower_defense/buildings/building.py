@@ -37,7 +37,7 @@ class Building:
             self.cool_down -= 1
 
         for entity in game_state.entity_manager.entities:
-            world_position = game_state.tile_map.get_tile_position(self.position)
+            world_position = game_state.index_to_world_space(self.position)
             world_position = world_position + self.size / 2
             direction = entity.position - world_position
             distance = direction.length()

@@ -16,17 +16,17 @@ class Entity:
         self.next_tile_index = None
 
     def update(self, game_state):
-        tile_index = game_state.tile_map.get_tile_index(self.position)
+        tile_index = game_state.world_to_index_space(self.position)
         tile = game_state.tile_map.tiles[tile_index]
         if not tile:
             return
         if len(tile.directions) == 0:
             return
         if self.next_tile_index is None:
-            self.next_tile_index = game_state.tile_map.get_tile_index(self.position)
+            self.next_tile_index = game_state.world_to_index_space(self.position)
 
         # update next tile to walk to
-        if game_state.tile_map.get_tile_index(self.position) == self.next_tile_index:
+        if game_state.world_to_index_space(self.position) == self.next_tile_index:
             min_d = None
             for d in game_state.entity_manager.directions_graph[self.next_tile_index]:
                 if min_d is None:

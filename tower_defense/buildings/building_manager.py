@@ -47,7 +47,7 @@ class BuildingManager:
 
     def mouse_click_handler(self, game_state, click):
         if game_state.tile_map.is_on_map(click.position):
-            tile_index = game_state.tile_map.get_tile_index(click.position)
+            tile_index = game_state.world_to_index_space(click.position)
             if tile_index not in self.buildings:
                 self.spawn_building(game_state, tile_index)
             else:

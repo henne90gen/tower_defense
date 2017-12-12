@@ -4,7 +4,7 @@ from buildings.building_manager import BuildingManager
 from entities.entity_manager import EntityManager
 from game_types import GameMode
 from graphics import Textures
-from helper import KeyPresses, MouseClick, Vector
+from helper import KeyPresses, MouseClick, Vector, constrain_rect_to_bounds
 from tiles.tile_map import TileMap
 from user_interface.user_interface import HUD
 
@@ -42,17 +42,23 @@ class GameState:
     def building_mode(self) -> bool:
         return self.mode == GameMode.BUILDING
 
-    # @property
-    # def window_size(self) -> Vector:
-    #     return Vector(*self.window.get_size())
+    def world_to_window_space(self, position: Vector) -> Vector:
+        return position + self.world_offset
 
-    def world_to_window_space(self):
-        pass
+    def world_to_index_space(self, position: Vector) -> (int, int):
+        return int(position.x / self.tile_map.tile_size.x), int(position.y / self.tile_map.tile_size.y)
 
-    def world_to_index_space(self):
-        pass
+    def index_to_world_space(self, index: (int, int)) -> Vector:
+        # TODO change indexes to Vector objects
+        if type(index) == tuple:
+            x = index[0]
+            y = index[1]
+        else:
+            x = index.x
+            y = index.y
+        return Vector(x * self.tile_map.tile_size.x, y * self.tile_map.tile_size.y)
 
-    def window_to_world_space(self, position: Vector):
+    def window_to_world_space(self, position: Vector) -> Vector:
         return position - self.world_offset
 
     def clean_up(self):
@@ -73,20 +79,5 @@ class GameState:
         if self.key_presses.right:
             self.world_offset.x -= scroll_speed
 
-        self.world_offset = self.constrain_to_bounds(self.window_size, self.world_offset,
-                                                     self.tile_map.tile_map_width,
-                                                     self.tile_map.tile_map_height)
-
-    @staticmethod
-    def constrain_to_bounds(window_size: Vector, pos: Vector, width: int, height: int) -> Vector:
-        screen_width_half = window_size.x / 2
-        screen_height_half = window_size.y / 2
-        if pos.x > screen_width_half:
-            pos.x = screen_width_half
-        elif pos.x < -(width - screen_width_half):
-            pos.x = -(width - screen_width_half)
-        if pos.y > screen_height_half:
-            pos.y = screen_height_half
-        elif pos.y < -(height - screen_height_half):
-            pos.y = -(height - screen_height_half)
-        return pos
+        rect_size = Vector(self.tile_map.tile_map_width, self.tile_map.tile_map_height)
+        self.world_offset = constrain_rect_to_bounds(self.window_size, self.world_offset, rect_size)

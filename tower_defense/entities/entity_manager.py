@@ -45,7 +45,7 @@ class EntityManager:
 
         for entity in self.entities.copy():
             entity.update(game_state)
-            tile_index = game_state.tile_map.get_tile_index(entity.position)
+            tile_index = game_state.world_to_index_space(entity.position)
             if game_state.tile_map.tiles[tile_index].tile_type == TileType.FINISH:
                 self.entities.remove(entity)
 

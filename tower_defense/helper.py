@@ -35,6 +35,9 @@ class Vector:
     def length(self):
         return math.sqrt(self.x * self.x + self.y * self.y)
 
+    def copy(self):
+        return Vector(self.x, self.y)
+
     def __str__(self):
         return '({}, {})'.format(self.x, self.y)
 
@@ -84,6 +87,21 @@ def rect_contains_point(point: Vector, rect_position: Vector, rect_size: Vector)
         if rect_position.y - rect_size.y < point.y < rect_position.y:
             return True
     return False
+
+
+def constrain_rect_to_bounds(window_size: Vector, position: Vector, size: Vector) -> Vector:
+    copy = position.copy()
+    screen_width_half = window_size.x / 2
+    screen_height_half = window_size.y / 2
+    if copy.x > screen_width_half:
+        copy.x = screen_width_half
+    elif copy.x < -(size.x - screen_width_half):
+        copy.x = -(size.x - screen_width_half)
+    if copy.y > screen_height_half:
+        copy.y = screen_height_half
+    elif copy.y < -(size.y - screen_height_half):
+        copy.y = -(size.y - screen_height_half)
+    return copy
 
 
 def process_clicks(game_state, processor: Callable[[object, MouseClick], bool], map_to_world_space: bool = True,

@@ -87,12 +87,6 @@ class TileMap:
     def is_on_map(self, position: Vector):
         return 0 < position.x < self.tile_map_width and 0 < position.y < self.tile_map_height
 
-    def get_tile_index(self, position: Vector) -> (int, int):
-        return int(position.x / self.tile_size.x), int(position.y / self.tile_size.y)
-
-    def get_tile_position(self, position: Vector) -> Vector:
-        return Vector(position.x * self.tile_size.x, position.y * self.tile_size.y)
-
     def render(self, game_state):
         self.render_border(game_state)
 

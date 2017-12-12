@@ -1,9 +1,22 @@
 import unittest
 
-from helper import Vector, rect_contains_point
+from helper import Vector, rect_contains_point, constrain_rect_to_bounds
 
 
 class VectorTest(unittest.TestCase):
+    def test_init(self):
+        vec = Vector()
+        self.assertEqual(0, vec.x)
+        self.assertEqual(0, vec.y)
+
+        vec = Vector(1, 2)
+        self.assertEqual(1, vec.x)
+        self.assertEqual(2, vec.y)
+
+        vec = Vector(point=(1, 2))
+        self.assertEqual(1, vec.x)
+        self.assertEqual(2, vec.y)
+
     def test_add(self):
         vec1 = Vector(1, 2)
         vec2 = Vector(2, 3)
@@ -64,3 +77,22 @@ class MethodTest(unittest.TestCase):
         rect_position = Vector(0, 20)
         rect_size = Vector(20, 20)
         self.assertFalse(rect_contains_point(point, rect_position, rect_size))
+
+    def test_constrain_to_bounds(self):
+        window_size = Vector(100, 100)
+        position = Vector(50, 50)
+        rect_size = Vector(10, 10)
+        actual = constrain_rect_to_bounds(window_size, position, rect_size)
+        self.assertEqual(position, actual)
+
+        window_size = Vector(100, 100)
+        position = Vector(100, 100)
+        rect_size = Vector(10, 10)
+        actual = constrain_rect_to_bounds(window_size, position, rect_size)
+        self.assertEqual(Vector(50, 50), actual)
+
+        window_size = Vector(100, 100)
+        position = Vector(0, 0)
+        rect_size = Vector(10, 10)
+        actual = constrain_rect_to_bounds(window_size, position, rect_size)
+        self.assertEqual(Vector(40, 40), actual)
