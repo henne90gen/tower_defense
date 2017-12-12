@@ -1,6 +1,6 @@
 import unittest
 
-from helper import Vector, rect_contains_point, constrain_rect_to_bounds
+from tower_defense.helper import Vector, rect_contains_point, constrain_rect_to_bounds
 
 
 class VectorTest(unittest.TestCase):
