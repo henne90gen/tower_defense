@@ -44,8 +44,9 @@ class Textures:
         }
 
 
-def render_textured_rectangle(batch, texture, position: Vector, size: Vector, tex_max: float = 1.0,
-                              tex_min: float = 0.0, texture_coords: List[int] = None):
+def render_textured_rectangle(batch: pyglet.graphics.Batch, texture: pyglet.graphics.TextureGroup, position: Vector,
+                              size: Vector, tex_max: float = 1.0, tex_min: float = 0.0,
+                              texture_coords: List[int] = None):
     """
     :param batch:
     :param texture:
@@ -70,10 +71,10 @@ def render_textured_rectangle(batch, texture, position: Vector, size: Vector, te
     batch.add(4, pyglet.graphics.GL_QUADS, texture, ('v2f/static', vertices), ('t2f/static', texture_coords))
 
 
-def render_colored_rectangle(batch, color, position: Vector, size: Vector):
+def render_colored_rectangle(batch: pyglet.graphics.Batch, color: (int, int, int), position: Vector, size: Vector):
     """
     :param batch:
-    :param color:
+    :param color: triple with values ranging from 0 to 255
     :param position: bottom left of rectangle
     :param size:
     :return:

@@ -14,7 +14,7 @@ class KeyPresses:
 
 class MouseClick:
     def __init__(self):
-        self.position = Vector(0, 0)
+        self.position = Vector()
         self.button = None
 
     def __eq__(self, other):

@@ -1,6 +1,15 @@
 import unittest
 
-from tower_defense.helper import Vector, rect_contains_point, constrain_rect_to_bounds
+from game_state import GameState
+from tower_defense.helper import Vector, rect_contains_point, constrain_rect_to_bounds, MouseClick, process_clicks
+
+
+class MouseClickTest(unittest.TestCase):
+    def test_eq(self):
+        mc1 = MouseClick()
+        mc2 = MouseClick()
+        self.assertEqual(mc1, mc2)
+        self.assertNotEqual(mc1, "Not a mouse click")
 
 
 class VectorTest(unittest.TestCase):
@@ -96,3 +105,26 @@ class MethodTest(unittest.TestCase):
         rect_size = Vector(10, 10)
         actual = constrain_rect_to_bounds(window_size, position, rect_size)
         self.assertEqual(Vector(40, 40), actual)
+
+    def test_process_clicks(self):
+        game_state = GameState()
+        game_state.mouse_clicks.append(MouseClick())
+
+        def false_processor(game_state, mouse_click):
+            return False
+
+        process_clicks(game_state, false_processor)
+        self.assertEqual(1, len(game_state.mouse_clicks))
+
+        def offset_processor(game_state, mouse_click):
+            self.assertEqual(Vector(10, 10), mouse_click.position)
+            return False
+
+        process_clicks(game_state, offset_processor, map_to_world_space=False, offset=Vector(10, 10))
+        self.assertEqual(1, len(game_state.mouse_clicks))
+
+        def true_processor(game_state, mouse_click):
+            return True
+
+        process_clicks(game_state, true_processor)
+        self.assertEqual(0, len(game_state.mouse_clicks))
