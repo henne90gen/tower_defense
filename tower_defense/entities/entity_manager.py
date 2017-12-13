@@ -47,6 +47,9 @@ class EntityManager:
             entity.update(game_state)
             tile_index = game_state.world_to_index_space(entity.position)
             if game_state.tile_map.tiles[tile_index].tile_type == TileType.FINISH:
+                game_state.player_health -= entity.player_damage
+                self.entities.remove(entity)
+            if entity.health <= 0:
                 self.entities.remove(entity)
 
         if not game_state.test_mode:

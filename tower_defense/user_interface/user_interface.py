@@ -14,6 +14,8 @@ class HUD:
             'save_button': TextComponent("Save", Vector(0, -2 * button_height), size, visible=False),
             'load_button': TextComponent("Load", Vector(0, -3 * button_height), size, visible=False),
             'mode_button': TextComponent("Mode", Vector(size.x, 0), size),
+            'health_label': TextComponent("", Vector(size.x * 2, 0), size),
+            'game_over_label': TextComponent("Game Over", Vector(0, -100), Vector(400, 90), font_size=50, visible=False)
         }
         for index, mode in enumerate(GameMode):
             position = Vector(size.x, -(index + 1) * button_height)
@@ -31,6 +33,9 @@ class HUD:
         elif self.load_dialog.visible:
             self.load_dialog.update(game_state)
         else:
+            def dummy():
+                pass
+
             def menu():
                 self.toggle_map_menu()
 
@@ -49,13 +54,16 @@ class HUD:
                 self.toggle_map_menu()
                 self.load_dialog.open(game_state)
 
-            handlers = {
-                'map_button': menu,
-                'save_button': save,
-                'new_button': new,
-                'load_button': load,
-                'mode_button': mode,
-            }
+            handlers = {}
+            # create a dummy handler for all components
+            for component in self.components:
+                handlers[component] = dummy
+
+            handlers['map_button'] = menu,
+            handlers['save_button'] = save,
+            handlers['new_button'] = new,
+            handlers['load_button'] = load,
+            handlers['mode_button'] = mode,
 
             def create_setter(mode):
                 def setter():
@@ -75,6 +83,14 @@ class HUD:
                 return False
 
             process_clicks(game_state, processor, False, offset=self.offset * -1)
+
+            self.components['health_label'].text = str(game_state.player_health)
+            self.components['game_over_label'].position.x = game_state.window_size.x / 2 - self.components[
+                'game_over_label'].size.x / 2
+            if game_state.player_health <= 0:
+                self.components['game_over_label'].visible = True
+            else:
+                self.components['game_over_label'].visible = False
 
     def toggle_map_menu(self):
         self.components['new_button'].toggle_visibility()

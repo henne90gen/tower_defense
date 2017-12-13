@@ -23,6 +23,8 @@ class GameState:
         self.entity_manager: EntityManager = EntityManager()
         self.building_manager: BuildingManager = BuildingManager()
 
+        self.player_health = 100
+
         self.world_offset: Vector = Vector(self.tile_map.border_width * 2,
                                            self.tile_map.border_width * 2)
 

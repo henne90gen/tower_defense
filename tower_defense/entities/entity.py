@@ -14,6 +14,8 @@ class Entity:
         self.acceleration = Vector()
         self.max_speed = 2
         self.next_tile_index = None
+        self.health = 100
+        self.player_damage = 1
 
     def update(self, game_state):
         tile_index = game_state.world_to_index_space(self.position)
@@ -65,4 +67,4 @@ class Entity:
         render_textured_rectangle(batch, game_state.textures.entities[self.entity_type], Vector(x, y), self.size)
 
     def take_damage(self, damage):
-        print("Took", damage, "damage")
+        self.health -= damage
