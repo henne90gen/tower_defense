@@ -28,11 +28,10 @@ class TileMap:
                 tiles[(x, y)] = tile
         return tiles
 
-    def new(self, game_state, path: str, width: int, height: int):
+    def new(self, game_state, path: str, size: Vector):
         game_state.entity_manager.reset()
         self.path = path.strip()
-        self.max_tiles.x = width
-        self.max_tiles.y = height
+        self.max_tiles = size.copy()
         self.tiles = self.generate_tiles(self.max_tiles, self.tile_size)
         self.save()
 
@@ -123,6 +122,8 @@ class TileMap:
                 tile.next_type(allow_start, allow_finish)
 
                 self.path_finding()
+
+                return True
 
     def path_finding(self):
         for tile in self.tiles:

@@ -17,7 +17,7 @@ class Tile:
     def __eq__(self, other):
         if type(other) != Tile:
             return False
-        return self.position == other.position and self.size == other.size and self.tile_type == other.tile_type
+        return self.position == other.position and self.size == other.size and self.tile_type == other.tile_type and self.directions == other.directions
 
     def __str__(self):
         return "Tile: " + str(self.position) + ":" + str(self.size) + " - " + str(self.tile_type)
