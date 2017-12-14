@@ -59,11 +59,11 @@ class HUD:
             for component in self.components:
                 handlers[component] = dummy
 
-            handlers['map_button'] = menu,
-            handlers['save_button'] = save,
-            handlers['new_button'] = new,
-            handlers['load_button'] = load,
-            handlers['mode_button'] = mode,
+            handlers['map_button'] = menu
+            handlers['save_button'] = save
+            handlers['new_button'] = new
+            handlers['load_button'] = load
+            handlers['mode_button'] = mode
 
             def create_setter(mode):
                 def setter():
