@@ -1,3 +1,5 @@
+from typing import List
+
 import pyglet
 
 from game_types import TileType
@@ -7,10 +9,11 @@ from helper import Vector
 
 class Tile:
     def __init__(self, position: Vector, size: Vector, tile_type: TileType):
+        # position in index space
         self.position = position
         self.size = size
         self.tile_type = tile_type
-        self.directions = []
+        self.directions: List[(int, int)] = []
         self.direction_index = 0
         self.timer = 0
 
@@ -126,7 +129,7 @@ class Tile:
 
         x, y = screen_coordinates
         if self.tile_type == TileType.START or self.tile_type == TileType.FINISH:
-            color = (0,255, 0) if self.tile_type == TileType.START else (255, 0, 0)
+            color = (0, 255, 0) if self.tile_type == TileType.START else (255, 0, 0)
             render_colored_rectangle(batch, color, Vector(x, y), self.size)
         else:
             render_textured_rectangle(batch, game_state.textures.tiles[self.tile_type], Vector(x, y), self.size,

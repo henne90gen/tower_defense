@@ -32,33 +32,43 @@ class EntityManager:
         self.entities.append(entity)
 
     def update(self, game_state):
-        # initialize directions graph
-        for tile in game_state.tile_map.tiles:
-            if tile not in self.directions_graph:
-                self.directions_graph[tile] = {}
-            for direction in self.directions_graph[tile].copy():
-                if direction not in game_state.tile_map.tiles[tile].directions:
-                    del self.directions_graph[tile][direction]
-            for direction in game_state.tile_map.tiles[tile].directions:
-                if direction not in self.directions_graph[tile]:
-                    self.directions_graph[tile][direction] = 0
+        self.generate_directions_graph(game_state)
 
+        self.update_entities(game_state)
+
+        if not game_state.test_mode:
+            return
+
+        self.spawn_timer += 1
+        if self.spawn_timer < 60:
+            return
+
+        self.spawn_timer = 0
+        for tile_index in game_state.tile_map.tiles:
+            tile = game_state.tile_map.tiles[tile_index]
+            if tile.tile_type == TileType.START:
+                self.spawn_random_entity(tile.world_position + (tile.size / 2))
+                break
+
+    def update_entities(self, game_state):
         for entity in self.entities.copy():
             entity.update(game_state)
             tile_index = game_state.world_to_index_space(entity.position)
             if game_state.tile_map.tiles[tile_index].tile_type == TileType.FINISH:
                 game_state.player_health -= entity.player_damage
                 self.entities.remove(entity)
-            if entity.health <= 0:
+            elif entity.health <= 0:
                 self.entities.remove(entity)
 
-        if not game_state.test_mode:
-            return
+    def generate_directions_graph(self, game_state):
+        for tile in game_state.tile_map.tiles:
+            if tile not in self.directions_graph:
+                self.directions_graph[tile] = {}
 
-        self.spawn_timer += 1
-        for tile_index in game_state.tile_map.tiles:
-            tile = game_state.tile_map.tiles[tile_index]
-            if tile.tile_type == TileType.START and self.spawn_timer > 60:
-                self.spawn_timer = 0
-                self.spawn_random_entity(tile.world_position + (tile.size / 2))
-                break
+            for direction in self.directions_graph[tile].copy():
+                if direction not in game_state.tile_map.tiles[tile].directions:
+                    del self.directions_graph[tile][direction]
+
+            for direction in game_state.tile_map.tiles[tile].directions:
+                if direction not in self.directions_graph[tile]:
+                    self.directions_graph[tile][direction] = 0
