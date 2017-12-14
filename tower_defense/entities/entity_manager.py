@@ -10,11 +10,12 @@ from helper import Vector
 class EntityManager:
     def __init__(self):
         self.entities: List[Entity] = []
+        self.spawn_timer = 0
+
         # holds a dictionary similar to the one in TileMap, the only difference being that this one doesn't have tiles
         # as values, but rather a list with the directions associated with that tile and a counter with each direction
         # The counter indicates how many time a certain direction has been taken already
         self.directions_graph: Dict[(int, int), List[((int, int), int)]] = {}
-        self.spawn_timer = 0
 
     def render(self, game_state):
         batch = pyglet.graphics.Batch()

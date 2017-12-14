@@ -18,16 +18,39 @@ class Entity:
         self.player_damage = 1
 
     def update(self, game_state):
+        if not game_state.tile_map.is_on_map(self.position):
+            return
+
         tile_index = game_state.world_to_index_space(self.position)
         tile = game_state.tile_map.tiles[tile_index]
-        if not tile:
-            return
+
         if len(tile.directions) == 0:
             return
         if self.next_tile_index is None:
             self.next_tile_index = game_state.world_to_index_space(self.position)
 
-        # update next tile to walk to
+        self.update_next_tile_index(game_state)
+
+        self.calculate_movement(game_state)
+
+    def calculate_movement(self, game_state):
+        tile = game_state.tile_map.tiles[self.next_tile_index]
+        target = tile.world_position
+        half_tile_size = tile.size / 2
+        target += half_tile_size
+
+        desired_velocity = target - self.position
+        desired_speed = desired_velocity.length()
+        desired_velocity /= desired_speed
+        desired_velocity *= self.max_speed
+        steer = desired_velocity - self.velocity
+
+        self.acceleration += steer
+        self.velocity += self.acceleration
+        self.position += self.velocity
+        self.acceleration = (0, 0)
+
+    def update_next_tile_index(self, game_state):
         if game_state.world_to_index_space(self.position) == self.next_tile_index:
             min_d = None
             for d in game_state.entity_manager.directions_graph[self.next_tile_index]:
@@ -38,26 +61,7 @@ class Entity:
             if min_d:
                 direction = min_d[0]
                 game_state.entity_manager.directions_graph[self.next_tile_index][direction] = min_d[1] + 1
-
                 self.next_tile_index = self.next_tile_index[0] + direction[0], self.next_tile_index[1] + direction[1]
-
-        # calculate movement of entity
-        tile = game_state.tile_map.tiles[self.next_tile_index]
-        target = tile.world_position
-        half_tile_size = tile.size / 2
-        target += half_tile_size
-
-        desired_velocity = target - self.position
-        desired_speed = desired_velocity.length()
-        desired_velocity /= desired_speed
-        desired_velocity *= self.max_speed
-
-        steer = desired_velocity - self.velocity
-
-        self.acceleration += steer
-        self.velocity += self.acceleration
-        self.position += self.velocity
-        self.acceleration = (0, 0)
 
     def render(self, game_state, batch: pyglet.graphics.Batch):
         x, y = self.position.x, self.position.y
