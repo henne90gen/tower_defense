@@ -61,14 +61,15 @@ class TileMapTest(TestCase):
         tile_map = TileMap()
         was_called = []
 
-        def render(game_state, batch, arrow_batch):
+        def render(game_state, batch):
             was_called.append(0)
 
         tile = Object()
         tile.render = render
+        tile.render_arrow = render
         tile_map.tiles = {(0, 0): tile}
         tile_map.render(game_state)
-        self.assertEqual(1, len(was_called))
+        self.assertEqual(2, len(was_called))
 
     @staticmethod
     def test_update_building():
