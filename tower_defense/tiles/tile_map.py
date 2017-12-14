@@ -92,7 +92,8 @@ class TileMap:
         batch = pyglet.graphics.Batch()
         arrow_batch = pyglet.graphics.Batch()
         for tile in self.tiles.values():
-            tile.render(game_state, batch, arrow_batch)
+            tile.render(game_state, batch)
+            tile.render_arrow(game_state, arrow_batch)
         batch.draw()
         arrow_batch.draw()
 

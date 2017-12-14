@@ -46,14 +46,23 @@ class Tile:
 
         return True
 
-    def render_label(self, game_state, batch: pyglet.graphics.Batch):
+    def get_screen_coordinates(self, game_state) -> (int, int):
         x = self.position.x * self.size.x + game_state.world_offset.x
         y = self.position.y * self.size.y + game_state.world_offset.y
 
         if x + self.size.x < 0 or y + self.size.y < 0:
-            return
+            return None
         if x > game_state.window_size.x or y - self.size.y > game_state.window_size.y:
+            return None
+
+        return x, y
+
+    def render_label(self, game_state, batch: pyglet.graphics.Batch):
+        screen_coordinates = self.get_screen_coordinates(game_state)
+        if screen_coordinates is None:
             return
+
+        x, y = screen_coordinates
         pyglet.text.Label(str(self.position) + " " + str(self.world_position),
                           font_name='DejaVuSans',
                           font_size=10,
@@ -61,24 +70,12 @@ class Tile:
                           batch=batch, x=x, y=y,
                           anchor_x='left', anchor_y='bottom')
 
-    def render(self, game_state, batch: pyglet.graphics.Batch, arrow_batch: pyglet.graphics.Batch):
-        x = self.position.x * self.size.x + game_state.world_offset.x
-        y = self.position.y * self.size.y + game_state.world_offset.y
-        if x + self.size.x < 0 or y + self.size.y < 0:
-            return
-        if x > game_state.window_size.x or y - self.size.y > game_state.window_size.y:
+    def render_arrow(self, game_state, batch: pyglet.graphics.Batch):
+        screen_coordinates = self.get_screen_coordinates(game_state)
+        if screen_coordinates is None:
             return
 
-        if self.tile_type == TileType.START or self.tile_type == TileType.FINISH:
-            if self.tile_type == TileType.START:
-                color = (0, 255, 0)
-            else:
-                color = (255, 0, 0)
-            render_colored_rectangle(batch, color, Vector(x, y), self.size)
-        else:
-            render_textured_rectangle(batch, game_state.textures.tiles[self.tile_type], Vector(x, y), self.size,
-                                      tex_max=0.75)
-
+        x, y = screen_coordinates
         if len(self.directions) == 0:
             return
         if self.direction_index >= len(self.directions):
@@ -119,5 +116,18 @@ class Tile:
                           tex_top_right.x, tex_top_right.y,
                           tex_top_left.x, tex_top_left.y,
                           tex_bottom_left.x, tex_bottom_left.y]
-        render_textured_rectangle(arrow_batch, game_state.textures.other['arrow'], Vector(x, y), self.size,
+        render_textured_rectangle(batch, game_state.textures.other['arrow'], Vector(x, y), self.size,
                                   texture_coords=texture_coords)
+
+    def render(self, game_state, batch: pyglet.graphics.Batch):
+        screen_coordinates = self.get_screen_coordinates(game_state)
+        if screen_coordinates is None:
+            return
+
+        x, y = screen_coordinates
+        if self.tile_type == TileType.START or self.tile_type == TileType.FINISH:
+            color = (0,255, 0) if self.tile_type == TileType.START else (255, 0, 0)
+            render_colored_rectangle(batch, color, Vector(x, y), self.size)
+        else:
+            render_textured_rectangle(batch, game_state.textures.tiles[self.tile_type], Vector(x, y), self.size,
+                                      tex_max=0.75)
