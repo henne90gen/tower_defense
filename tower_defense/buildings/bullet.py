@@ -1,3 +1,5 @@
+import pyglet
+
 from game_types import BulletType
 from graphics import render_textured_rectangle
 from helper import Vector, rect_contains_point
@@ -15,15 +17,12 @@ class Bullet:
         # TODO make this dependent on the bullet type
         return 10
 
-    def render(self, batch, game_state):
-        x = self.position.x + game_state.world_offset.x
-        y = self.position.y + game_state.world_offset.y
-        if x + self.size.x < 0 or y + self.size.y < 0:
-            return
-        if x > game_state.window_size.x or y - self.size.y > game_state.window_size.y:
+    def render(self, game_state, batch: pyglet.graphics.Batch):
+        position = game_state.world_to_window_space(self.position, self.size, True)
+        if position is None:
             return
 
-        render_textured_rectangle(batch, game_state.textures.bullets[self.bullet_type], Vector(x, y), self.size,
+        render_textured_rectangle(batch, game_state.textures.bullets[self.bullet_type], position, self.size,
                                   tex_max=1.0)
 
     def update(self, game_state):

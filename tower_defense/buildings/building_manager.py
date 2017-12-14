@@ -22,7 +22,7 @@ class BuildingManager:
 
         bullet_batch = pyglet.graphics.Batch()
         for bullet in self.bullets:
-            bullet.render(bullet_batch, game_state)
+            bullet.render(game_state, bullet_batch)
         bullet_batch.draw()
 
     def update(self, game_state):
