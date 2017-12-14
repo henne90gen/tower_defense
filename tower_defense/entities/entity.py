@@ -69,10 +69,8 @@ class Entity:
         if position is None:
             return
 
-        x, y = position.x, position.y
-        y -= self.size.y / 2
-
-        render_textured_rectangle(batch, game_state.textures.entities[self.entity_type], Vector(x, y), self.size)
+        position.y -= self.size.y / 2
+        render_textured_rectangle(batch, game_state.textures.entities[self.entity_type], position, self.size)
 
     def take_damage(self, damage):
         self.health -= damage
