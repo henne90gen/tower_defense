@@ -44,8 +44,14 @@ class GameState:
     def building_mode(self) -> bool:
         return self.mode == GameMode.BUILDING
 
-    def world_to_window_space(self, position: Vector) -> Vector:
-        return position + self.world_offset
+    def world_to_window_space(self, position: Vector, size: Vector) -> Vector:
+        position += self.world_offset
+        if position.x + size.x < 0 or position.y + size.y < 0:
+            return None
+        if position.x > self.window_size.x or position.y - size.y > self.window_size.y:
+            return None
+
+        return position
 
     def world_to_index_space(self, position: Vector) -> (int, int):
         return int(position.x / self.tile_map.tile_size.x), int(position.y / self.tile_map.tile_size.y)

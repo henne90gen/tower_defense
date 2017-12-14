@@ -13,8 +13,20 @@ class TestGameState(unittest.TestCase):
 
     def test_world_to_window_space(self):
         game_state = GameState()
-        actual = game_state.world_to_window_space(Vector())
-        self.assertEqual(Vector(100, 100), actual, str(actual))
+        game_state.window_size = Vector(100, 100)
+
+        position = Vector(1, 1)
+        size = Vector(10, 10)
+        self.assertEqual(None, game_state.world_to_window_space(position, size))
+
+        position = Vector()
+        size = Vector(10, 10)
+        self.assertEqual(Vector(100, 100), game_state.world_to_window_space(position, size))
+
+        game_state.world_offset = Vector(-100, 0)
+        position = Vector()
+        size = Vector(10, 10)
+        self.assertEqual(None, game_state.world_to_window_space(position, size))
 
     def test_world_to_index_space(self):
         game_state = GameState()

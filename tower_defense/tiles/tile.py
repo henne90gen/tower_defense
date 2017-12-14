@@ -49,23 +49,12 @@ class Tile:
 
         return True
 
-    def get_screen_coordinates(self, game_state) -> (int, int):
-        x = self.position.x * self.size.x + game_state.world_offset.x
-        y = self.position.y * self.size.y + game_state.world_offset.y
-
-        if x + self.size.x < 0 or y + self.size.y < 0:
-            return None
-        if x > game_state.window_size.x or y - self.size.y > game_state.window_size.y:
-            return None
-
-        return x, y
-
     def render_label(self, game_state, batch: pyglet.graphics.Batch):
-        screen_coordinates = self.get_screen_coordinates(game_state)
+        screen_coordinates = game_state.world_to_window_space(self.world_position, self.size)
         if screen_coordinates is None:
             return
 
-        x, y = screen_coordinates
+        x, y = screen_coordinates.x, screen_coordinates.y
         pyglet.text.Label(str(self.position) + " " + str(self.world_position),
                           font_name='DejaVuSans',
                           font_size=10,
@@ -74,11 +63,11 @@ class Tile:
                           anchor_x='left', anchor_y='bottom')
 
     def render_arrow(self, game_state, batch: pyglet.graphics.Batch):
-        screen_coordinates = self.get_screen_coordinates(game_state)
+        screen_coordinates = game_state.world_to_window_space(self.world_position, self.size)
         if screen_coordinates is None:
             return
 
-        x, y = screen_coordinates
+        x, y = screen_coordinates.x, screen_coordinates.y
         if len(self.directions) == 0:
             return
         if self.direction_index >= len(self.directions):
@@ -123,11 +112,11 @@ class Tile:
                                   texture_coords=texture_coords)
 
     def render(self, game_state, batch: pyglet.graphics.Batch):
-        screen_coordinates = self.get_screen_coordinates(game_state)
+        screen_coordinates = game_state.world_to_window_space(self.world_position, self.size)
         if screen_coordinates is None:
             return
 
-        x, y = screen_coordinates
+        x, y = screen_coordinates.x, screen_coordinates.y
         if self.tile_type == TileType.START or self.tile_type == TileType.FINISH:
             color = (0, 255, 0) if self.tile_type == TileType.START else (255, 0, 0)
             render_colored_rectangle(batch, color, Vector(x, y), self.size)

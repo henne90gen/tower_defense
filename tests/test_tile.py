@@ -70,29 +70,6 @@ class TileTest(unittest.TestCase):
         expected = TileType.FINISH
         self.assertEqual(expected, tile.tile_type)
 
-    def test_get_screen_coordinates(self):
-        game_state = GameState()
-        game_state.window_size = Vector(100, 100)
-
-        position = Vector(1, 1)
-        size = Vector(10, 10)
-        tile_type = TileType.BUILDING_GROUND
-        tile = Tile(position, size, tile_type)
-        self.assertEqual(None, tile.get_screen_coordinates(game_state))
-
-        position = Vector()
-        size = Vector(10, 10)
-        tile_type = TileType.BUILDING_GROUND
-        tile = Tile(position, size, tile_type)
-        self.assertEqual((100, 100), tile.get_screen_coordinates(game_state))
-
-        game_state.world_offset = Vector(-100, 0)
-        position = Vector()
-        size = Vector(10, 10)
-        tile_type = TileType.BUILDING_GROUND
-        tile = Tile(position, size, tile_type)
-        self.assertEqual(None, tile.get_screen_coordinates(game_state))
-
     def test_render_label(self):
         game_state = GameState()
         game_state.window_size = Vector(100, 100)

@@ -64,9 +64,13 @@ class Entity:
                 self.next_tile_index = self.next_tile_index[0] + direction[0], self.next_tile_index[1] + direction[1]
 
     def render(self, game_state, batch: pyglet.graphics.Batch):
-        x, y = self.position.x, self.position.y
-        x -= self.size.x / 2 - game_state.world_offset.x
-        y -= self.size.y / 2 - game_state.world_offset.y
+        position = Vector(self.position.x - self.size.x / 2, self.position.y)
+        position = game_state.world_to_window_space(position, self.size)
+        if position is None:
+            return
+
+        x, y = position.x, position.y
+        y -= self.size.y / 2
 
         render_textured_rectangle(batch, game_state.textures.entities[self.entity_type], Vector(x, y), self.size)
 
