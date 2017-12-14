@@ -1,7 +1,9 @@
 language:
   - python
+
 python:
   - 3.6
+
 install:
   - pip install coveralls
 
@@ -12,7 +14,8 @@ before_script:
   - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :0 -ac -screen 0 1280x1024x24"
 
 script:
-  - gradle coverage
-  - gradle build
+  - gradle --console=plain coverage
+  - gradle --console=plain build
+
 after_success:
   - coveralls
