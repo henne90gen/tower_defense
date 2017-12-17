@@ -6,15 +6,15 @@ from helper import Vector
 from tower_defense.graphics import Textures, render_colored_rectangle, render_textured_rectangle
 
 
+class Object(object):
+    pass
+
+
 class TexturesTest(unittest.TestCase):
     def test_init(self):
         textures = Textures()
         textures.load('./tower_defense/res')
         self.assertIsNotNone(textures)
-
-
-class Object(object):
-    pass
 
 
 class MethodTest(unittest.TestCase):

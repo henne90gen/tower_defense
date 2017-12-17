@@ -4,6 +4,7 @@ import pyglet
 
 from buildings.building import Building
 from entities.bullet import Bullet
+from game_types import TileType
 from helper import Vector, process_clicks
 
 
@@ -16,8 +17,8 @@ class BuildingManager:
 
     def render(self, game_state):
         batch = pyglet.graphics.Batch()
-        for index in self.buildings:
-            self.buildings[index].render(game_state, batch)
+        for key in self.buildings:
+            self.buildings[key].render(game_state, batch)
         batch.draw()
 
         bullet_batch = pyglet.graphics.Batch()
@@ -48,7 +49,8 @@ class BuildingManager:
     def mouse_click_handler(self, game_state, click):
         if game_state.tile_map.is_on_map(click.position):
             tile_index = game_state.world_to_index_space(click.position)
-            if tile_index not in self.buildings:
+            if game_state.tile_map.tiles[tile_index].tile_type == TileType.BUILDING_GROUND and \
+                    tile_index not in self.buildings:
                 self.spawn_building(game_state, tile_index)
             else:
                 del self.buildings[tile_index]
