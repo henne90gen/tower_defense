@@ -3,7 +3,7 @@ from typing import List, Dict
 import pyglet
 
 from buildings.building import Building
-from buildings.bullet import Bullet
+from entities.bullet import Bullet
 from helper import Vector, process_clicks
 
 

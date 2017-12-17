@@ -2,7 +2,7 @@ import unittest
 
 import pyglet
 
-from buildings.bullet import Bullet
+from entities.bullet import Bullet
 from entities.entity import Entity
 from game_state import GameState
 from helper import Vector
