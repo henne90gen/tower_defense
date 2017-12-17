@@ -3,6 +3,7 @@ import unittest
 import pyglet
 
 from buildings.bullet import Bullet
+from entities.entity import Entity
 from game_state import GameState
 from helper import Vector
 
@@ -25,4 +26,21 @@ class BulletTest(unittest.TestCase):
         self.assertEqual(0, len(batch.top_groups))
 
     def test_update(self):
-        pass
+        game_state = GameState()
+
+        bullet = Bullet(Vector(), Vector(10, 10), Vector(1, 1))
+        result = bullet.update(game_state)
+        self.assertFalse(result)
+
+        bullet = Bullet(Vector(), Vector(10, 10), Vector(-1, -1))
+        result = bullet.update(game_state)
+        self.assertTrue(result)
+
+    def test_update_with_entity_hit(self):
+        game_state = GameState()
+        entity = Entity(Vector(0, 0), Vector(10, 10))
+        game_state.entity_manager.entities = [entity]
+
+        bullet = Bullet(Vector(), Vector(10, 10), Vector(1, 1))
+        result = bullet.update(game_state)
+        self.assertTrue(result)

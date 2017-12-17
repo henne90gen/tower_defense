@@ -60,6 +60,11 @@ class VectorTest(unittest.TestCase):
         vec = Vector(3, 6)
         self.assertEqual(Vector(1, 2), vec // 3)
 
+    def test_not_equal(self):
+        vec1 = Vector(1, 2)
+        vec2 = Vector(3, 4)
+        self.assertTrue(vec1 != vec2)
+
     def test_str(self):
         vec = Vector(1, 2)
         self.assertEqual("(1, 2)", str(vec))
