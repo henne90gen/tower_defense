@@ -48,7 +48,9 @@ task test(dependsOn: 'requirements') {
 
 task coverage(dependsOn: 'requirements') {
     doLast {
-        def command = 'coverage run --source=tower_defense run_tests.py'
+        def command = 'coverage run --source=tower_defense --omit=tower_defense/main.py run_tests.py'
+        executeCommand command
+        command = 'coverage report'
         executeCommand command
     }
 }
