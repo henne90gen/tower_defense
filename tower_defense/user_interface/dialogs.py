@@ -90,7 +90,7 @@ class NewMapDialog(Dialog):
             if 'input' in component:
                 self.components[component].add_text(game_state.key_presses)
 
-        process_clicks(game_state, self.mouse_click_handler, False, self.position * -1)
+        process_clicks(game_state, self.mouse_click_handler, False, self.position)
 
     def mouse_click_handler(self, game_state, click: MouseClick) -> bool:
         for component in self.components:
@@ -138,7 +138,7 @@ class LoadMapDialog(Dialog):
 
     def update(self, game_state):
         super().update(game_state)
-        process_clicks(game_state, self.mouse_click_handler, False, self.position * -1)
+        process_clicks(game_state, self.mouse_click_handler, False, self.position)
 
     def mouse_click_handler(self, game_state, click):
         if self.cancel_button.is_clicked(click):

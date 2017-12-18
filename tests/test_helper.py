@@ -122,7 +122,7 @@ class MethodTest(unittest.TestCase):
         self.assertEqual(1, len(game_state.mouse_clicks))
 
         def offset_processor(game_state, mouse_click):
-            self.assertEqual(Vector(10, 10), mouse_click.position)
+            self.assertEqual(Vector(-10, -10), mouse_click.position)
             return False
 
         process_clicks(game_state, offset_processor, map_to_world_space=False, offset=Vector(10, 10))

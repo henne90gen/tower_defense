@@ -49,7 +49,7 @@ class EntityManagerTest(unittest.TestCase):
         entity_manager.update(game_state)
         self.assertEqual(0, len(entity_manager.entities))
 
-        game_state.mode = GameMode.TEST
+        game_state.mode = GameMode.GAME
         entity_manager.update(game_state)
         self.assertEqual(0, len(entity_manager.entities))
         self.assertEqual(1, entity_manager.spawn_timer)

@@ -4,7 +4,7 @@ import pyglet
 
 from buildings.building import Building
 from entities.bullet import Bullet
-from game_types import TileType
+from game_types import TileType, GameMode
 from helper import Vector, process_clicks
 
 
@@ -34,7 +34,7 @@ class BuildingManager:
             if bullet.update(game_state):
                 self.bullets.remove(bullet)
 
-        if game_state.building_mode:
+        if game_state.mode == GameMode.GAME:
             process_clicks(game_state, self.mouse_click_handler)
 
     def shoot(self, world_position: Vector, direction: Vector):

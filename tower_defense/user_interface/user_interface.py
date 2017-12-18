@@ -25,6 +25,24 @@ class HUD:
         self.load_dialog: Dialog = LoadMapDialog()
         self.offset = Vector(0, 0)
 
+    def menu_func(self, game_state):
+        self.toggle_map_menu()
+
+    def mode_func(self, game_state):
+        self.toggle_mode_menu()
+
+    def save_func(self, game_state):
+        game_state.tile_map.save()
+        self.toggle_map_menu()
+
+    def new_func(self, game_state):
+        self.toggle_map_menu()
+        self.new_dialog.open(game_state)
+
+    def load_func(self, game_state):
+        self.toggle_map_menu()
+        self.load_dialog.open(game_state)
+
     def update(self, game_state):
         self.offset.y = game_state.window_size.y
 
@@ -36,34 +54,16 @@ class HUD:
             def dummy():
                 pass
 
-            def menu():
-                self.toggle_map_menu()
-
-            def mode():
-                self.toggle_mode_menu()
-
-            def save():
-                game_state.tile_map.save()
-                self.toggle_map_menu()
-
-            def new():
-                self.toggle_map_menu()
-                self.new_dialog.open(game_state)
-
-            def load():
-                self.toggle_map_menu()
-                self.load_dialog.open(game_state)
-
             handlers = {}
             # create a dummy handler for all components
             for component in self.components:
                 handlers[component] = dummy
 
-            handlers['map_button'] = menu
-            handlers['save_button'] = save
-            handlers['new_button'] = new
-            handlers['load_button'] = load
-            handlers['mode_button'] = mode
+            handlers['map_button'] = self.menu_func
+            handlers['save_button'] = self.save_func
+            handlers['new_button'] = self.new_func
+            handlers['load_button'] = self.load_func
+            handlers['mode_button'] = self.mode_func
 
             def create_setter(mode):
                 def setter():
@@ -78,11 +78,11 @@ class HUD:
             def processor(_game_state, click):
                 for component in handlers:
                     if self.components[component].is_clicked(click):
-                        handlers[component]()
+                        handlers[component](game_state)
                         return True
                 return False
 
-            process_clicks(game_state, processor, False, offset=self.offset * -1)
+            process_clicks(game_state, processor, False, offset=self.offset)
 
             self.components['health_label'].text = str(game_state.player_health)
             self.components['game_over_label'].position.x = game_state.window_size.x / 2 - self.components[

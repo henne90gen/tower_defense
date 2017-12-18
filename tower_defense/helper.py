@@ -112,6 +112,6 @@ def process_clicks(game_state, processor: Callable[[object, MouseClick], bool], 
         if map_to_world_space:
             copy_click.position = game_state.window_to_world_space(click.position)
         else:
-            copy_click.position = click.position + offset
+            copy_click.position = click.position - offset
         if processor(game_state, copy_click):
             game_state.mouse_clicks.remove(click)

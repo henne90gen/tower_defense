@@ -82,7 +82,7 @@ class TileMapTest(TestCase):
     def test_update_not_building():
         # no assertions, just making sure the code is run at all
         game_state = GameState()
-        game_state.mode = GameMode.NORMAL
+        game_state.mode = GameMode.EDITOR
         tile_map = TileMap()
         tile_map.update(game_state)
 

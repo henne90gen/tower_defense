@@ -64,17 +64,7 @@ def on_mouse_press(x, y, button, modifiers):
 def on_draw(value=None):
     window.clear()
 
-    game_state.update(Vector(*window.get_size()))
-
-    game_state.hud.update(game_state)
-    game_state.entity_manager.update(game_state)
-    game_state.building_manager.update(game_state)
-    game_state.tile_map.update(game_state)
-
-    game_state.tile_map.render(game_state)
-    game_state.entity_manager.render(game_state)
-    game_state.building_manager.render(game_state)
-    game_state.hud.render()
+    game_state.tick(window)
 
     game_state.clean_up()
 

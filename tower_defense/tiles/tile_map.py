@@ -5,7 +5,7 @@ from typing import Dict
 
 import pyglet
 
-from game_types import TileType
+from game_types import TileType, GameMode
 from helper import Vector, rect_contains_point, process_clicks, MouseClick
 from tiles.tile import Tile
 
@@ -100,7 +100,7 @@ class TileMap:
     def update(self, game_state):
         self.cursor_position = game_state.window_to_world_space(game_state.mouse_position)
 
-        if game_state.building_mode:
+        if game_state.mode != GameMode.EDITOR:
             return
 
         process_clicks(game_state, self.mouse_click_handler)

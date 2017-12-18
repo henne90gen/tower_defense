@@ -70,18 +70,16 @@ class TestGameState(unittest.TestCase):
     def test_update_no_key_event(self):
         game_state = GameState()
         world_offset_before = game_state.world_offset
-        window_size = Vector(1280, 720)
-        game_state.update(window_size)
-
-        self.assertEqual(window_size, game_state.window_size)
+        game_state.window_size = Vector(1280, 720)
+        game_state.update()
         self.assertEqual(world_offset_before, game_state.world_offset)
 
     def test_update_key_event_top_left(self):
         game_state = GameState()
         game_state.key_presses.up = True
         game_state.key_presses.left = True
-        window_size = Vector(1280, 720)
-        game_state.update(window_size)
+        game_state.window_size = Vector(1280, 720)
+        game_state.update()
 
         actual = game_state.world_offset
         self.assertEqual(Vector(105, 95), actual)
@@ -90,15 +88,8 @@ class TestGameState(unittest.TestCase):
         game_state = GameState()
         game_state.key_presses.down = True
         game_state.key_presses.right = True
-        window_size = Vector(1280, 720)
-        game_state.update(window_size)
+        game_state.window_size = Vector(1280, 720)
+        game_state.update()
 
         actual = game_state.world_offset
         self.assertEqual(Vector(95, 105), actual)
-
-    def test_properties(self):
-        game_state = GameState()
-        game_state.mode = GameMode.NORMAL
-        self.assertEqual(True, game_state.editor_mode)
-        self.assertEqual(False, game_state.test_mode)
-        self.assertEqual(False, game_state.building_mode)

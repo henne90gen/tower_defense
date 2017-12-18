@@ -3,7 +3,7 @@ from typing import List, Dict
 import pyglet
 
 from entities.entity import Entity
-from game_types import TileType
+from game_types import TileType, GameMode
 from helper import Vector
 
 
@@ -37,7 +37,7 @@ class EntityManager:
 
         self.update_entities(game_state)
 
-        if not game_state.test_mode:
+        if game_state.mode != GameMode.GAME:
             return
 
         self.spawn_timer += 1

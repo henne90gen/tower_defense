@@ -2,9 +2,9 @@ from enum import Enum
 
 
 class GameMode(Enum):
-    NORMAL = 0
-    TEST = 1
-    BUILDING = 2
+    MAIN_MENU = 0
+    EDITOR = 1
+    GAME = 2
 
 
 class TileType(Enum):
