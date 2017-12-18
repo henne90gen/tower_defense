@@ -29,32 +29,6 @@ class BuildingTest(unittest.TestCase):
         building = Building(Vector(), Vector(10, 10))
         self.assertEqual(200, building.range)
 
-    def test_update_on_cooldown(self):
-        was_called = []
-
-        def shoot(position, direction):
-            was_called.append(0)
-
-        game_state = GameState()
-        game_state.building_manager.shoot = shoot
-        building = Building(Vector(), Vector(10, 10))
-        building.cool_down = 100
-        building.update(game_state)
-        self.assertEqual(0, len(was_called))
-
-    def test_update_nothing_in_range(self):
-        was_called = []
-
-        def shoot(position, direction):
-            was_called.append(0)
-
-        game_state = GameState()
-        game_state.building_manager.shoot = shoot
-        building = Building(Vector(), Vector(10, 10))
-        building.cool_down = 0
-        building.update(game_state)
-        self.assertEqual(0, len(was_called))
-
     def test_update(self):
         was_called = []
 
@@ -63,6 +37,20 @@ class BuildingTest(unittest.TestCase):
 
         game_state = GameState()
         game_state.building_manager.shoot = shoot
+
+        # no enemy to shoot at
+        building = Building(Vector(), Vector(10, 10))
+        building.cool_down = 0
+        building.update(game_state)
+        self.assertEqual(0, len(was_called))
+
+        # on cool down
+        building = Building(Vector(), Vector(10, 10))
+        building.cool_down = 100
+        building.update(game_state)
+        self.assertEqual(0, len(was_called))
+
+        # shooting
         game_state.entity_manager.entities.append(Entity(Vector(150, 0), Vector(10, 10)))
         building = Building(Vector(), Vector(10, 10))
         building.cool_down = 0

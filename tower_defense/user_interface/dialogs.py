@@ -2,7 +2,7 @@ from typing import List
 
 import os
 
-from helper import Vector, MouseClick
+from helper import Vector, MouseClick, process_clicks
 from user_interface.components import TextComponent, Input
 
 MAPS_PATH = './res/maps/'
@@ -30,6 +30,7 @@ class NewMapDialog(Dialog):
         self.position = Vector(200, 0)
         text_width = 150
         text_height = 40
+
         self.components = {
             'width_text': TextComponent("Width:", Vector(0, 0), Vector(text_width, text_height)),
             'width_input': Input(Vector(text_width, 0), Vector(300, text_height), has_focus=True),
@@ -48,6 +49,14 @@ class NewMapDialog(Dialog):
                                            Vector(text_width, text_height))
         }
 
+        self.handlers = {
+            'width_input': None,
+            'height_input': None,
+            'name_input': None,
+            'submit_button': self.submit_func,
+            'cancel_button': self.cancel_func
+        }
+
     def open(self, game_state):
         super().open(game_state)
         self.components['width_input'].text = ""
@@ -59,6 +68,21 @@ class NewMapDialog(Dialog):
             for component in self.components:
                 self.components[component].render(self.position)
 
+    def submit_func(self, game_state):
+        try:
+            new_width = int(self.components['width_input'].text)
+            new_height = int(self.components['height_input'].text)
+        except Exception as e:
+            print(e)
+            return
+        if self.components['name_input'].text:
+            game_state.tile_map.new(game_state, MAPS_PATH + self.components['name_input'].text + '.map',
+                                    Vector(new_width, new_height))
+        self.visible = False
+
+    def cancel_func(self, _):
+        self.visible = False
+
     def update(self, game_state):
         super().update(game_state)
 
@@ -66,44 +90,22 @@ class NewMapDialog(Dialog):
             if 'input' in component:
                 self.components[component].add_text(game_state.key_presses)
 
-        def submit():
-            try:
-                new_width = int(self.components['width_input'].text)
-                new_height = int(self.components['height_input'].text)
-            except Exception as e:
-                print(e)
-                return
-            game_state.tile_map.new(game_state, MAPS_PATH + self.components['name_input'].text + '.map', new_width,
-                                    new_height)
-            self.visible = False
+        process_clicks(game_state, self.mouse_click_handler, False, self.position * -1)
 
-        def cancel():
-            self.visible = False
-
-        handlers = {
-            'width_input': None,
-            'height_input': None,
-            'name_input': None,
-            'submit_button': submit,
-            'cancel_button': cancel
-        }
-
-        for click in game_state.mouse_clicks.copy():
-            for component in handlers:
-                copy_click = MouseClick()
-                copy_click.button = click.button
-                copy_click.position = click.position - self.position
-
-                if self.components[component].is_clicked(copy_click):
+    def mouse_click_handler(self, game_state, click: MouseClick) -> bool:
+        for component in self.components:
+            if component in self.handlers:
+                if self.components[component].is_clicked(click):
                     if 'input' in component:
                         self.give_exclusive_focus(component)
                     else:
-                        handlers[component]()
-                    game_state.mouse_clicks.remove(click)
+                        self.handlers[component](game_state)
+                    return True
+        return False
 
     def give_exclusive_focus(self, component: str):
         for other_component in self.components:
-            if component == other_component:
+            if component == other_component and 'input' in component:
                 continue
             if 'input' in other_component:
                 self.components[other_component].has_focus = False
@@ -115,11 +117,11 @@ class LoadMapDialog(Dialog):
         self.maps: List[TextComponent] = []
         self.cancel_button: TextComponent = None
 
-    def refresh_maps(self):
+    def refresh_maps(self, maps_path: str):
         self.maps = []
         current_index = 0
         height = 50
-        for file in os.listdir(MAPS_PATH):
+        for file in os.listdir(maps_path):
             if '.map' in file:
                 text_component = TextComponent(file, Vector(150, 100 - height * current_index), Vector(300, height))
                 self.maps.append(text_component)
@@ -131,27 +133,23 @@ class LoadMapDialog(Dialog):
 
     def open(self, game_state):
         super().open(game_state)
-        current_index, height = self.refresh_maps()
+        current_index, height = self.refresh_maps(MAPS_PATH)
         self.update_cancel_button(current_index, height)
 
     def update(self, game_state):
         super().update(game_state)
+        process_clicks(game_state, self.mouse_click_handler, False, self.position * -1)
 
-        for click in game_state.mouse_clicks.copy():
-            copy_click = MouseClick()
-            copy_click.button = click.button
-            copy_click.position = click.position - self.position
-
-            if self.cancel_button.is_clicked(copy_click):
+    def mouse_click_handler(self, game_state, click):
+        if self.cancel_button.is_clicked(click):
+            self.visible = False
+            return True
+        for tile_map in self.maps:
+            if tile_map.is_clicked(click):
+                game_state.tile_map.load(game_state, MAPS_PATH + tile_map.text)
                 self.visible = False
-                game_state.mouse_clicks.remove(click)
-                return
-            for tile_map in self.maps:
-                if tile_map.is_clicked(copy_click):
-                    game_state.tile_map.load(game_state, MAPS_PATH + tile_map.text)
-                    self.visible = False
-                    game_state.mouse_clicks.remove(click)
-                    return
+                return True
+        return False
 
     def render(self):
         if self.visible:
