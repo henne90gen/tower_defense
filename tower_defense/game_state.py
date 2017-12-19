@@ -3,13 +3,13 @@ from typing import List
 import pyglet
 
 from buildings.building_manager import BuildingManager
-from entities.entity_manager import EntityManager
+from entities.entity_manager import EntityManager, GameEntityManager, EditorEntityManager
 from game_types import GameMode
 from graphics import Textures
 from helper import KeyPresses, MouseClick, Vector, constrain_rect_to_bounds
-from tiles.tile_map import TileMap
-from user_interface.menu import MainMenu
-from user_interface.user_interface import HUD
+from tiles.tile_map import TileMap, EditorTileMap, GameTileMap
+from user_interface.menu import MainMenu, MapMenu
+from user_interface.user_interface import EditorUI, GameUI
 
 
 class GameState:
@@ -22,8 +22,11 @@ class GameState:
         self.mouse_position: (int, int) = (0, 0)
 
         self.main_menu: MainMenu = MainMenu()
+        self.map_menu: MapMenu = MapMenu()
 
-        self.hud: HUD = HUD()
+        self.editor_ui: EditorUI = EditorUI()
+        self.game_ui: GameUI = GameUI()
+
         self.textures: Textures = Textures()
         self.tile_map: TileMap = TileMap()
         self.entity_manager: EntityManager = EntityManager()
@@ -89,9 +92,16 @@ class GameState:
         self.window_size = Vector(*window.get_size())
 
         if self.mode == GameMode.EDITOR:
+            if type(self.entity_manager) != EditorEntityManager:
+                self.entity_manager = EditorEntityManager()
+            if type(self.tile_map) != EditorTileMap:
+                path = self.tile_map.path
+                self.tile_map = EditorTileMap()
+                self.tile_map.load(self, path)
+
             self.update()
 
-            self.hud.update(self)
+            self.editor_ui.update(self)
             self.entity_manager.update(self)
             self.building_manager.update(self)
             self.tile_map.update(self)
@@ -99,10 +109,29 @@ class GameState:
             self.tile_map.render(self)
             self.entity_manager.render(self)
             self.building_manager.render(self)
-            self.hud.render()
+            self.editor_ui.render()
         elif self.mode == GameMode.GAME:
-            pass
+            if type(self.entity_manager) != GameEntityManager:
+                self.entity_manager = GameEntityManager()
+            if type(self.tile_map) != GameTileMap:
+                path = self.tile_map.path
+                self.tile_map = GameTileMap()
+                self.tile_map.load(self, path)
+
+            self.update()
+
+            self.game_ui.update(self)
+            self.entity_manager.update(self)
+            self.building_manager.update(self)
+            self.tile_map.update(self)
+
+            self.tile_map.render(self)
+            self.building_manager.render(self)
+            self.entity_manager.render(self)
+            self.game_ui.render(self)
         elif self.mode == GameMode.MAIN_MENU:
             self.main_menu.update(self)
-
             self.main_menu.render(self)
+        elif self.mode == GameMode.MAP_CHOICE:
+            self.map_menu.update(self)
+            self.map_menu.render()

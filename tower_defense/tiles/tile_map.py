@@ -14,7 +14,6 @@ class TileMap:
     def __init__(self):
         self.path = ""
         self.border_width = 50
-        self.cursor_position = Vector()
         self.tile_size = Vector(100, 100)
         self.max_tiles = Vector(10, 10)
         self.tiles: Dict[(int, int), Tile] = self.generate_tiles(self.max_tiles, self.tile_size)
@@ -98,33 +97,10 @@ class TileMap:
         arrow_batch.draw()
 
     def update(self, game_state):
-        self.cursor_position = game_state.window_to_world_space(game_state.mouse_position)
-
-        if game_state.mode != GameMode.EDITOR:
-            return
-
         process_clicks(game_state, self.mouse_click_handler)
 
-    def mouse_click_handler(self, game_state, click: MouseClick):
-        if not self.is_on_map(click.position):
-            return False
-
-        for tile in self.tiles.values():
-            if rect_contains_point(click.position, Vector(tile.world_position.x, tile.world_position.y + tile.size.y),
-                                   tile.size):
-                allow_start = True
-                allow_finish = True
-                for key in self.tiles:
-                    if self.tiles[key].tile_type == TileType.START:
-                        allow_start = False
-                    elif self.tiles[key].tile_type == TileType.FINISH:
-                        allow_finish = False
-
-                tile.next_type(allow_start, allow_finish)
-
-                self.path_finding()
-
-                return True
+    def mouse_click_handler(self, _, click: MouseClick) -> bool:
+        return False
 
     def path_finding(self):
         for tile in self.tiles:
@@ -277,3 +253,30 @@ class TileMap:
                     graph[position].append((left_pos, (-1, 0)))
 
         return graph
+
+
+class EditorTileMap(TileMap):
+    def mouse_click_handler(self, _, click: MouseClick) -> bool:
+        if not self.is_on_map(click.position) or click.button != 1:
+            return False
+
+        for tile in self.tiles.values():
+            if rect_contains_point(click.position, Vector(tile.world_position.x, tile.world_position.y + tile.size.y),
+                                   tile.size):
+                allow_start = True
+                allow_finish = True
+                for key in self.tiles:
+                    if self.tiles[key].tile_type == TileType.START:
+                        allow_start = False
+                    elif self.tiles[key].tile_type == TileType.FINISH:
+                        allow_finish = False
+
+                tile.next_type(allow_start, allow_finish)
+
+                self.path_finding()
+
+                return True
+
+
+class GameTileMap(TileMap):
+    pass

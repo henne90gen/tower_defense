@@ -1,6 +1,8 @@
 import math
 from typing import Callable
 
+import os
+
 
 class KeyPresses:
     def __init__(self):
@@ -115,3 +117,12 @@ def process_clicks(game_state, processor: Callable[[object, MouseClick], bool], 
             copy_click.position = click.position - offset
         if processor(game_state, copy_click):
             game_state.mouse_clicks.remove(click)
+
+
+def maps_list(maps_path: str):
+    maps = []
+    for file in os.listdir(maps_path):
+        if '.map' in file:
+            maps.append(file)
+    return maps
+

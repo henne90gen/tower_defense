@@ -4,7 +4,7 @@ from user_interface.dialogs import Dialog, NewMapDialog, LoadMapDialog
 from user_interface.components import TextComponent
 
 
-class HUD:
+class EditorUI:
     def __init__(self):
         button_height = 50
         size = Vector(180, button_height)
@@ -13,8 +13,7 @@ class HUD:
             'new_button': TextComponent("New", Vector(0, -1 * button_height), size, visible=False),
             'save_button': TextComponent("Save", Vector(0, -2 * button_height), size, visible=False),
             'load_button': TextComponent("Load", Vector(0, -3 * button_height), size, visible=False),
-            'mode_button': TextComponent("Mode", Vector(size.x, 0), size),
-            'health_label': TextComponent("", Vector(size.x * 2, 0), size),
+            'health_label': TextComponent("", Vector(size.x, 0), size),
             'game_over_label': TextComponent("Game Over", Vector(0, -100), Vector(400, 90), font_size=50, visible=False)
         }
         for index, mode in enumerate(GameMode):
@@ -63,17 +62,6 @@ class HUD:
             handlers['save_button'] = self.save_func
             handlers['new_button'] = self.new_func
             handlers['load_button'] = self.load_func
-            handlers['mode_button'] = self.mode_func
-
-            def create_setter(mode):
-                def setter():
-                    game_state.mode = mode
-                    self.toggle_mode_menu()
-
-                return setter
-
-            for mode in GameMode:
-                handlers[mode] = create_setter(mode)
 
             def processor(_game_state, click):
                 for component in handlers:
@@ -107,3 +95,14 @@ class HUD:
 
         self.new_dialog.render()
         self.load_dialog.render()
+
+
+class GameUI:
+    def __init__(self):
+        pass
+
+    def update(self, game_state):
+        pass
+
+    def render(self, game_state):
+        pass

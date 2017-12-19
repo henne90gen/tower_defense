@@ -7,7 +7,7 @@ import os
 from game_state import GameState
 from game_types import TileType, GameMode
 from helper import Vector, MouseClick
-from tiles.tile_map import Tile, TileMap
+from tiles.tile_map import Tile, TileMap, EditorTileMap
 
 
 class Object(object):
@@ -94,17 +94,6 @@ class TileMapTest(TestCase):
         expected = False
         self.assertEqual(expected, actual)
 
-    def test_mouse_click_handler_on_map(self):
-        tile_map = TileMap()
-        tile_map.tiles[(1, 1)].tile_type = TileType.START
-        tile_map.tiles[(2, 2)].tile_type = TileType.FINISH
-        click = MouseClick()
-        click.position = Vector(1, 1)
-        actual = tile_map.mouse_click_handler(None, click)
-        expected = True
-        self.assertEqual(expected, actual)
-        self.assertEqual(TileType.PATH, tile_map.tiles[(0, 0)].tile_type)
-
     def test_path_finding_no_start(self):
         tile_map = TileMap()
         tiles = deepcopy(tile_map.tiles)
@@ -150,3 +139,17 @@ class TileMapTest(TestCase):
 
         for tile in tiles:
             self.assertEqual(tiles[tile], tile_map.tiles[tile])
+
+
+class EditorTileMapTest(TestCase):
+    def test_mouse_click_handler_on_map(self):
+        tile_map = EditorTileMap()
+        tile_map.tiles[(1, 1)].tile_type = TileType.START
+        tile_map.tiles[(2, 2)].tile_type = TileType.FINISH
+        click = MouseClick()
+        click.position = Vector(1, 1)
+        click.button = 1
+        actual = tile_map.mouse_click_handler(None, click)
+        expected = True
+        self.assertEqual(expected, actual)
+        self.assertEqual(TileType.PATH, tile_map.tiles[(0, 0)].tile_type)

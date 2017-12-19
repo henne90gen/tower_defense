@@ -3,15 +3,13 @@ from typing import List, Dict
 import pyglet
 
 from entities.entity import Entity
-from game_types import TileType, GameMode
+from game_types import TileType
 from helper import Vector
 
 
 class EntityManager:
     def __init__(self):
         self.entities: List[Entity] = []
-        self.spawn_timer = 0
-
         # holds a dictionary similar to the one in TileMap, the only difference being that this one doesn't have tiles
         # as values, but rather a list with the directions associated with that tile and a counter with each direction
         # The counter indicates how many time a certain direction has been taken already
@@ -26,7 +24,6 @@ class EntityManager:
     def reset(self):
         self.directions_graph = {}
         self.entities = []
-        self.spawn_timer = 0
 
     def spawn_random_entity(self, position: Vector):
         entity = Entity(position, Vector(100, 100))
@@ -34,22 +31,7 @@ class EntityManager:
 
     def update(self, game_state):
         self.generate_directions_graph(game_state)
-
         self.update_entities(game_state)
-
-        if game_state.mode != GameMode.GAME:
-            return
-
-        self.spawn_timer += 1
-        if self.spawn_timer < 60:
-            return
-
-        self.spawn_timer = 0
-        for tile_index in game_state.tile_map.tiles:
-            tile = game_state.tile_map.tiles[tile_index]
-            if tile.tile_type == TileType.START:
-                self.spawn_random_entity(tile.world_position + (tile.size / 2))
-                break
 
     def update_entities(self, game_state):
         for entity in self.entities.copy():
@@ -73,3 +55,31 @@ class EntityManager:
             for direction in game_state.tile_map.tiles[tile].directions:
                 if direction not in self.directions_graph[tile]:
                     self.directions_graph[tile][direction] = 0
+
+
+class EditorEntityManager(EntityManager):
+    def __init__(self):
+        super().__init__()
+        self.spawn_timer = 0
+
+    def update(self, game_state):
+        super().update(game_state)
+        self.spawn_timer += 1
+        if self.spawn_timer < 60:
+            return
+
+        self.spawn_timer = 0
+        for tile_index in game_state.tile_map.tiles:
+            tile = game_state.tile_map.tiles[tile_index]
+            if tile.tile_type == TileType.START:
+                self.spawn_random_entity(tile.world_position + (tile.size / 2))
+                break
+
+    def reset(self):
+        super().reset()
+        self.spawn_timer = 0
+
+
+class GameEntityManager(EntityManager):
+    def __init__(self):
+        super().__init__()
