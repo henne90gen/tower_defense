@@ -88,50 +88,56 @@ class GameState:
         rect_size = Vector(self.tile_map.tile_map_width, self.tile_map.tile_map_height)
         self.world_offset = constrain_rect_to_bounds(self.window_size, self.world_offset, rect_size)
 
+    def tick_editor(self):
+        if type(self.entity_manager) != EditorEntityManager:
+            self.entity_manager = EditorEntityManager()
+        if type(self.tile_map) != EditorTileMap:
+            path = self.tile_map.path
+            self.tile_map = EditorTileMap()
+            self.tile_map.load(self, path)
+
+        self.update()
+
+        self.editor_ui.update(self)
+        self.entity_manager.update(self)
+        self.building_manager.update(self)
+        self.tile_map.update(self)
+
+        self.tile_map.render(self)
+        self.entity_manager.render(self)
+        self.building_manager.render(self)
+        self.editor_ui.render()
+
+    def tick_game(self):
+        if type(self.entity_manager) != GameEntityManager:
+            self.entity_manager = GameEntityManager()
+        if type(self.tile_map) != GameTileMap:
+            path = self.tile_map.path
+            self.tile_map = GameTileMap()
+            self.tile_map.load(self, path)
+
+        self.update()
+
+        self.game_ui.update(self)
+        self.entity_manager.update(self)
+        self.building_manager.update(self)
+        self.tile_map.update(self)
+
+        self.tile_map.render(self)
+        self.building_manager.render(self)
+        self.entity_manager.render(self)
+        self.game_ui.render(self)
+
     def tick(self, window: pyglet.window.Window):
         self.window_size = Vector(*window.get_size())
 
         if self.mode == GameMode.EDITOR:
-            if type(self.entity_manager) != EditorEntityManager:
-                self.entity_manager = EditorEntityManager()
-            if type(self.tile_map) != EditorTileMap:
-                path = self.tile_map.path
-                self.tile_map = EditorTileMap()
-                self.tile_map.load(self, path)
-
-            self.update()
-
-            self.editor_ui.update(self)
-            self.entity_manager.update(self)
-            self.building_manager.update(self)
-            self.tile_map.update(self)
-
-            self.tile_map.render(self)
-            self.entity_manager.render(self)
-            self.building_manager.render(self)
-            self.editor_ui.render()
+            self.tick_editor()
         elif self.mode == GameMode.GAME:
-            if type(self.entity_manager) != GameEntityManager:
-                self.entity_manager = GameEntityManager()
-            if type(self.tile_map) != GameTileMap:
-                path = self.tile_map.path
-                self.tile_map = GameTileMap()
-                self.tile_map.load(self, path)
-
-            self.update()
-
-            self.game_ui.update(self)
-            self.entity_manager.update(self)
-            self.building_manager.update(self)
-            self.tile_map.update(self)
-
-            self.tile_map.render(self)
-            self.building_manager.render(self)
-            self.entity_manager.render(self)
-            self.game_ui.render(self)
+            self.tick_game()
         elif self.mode == GameMode.MAIN_MENU:
             self.main_menu.update(self)
             self.main_menu.render(self)
-        elif self.mode == GameMode.MAP_CHOICE:
+        elif self.mode == GameMode.MAP_CHOICE_EDITOR or self.mode == GameMode.MAP_CHOICE_GAME:
             self.map_menu.update(self)
             self.map_menu.render()

@@ -93,3 +93,15 @@ class TestGameState(unittest.TestCase):
 
         actual = game_state.world_offset
         self.assertEqual(Vector(95, 105), actual)
+
+    @unittest.skip("Implement this")
+    def test_tick(self):
+        self.fail()
+
+    @unittest.skip("Implement this")
+    def test_tick_game(self):
+        self.fail()
+
+    @unittest.skip("Implement this")
+    def test_tick_editor(self):
+        self.fail()

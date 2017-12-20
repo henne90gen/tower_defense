@@ -4,8 +4,9 @@ from enum import Enum
 class GameMode(Enum):
     MAIN_MENU = 0
     EDITOR = 1
-    MAP_CHOICE = 2
-    GAME = 3
+    GAME = 2
+    MAP_CHOICE_EDITOR = 3
+    MAP_CHOICE_GAME = 4
 
 
 class TileType(Enum):

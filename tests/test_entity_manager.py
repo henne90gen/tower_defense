@@ -70,10 +70,16 @@ class EntityManagerTest(unittest.TestCase):
         entity_manager.update_entities(game_state)
         self.assertEqual(0, len(entity_manager.entities))
 
+    @unittest.skip("Implement this")
+    def test_generate_directions_graph(self):
+        self.fail()
+
 
 class EditorEntityManagerTest(unittest.TestCase):
     def test_update(self):
         game_state = GameState()
+        game_state.tile_map.tiles[(0, 0)].tile_type = TileType.START
+        game_state.tile_map.tiles[(1, 1)].tile_type = TileType.FINISH
         entity_manager = EditorEntityManager()
         game_state.entity_manager = entity_manager
 
@@ -81,15 +87,27 @@ class EditorEntityManagerTest(unittest.TestCase):
         self.assertEqual(0, len(entity_manager.entities))
         self.assertEqual(1, entity_manager.spawn_timer)
 
-        entity_manager.spawn_timer = 60
-        entity_manager.update(game_state)
-        self.assertEqual(0, len(entity_manager.entities))
-        self.assertEqual(0, entity_manager.spawn_timer)
+    def test_update_spawn_entity(self):
+        game_state = GameState()
+        game_state.tile_map.tiles[(0, 0)].tile_type = TileType.START
+        game_state.tile_map.tiles[(1, 1)].tile_type = TileType.FINISH
+        entity_manager = EditorEntityManager()
+        game_state.entity_manager = entity_manager
 
         game_state.tile_map.tiles[(0, 0)].tile_type = TileType.START
         entity_manager.spawn_timer = 60
         entity_manager.update(game_state)
         self.assertEqual(1, len(entity_manager.entities))
+        self.assertEqual(0, entity_manager.spawn_timer)
+
+    def test_update_reset_spawn_timer(self):
+        game_state = GameState()
+        entity_manager = EditorEntityManager()
+        game_state.entity_manager = entity_manager
+
+        entity_manager.spawn_timer = 60
+        entity_manager.update(game_state)
+        self.assertEqual(0, len(entity_manager.entities))
         self.assertEqual(0, entity_manager.spawn_timer)
 
     def test_reset(self):

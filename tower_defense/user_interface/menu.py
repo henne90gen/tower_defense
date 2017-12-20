@@ -32,16 +32,16 @@ class MainMenu:
         process_clicks(game_state, self.mouse_click_handler, False, self.position)
 
     @staticmethod
+    def game_func(game_state):
+        game_state.mode = GameMode.MAP_CHOICE_GAME
+
+    @staticmethod
     def editor_func(game_state):
-        game_state.mode = GameMode.EDITOR
+        game_state.mode = GameMode.MAP_CHOICE_EDITOR
 
     @staticmethod
     def exit_func(game_state):
         exit(0)
-
-    @staticmethod
-    def game_func(game_state):
-        game_state.mode = GameMode.MAP_CHOICE
 
     def mouse_click_handler(self, game_state, click: MouseClick) -> bool:
         for component in self.components:
@@ -67,7 +67,10 @@ class MapMenu:
     @staticmethod
     def load_func(game_state, path):
         game_state.tile_map.load(game_state, "./res/maps/" + path)
-        game_state.mode = GameMode.GAME
+        if game_state.mode == GameMode.MAP_CHOICE_GAME:
+            game_state.mode = GameMode.GAME
+        elif game_state.mode == GameMode.MAP_CHOICE_EDITOR:
+            game_state.mode = GameMode.EDITOR
 
     def update(self, game_state):
         self.position = Vector(150, game_state.window_size.y - 100)

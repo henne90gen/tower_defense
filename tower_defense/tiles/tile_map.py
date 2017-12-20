@@ -82,6 +82,20 @@ class TileMap:
     def tile_map_height(self):
         return self.tile_size.y * self.max_tiles.y
 
+    @property
+    def has_start_node(self):
+        for tile in self.tiles:
+            if self.tiles[tile].tile_type == TileType.START:
+                return True
+        return False
+
+    @property
+    def has_finish_node(self):
+        for tile in self.tiles:
+            if self.tiles[tile].tile_type == TileType.FINISH:
+                return True
+        return False
+
     def is_on_map(self, position: Vector):
         return 0 < position.x < self.tile_map_width and 0 < position.y < self.tile_map_height
 

@@ -1,5 +1,5 @@
 from game_types import GameMode
-from helper import Vector, process_clicks
+from helper import Vector, process_clicks, MouseClick
 from user_interface.dialogs import Dialog, NewMapDialog, LoadMapDialog
 from user_interface.components import TextComponent
 
@@ -99,10 +99,36 @@ class EditorUI:
 
 class GameUI:
     def __init__(self):
-        pass
+        self.offset = Vector()
+        button_height = 50
+        size = Vector(180, button_height)
+        self.components = {
+            'next_wave_button': TextComponent("Next Wave", Vector(), size),
+            'current_wave_label': TextComponent("", Vector(size.x, 0), size),
+            'health_label': TextComponent("", Vector(size.x * 2, 0), size),
+        }
+        self.handlers = {
+            'next_wave_button': self.next_wave_func
+        }
 
     def update(self, game_state):
-        pass
+        self.offset.y = game_state.window_size.y
+        self.components['health_label'].text = str(game_state.player_health)
+        self.components['current_wave_label'].text = str(game_state.entity_manager.wave_count)
+        process_clicks(game_state, self.mouse_click_handler, False, self.offset)
+
+    @staticmethod
+    def next_wave_func(game_state):
+        game_state.entity_manager.next_wave()
+
+    def mouse_click_handler(self, game_state, click: MouseClick) -> bool:
+        for component in self.components:
+            if self.components[component].is_clicked(click):
+                if component in self.handlers:
+                    self.handlers[component](game_state)
+                return True
+        return False
 
     def render(self, game_state):
-        pass
+        for component in self.components:
+            self.components[component].render(self.offset)

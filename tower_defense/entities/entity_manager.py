@@ -33,6 +33,9 @@ class EntityManager:
         self.generate_directions_graph(game_state)
         self.update_entities(game_state)
 
+    def next_wave(self):
+        pass
+
     def update_entities(self, game_state):
         for entity in self.entities.copy():
             entity.update(game_state)
@@ -64,6 +67,7 @@ class EditorEntityManager(EntityManager):
 
     def update(self, game_state):
         super().update(game_state)
+
         self.spawn_timer += 1
         if self.spawn_timer < 60:
             return
@@ -71,7 +75,7 @@ class EditorEntityManager(EntityManager):
         self.spawn_timer = 0
         for tile_index in game_state.tile_map.tiles:
             tile = game_state.tile_map.tiles[tile_index]
-            if tile.tile_type == TileType.START:
+            if tile.tile_type == TileType.START and game_state.tile_map.has_finish_node:
                 self.spawn_random_entity(tile.world_position + (tile.size / 2))
                 break
 
@@ -83,3 +87,14 @@ class EditorEntityManager(EntityManager):
 class GameEntityManager(EntityManager):
     def __init__(self):
         super().__init__()
+        self.wave_count = 0
+        self.wave = []
+
+    @property
+    def wave_running(self):
+        return len(self.wave) > 0
+
+    def next_wave(self):
+        self.wave_count += 1
+        # TODO init next wave
+        self.wave = []
