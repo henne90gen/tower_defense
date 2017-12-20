@@ -64,9 +64,13 @@ class EditorEntityManager(EntityManager):
     def __init__(self):
         super().__init__()
         self.spawn_timer = 0
+        self.should_spawn = True
 
     def update(self, game_state):
         super().update(game_state)
+
+        if not self.should_spawn:
+            return
 
         self.spawn_timer += 1
         if self.spawn_timer < 60:

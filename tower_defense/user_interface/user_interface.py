@@ -9,26 +9,25 @@ class EditorUI:
         button_height = 50
         size = Vector(180, button_height)
         self.components = {
-            'map_button': TextComponent("Map", Vector(0, 0), size),
+            'menu_button': TextComponent("Menu", Vector(0, 0), size),
             'new_button': TextComponent("New", Vector(0, -1 * button_height), size, visible=False),
             'save_button': TextComponent("Save", Vector(0, -2 * button_height), size, visible=False),
             'load_button': TextComponent("Load", Vector(0, -3 * button_height), size, visible=False),
-            'health_label': TextComponent("", Vector(size.x, 0), size),
-            'game_over_label': TextComponent("Game Over", Vector(0, -100), Vector(400, 90), font_size=50, visible=False)
+            'entities_toggle': TextComponent("", Vector(size.x, 0), size + Vector(20, 0)),
         }
-        for index, mode in enumerate(GameMode):
-            position = Vector(size.x, -(index + 1) * button_height)
-            self.components[mode] = TextComponent(str(mode)[9:], position, size, visible=False)
-
+        self.handlers = {
+            'menu_button': self.menu_func,
+            'save_button': self.save_func,
+            'new_button': self.new_func,
+            'load_button': self.load_func,
+            'entities_toggle': self.entities_func,
+        }
         self.new_dialog: Dialog = NewMapDialog()
         self.load_dialog: Dialog = LoadMapDialog()
         self.offset = Vector(0, 0)
 
-    def menu_func(self, game_state):
+    def menu_func(self, _):
         self.toggle_map_menu()
-
-    def mode_func(self, game_state):
-        self.toggle_mode_menu()
 
     def save_func(self, game_state):
         game_state.tile_map.save()
@@ -42,6 +41,10 @@ class EditorUI:
         self.toggle_map_menu()
         self.load_dialog.open(game_state)
 
+    @staticmethod
+    def entities_func(game_state):
+        game_state.entity_manager.should_spawn = not game_state.entity_manager.should_spawn
+
     def update(self, game_state):
         self.offset.y = game_state.window_size.y
 
@@ -50,44 +53,21 @@ class EditorUI:
         elif self.load_dialog.visible:
             self.load_dialog.update(game_state)
         else:
-            def dummy():
-                pass
+            self.components[
+                'entities_toggle'].text = "Entities" if game_state.entity_manager.should_spawn else "No Entities"
+            process_clicks(game_state, self.mouse_click_handler, False, offset=self.offset)
 
-            handlers = {}
-            # create a dummy handler for all components
-            for component in self.components:
-                handlers[component] = dummy
-
-            handlers['map_button'] = self.menu_func
-            handlers['save_button'] = self.save_func
-            handlers['new_button'] = self.new_func
-            handlers['load_button'] = self.load_func
-
-            def processor(_game_state, click):
-                for component in handlers:
-                    if self.components[component].is_clicked(click):
-                        handlers[component](game_state)
-                        return True
-                return False
-
-            process_clicks(game_state, processor, False, offset=self.offset)
-
-            self.components['health_label'].text = str(game_state.player_health)
-            self.components['game_over_label'].position.x = game_state.window_size.x / 2 - self.components[
-                'game_over_label'].size.x / 2
-            if game_state.player_health <= 0:
-                self.components['game_over_label'].visible = True
-            else:
-                self.components['game_over_label'].visible = False
+    def mouse_click_handler(self, game_state, click):
+        for component in self.handlers:
+            if self.components[component].is_clicked(click):
+                self.handlers[component](game_state)
+                return True
+        return False
 
     def toggle_map_menu(self):
         self.components['new_button'].toggle_visibility()
         self.components['save_button'].toggle_visibility()
         self.components['load_button'].toggle_visibility()
-
-    def toggle_mode_menu(self):
-        for mode in GameMode:
-            self.components[mode].toggle_visibility()
 
     def render(self):
         for component in self.components:
@@ -106,6 +86,7 @@ class GameUI:
             'next_wave_button': TextComponent("Next Wave", Vector(), size),
             'current_wave_label': TextComponent("", Vector(size.x, 0), size),
             'health_label': TextComponent("", Vector(size.x * 2, 0), size),
+            'game_over_label': TextComponent("Game Over", Vector(0, -100), Vector(400, 90), font_size=50, visible=False)
         }
         self.handlers = {
             'next_wave_button': self.next_wave_func
@@ -115,6 +96,14 @@ class GameUI:
         self.offset.y = game_state.window_size.y
         self.components['health_label'].text = str(game_state.player_health)
         self.components['current_wave_label'].text = str(game_state.entity_manager.wave_count)
+
+        self.components['game_over_label'].position.x = game_state.window_size.x / 2 - self.components[
+            'game_over_label'].size.x / 2
+        if game_state.player_health <= 0:
+            self.components['game_over_label'].visible = True
+        else:
+            self.components['game_over_label'].visible = False
+
         process_clicks(game_state, self.mouse_click_handler, False, self.offset)
 
     @staticmethod
