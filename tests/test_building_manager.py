@@ -72,22 +72,3 @@ class TestBuildingManager(unittest.TestCase):
         self.assertEqual((1, 0), list(building_manager.buildings.keys())[0])
         building = building_manager.buildings[(1, 0)]
         self.assertEqual(Vector(1, 0), building.position)
-
-    def test_mouse_click_handler(self):
-        game_state = GameState()
-        game_state.window_size = Vector(100, 100)
-        click = MouseClick()
-        click.position = Vector(1, 1)
-
-        building_manager = BuildingManager()
-        building_manager.mouse_click_handler(game_state, click)
-
-        self.assertEqual(1, len(building_manager.buildings))
-
-        building_manager.mouse_click_handler(game_state, click)
-        self.assertEqual(0, len(building_manager.buildings))
-
-        click = MouseClick()
-        click.position = Vector(-1, -1)
-        building_manager.mouse_click_handler(game_state, click)
-        self.assertEqual(0, len(building_manager.buildings))

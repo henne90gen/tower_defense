@@ -8,6 +8,10 @@ from helper import Vector
 from tiles.tile import Tile
 
 
+class Object(object):
+    pass
+
+
 class TileTest(unittest.TestCase):
     def test_eq(self):
         position = Vector()
@@ -22,7 +26,7 @@ class TileTest(unittest.TestCase):
         size = Vector()
         tile_type = TileType.BUILDING_GROUND
         tile = Tile(position, size, tile_type)
-        self.assertEqual("Tile: (0, 0):(0, 0) - TileType.BUILDING_GROUND", str(tile))
+        self.assertEqual("Tile: (0, 0): TileType.BUILDING_GROUND", str(tile))
 
     def test_next_type(self):
         position = Vector()
@@ -186,3 +190,36 @@ class TileTest(unittest.TestCase):
         tile.render_arrow(game_state, batch)
         self.assertEqual(1, len(batch.top_groups))
         self.assertEqual(pyglet.graphics.TextureGroup, type(batch.top_groups[0]))
+
+    def test_render_highlight(self):
+        game_state = GameState()
+        game_state.window_size = Vector(100, 100)
+        was_called = []
+
+        def dummy(*args):
+            was_called.append(0)
+
+        batch = pyglet.graphics.Batch()
+        batch.add = dummy
+
+        position = Vector()
+        size = Vector(10, 10)
+        tile_type = TileType.BUILDING_GROUND
+        tile = Tile(position, size, tile_type)
+        tile.render_highlight(game_state, batch)
+        self.assertEqual(4, len(was_called))
+
+        def dummy(*args):
+            was_called.append(0)
+
+        batch = pyglet.graphics.Batch()
+        batch.add = dummy
+
+        game_state = GameState()
+        was_called.clear()
+        position = Vector()
+        size = Vector(10, 10)
+        tile_type = TileType.BUILDING_GROUND
+        tile = Tile(position, size, tile_type)
+        tile.render_highlight(game_state, batch)
+        self.assertEqual(0, len(was_called))

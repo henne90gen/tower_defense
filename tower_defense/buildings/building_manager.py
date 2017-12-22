@@ -34,9 +34,6 @@ class BuildingManager:
             if bullet.update(game_state):
                 self.bullets.remove(bullet)
 
-        if game_state.mode == GameMode.GAME:
-            process_clicks(game_state, self.mouse_click_handler)
-
     def shoot(self, world_position: Vector, direction: Vector):
         bullet = Bullet(world_position, self.bullet_size, direction / direction.length() * self.bullet_speed)
         self.bullets.append(bullet)
@@ -45,14 +42,3 @@ class BuildingManager:
         position = Vector(point=tile_index)
         building = Building(position, game_state.tile_map.tile_size)
         self.buildings[tile_index] = building
-
-    def mouse_click_handler(self, game_state, click):
-        if game_state.tile_map.is_on_map(click.position):
-            tile_index = game_state.world_to_index_space(click.position)
-            if tile_index not in self.buildings:
-                if game_state.tile_map.tiles[tile_index].tile_type == TileType.BUILDING_GROUND:
-                    self.spawn_building(game_state, tile_index)
-            else:
-                del self.buildings[tile_index]
-            return True
-        return False

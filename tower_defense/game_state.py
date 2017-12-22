@@ -37,6 +37,14 @@ class GameState:
         self.world_offset: Vector = Vector(self.tile_map.border_width * 2,
                                            self.tile_map.border_width * 2)
 
+        self.tickers = {
+            GameMode.GAME: self.tick_game,
+            GameMode.EDITOR: self.tick_editor,
+            GameMode.MAIN_MENU: self.tick_main_menu,
+            GameMode.MAP_CHOICE_GAME: self.tick_map_menu,
+            GameMode.MAP_CHOICE_EDITOR: self.tick_map_menu,
+        }
+
     def init(self, base_path: str = './res'):
         self.tile_map.load(self, base_path + "/maps/basic.map")
         self.textures.load(base_path)
@@ -100,12 +108,10 @@ class GameState:
 
         self.editor_ui.update(self)
         self.entity_manager.update(self)
-        self.building_manager.update(self)
         self.tile_map.update(self)
 
         self.tile_map.render(self)
         self.entity_manager.render(self)
-        self.building_manager.render(self)
         self.editor_ui.render()
 
     def tick_game(self):
@@ -128,16 +134,15 @@ class GameState:
         self.entity_manager.render(self)
         self.game_ui.render(self)
 
+    def tick_main_menu(self):
+        self.main_menu.update(self)
+        self.main_menu.render(self)
+
+    def tick_map_menu(self):
+        self.map_menu.update(self)
+        self.map_menu.render()
+
     def tick(self, window: pyglet.window.Window):
         self.window_size = Vector(*window.get_size())
 
-        if self.mode == GameMode.EDITOR:
-            self.tick_editor()
-        elif self.mode == GameMode.GAME:
-            self.tick_game()
-        elif self.mode == GameMode.MAIN_MENU:
-            self.main_menu.update(self)
-            self.main_menu.render(self)
-        elif self.mode == GameMode.MAP_CHOICE_EDITOR or self.mode == GameMode.MAP_CHOICE_GAME:
-            self.map_menu.update(self)
-            self.map_menu.render()
+        self.tickers[self.mode]()

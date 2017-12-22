@@ -13,6 +13,8 @@ class Tile:
         self.position = position
         self.size = size
         self.tile_type = tile_type
+        self.highlighted = False
+
         self.directions: List[(int, int)] = []
         self.direction_index = 0
         self.timer = 0
@@ -23,7 +25,7 @@ class Tile:
         return self.position == other.position and self.size == other.size and self.tile_type == other.tile_type and self.directions == other.directions
 
     def __str__(self):
-        return "Tile: " + str(self.position) + ":" + str(self.size) + " - " + str(self.tile_type)
+        return "Tile: " + str(self.position) + ": " + str(self.tile_type)
 
     @property
     def is_walkable(self):
@@ -61,6 +63,34 @@ class Tile:
                           color=(255, 0, 0, 255),
                           batch=batch, x=x, y=y,
                           anchor_x='left', anchor_y='bottom')
+
+    def render_highlight(self, game_state, batch: pyglet.graphics.Batch):
+        screen_coordinates = game_state.world_to_window_space(self.world_position, self.size)
+        if screen_coordinates is None:
+            return
+
+        x, y = screen_coordinates.x, screen_coordinates.y
+        border_width = 3
+
+        # bottom
+        bottom_left = Vector(x, y)
+        size = Vector(self.size.x - border_width, border_width)
+        render_colored_rectangle(batch, (0, 0, 0), bottom_left, size)
+
+        # right
+        bottom_left = Vector(x + self.size.x - border_width, y)
+        size = Vector(border_width, self.size.y - border_width)
+        render_colored_rectangle(batch, (0, 0, 0), bottom_left, size)
+
+        # top
+        bottom_left = Vector(x + border_width, y + self.size.y - border_width)
+        size = Vector(self.size.x - border_width, border_width)
+        render_colored_rectangle(batch, (0, 0, 0), bottom_left, size)
+
+        # left
+        bottom_left = Vector(x, y + border_width)
+        size = Vector(border_width, self.size.y - border_width)
+        render_colored_rectangle(batch, (0, 0, 0), bottom_left, size)
 
     def render_arrow(self, game_state, batch: pyglet.graphics.Batch):
         screen_coordinates = game_state.world_to_window_space(self.world_position, self.size)

@@ -6,7 +6,8 @@ from helper import Vector, KeyPresses, rect_contains_point, MouseClick
 
 
 class TextComponent:
-    def __init__(self, text: str, position: Vector, size: Vector, font_size: int = 25, visible: bool = True):
+    def __init__(self, text: str, position: Vector, size: Vector, font_size: int = 25, visible: bool = True,
+                 disabled: bool = False):
         self.text = text
         self.position = position
         self.size = size
@@ -17,6 +18,7 @@ class TextComponent:
                                        width=self.size.x, height=self.size.y,
                                        anchor_x='center', anchor_y='center')
         self.visible = visible
+        self.disabled = disabled
 
     def toggle_visibility(self):
         self.visible = not self.visible

@@ -1,8 +1,15 @@
 import unittest
 
+import pyglet
+
 from game_state import GameState
 from game_types import GameMode
 from helper import Vector
+from user_interface.menu import MapMenu
+
+
+class Object(object):
+    pass
 
 
 class TestGameState(unittest.TestCase):
@@ -94,14 +101,34 @@ class TestGameState(unittest.TestCase):
         actual = game_state.world_offset
         self.assertEqual(Vector(95, 105), actual)
 
-    @unittest.skip("Implement this")
     def test_tick(self):
-        self.fail()
+        def dummy():
+            return -1, -2
 
-    @unittest.skip("Implement this")
+        window = Object()
+        window.get_size = dummy
+        game_state = GameState()
+        # noinspection PyTypeChecker
+        game_state.tick(window)
+        self.assertEqual(Vector(-1, -2), game_state.window_size)
+
     def test_tick_game(self):
-        self.fail()
+        game_state = GameState()
+        game_state.init('./tower_defense/res')
+        game_state.tick_game()
 
-    @unittest.skip("Implement this")
     def test_tick_editor(self):
-        self.fail()
+        game_state = GameState()
+        game_state.init('./tower_defense/res')
+        game_state.tick_editor()
+
+    def test_tick_main_menu(self):
+        game_state = GameState()
+        game_state.init('./tower_defense/res')
+        game_state.tick_main_menu()
+
+    def test_tick_map_menu(self):
+        game_state = GameState()
+        game_state.init('./tower_defense/res')
+        game_state.map_menu = MapMenu('./tower_defense/res/maps')
+        game_state.tick_map_menu()

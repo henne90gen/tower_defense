@@ -4,6 +4,7 @@ from typing import List
 from game_types import GameMode
 from helper import Vector, process_clicks, MouseClick, maps_list
 from user_interface.components import TextComponent
+from user_interface.dialogs import NewMapDialog
 
 
 class MainMenu:
@@ -53,16 +54,23 @@ class MainMenu:
 
 
 class MapMenu:
-    def __init__(self):
+    def __init__(self, map_path: str = './res/maps'):
         self.position = Vector()
+        self.map_path = map_path
 
         self.button_size = Vector(300, 50)
         self.back_button = TextComponent("Back", Vector(), self.button_size)
+        self.new_button = TextComponent("New", Vector(), self.button_size)
+        self.new_dialog = NewMapDialog()
+
         self.maps: List[TextComponent] = []
 
     @staticmethod
     def back_func(game_state):
         game_state.mode = GameMode.MAIN_MENU
+
+    def new_func(self, game_state):
+        self.new_dialog.open(game_state)
 
     @staticmethod
     def load_func(game_state, path):
@@ -73,10 +81,14 @@ class MapMenu:
             game_state.mode = GameMode.EDITOR
 
     def update(self, game_state):
-        self.position = Vector(150, game_state.window_size.y - 100)
+        self.position = Vector(game_state.window_size.x / 2 - 150, game_state.window_size.y / 2 + 200)
+
+        if self.new_dialog.visible:
+            self.new_dialog.update(game_state)
+            return
 
         if len(self.maps) == 0:
-            self.refresh_maps('./res/maps')
+            self.refresh_maps(self.map_path)
 
         process_clicks(game_state, self.mouse_click_handler, False, self.position)
 
@@ -84,20 +96,34 @@ class MapMenu:
         if self.back_button.is_clicked(click):
             self.back_func(game_state)
             return True
+
+        if self.new_button.is_clicked(click):
+            self.new_func(game_state)
+            return True
+
         for m in self.maps:
             if m.is_clicked(click):
                 self.load_func(game_state, m.text)
                 return True
+
         return False
 
     def refresh_maps(self, maps_path: str):
         height = 50
         maps = maps_list(maps_path)
         self.maps = []
+
         for index, m in enumerate(maps):
-            self.maps.append(TextComponent(m, Vector(0, -50 - height * index), Vector(300, height)))
+            self.maps.append(TextComponent(m, Vector(y=-height * index), Vector(300, height)))
+
+        self.new_button.position = Vector(y=-height * len(self.maps))
+        self.back_button.position = Vector(y=-height * (len(self.maps) + 1))
 
     def render(self):
+        self.new_dialog.position = Vector(10, self.position.y)
+        self.new_dialog.render()
+
         self.back_button.render(self.position)
+        self.new_button.render(self.position)
         for m in self.maps:
             m.render(self.position)

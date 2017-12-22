@@ -1,7 +1,6 @@
-from game_types import GameMode
 from helper import Vector, process_clicks, MouseClick
-from user_interface.dialogs import Dialog, NewMapDialog, LoadMapDialog
 from user_interface.components import TextComponent
+from user_interface.dialogs import Dialog, NewMapDialog, LoadMapDialog, BuildingDialog
 
 
 class EditorUI:
@@ -91,11 +90,14 @@ class GameUI:
         self.handlers = {
             'next_wave_button': self.next_wave_func
         }
+        self.building_dialog = BuildingDialog()
 
     def update(self, game_state):
         self.offset.y = game_state.window_size.y
         self.components['health_label'].text = str(game_state.player_health)
         self.components['current_wave_label'].text = str(game_state.entity_manager.wave_count)
+
+        self.components['next_wave_button'].disabled = game_state.entity_manager.wave_running
 
         self.components['game_over_label'].position.x = game_state.window_size.x / 2 - self.components[
             'game_over_label'].size.x / 2
@@ -103,6 +105,13 @@ class GameUI:
             self.components['game_over_label'].visible = True
         else:
             self.components['game_over_label'].visible = False
+
+        if game_state.tile_map.highlighted_tile:
+            self.building_dialog.open(game_state)
+        else:
+            self.building_dialog.close()
+
+        self.building_dialog.update(game_state)
 
         process_clicks(game_state, self.mouse_click_handler, False, self.offset)
 
@@ -112,7 +121,7 @@ class GameUI:
 
     def mouse_click_handler(self, game_state, click: MouseClick) -> bool:
         for component in self.components:
-            if self.components[component].is_clicked(click):
+            if self.components[component].is_clicked(click) and not self.components[component].disabled:
                 if component in self.handlers:
                     self.handlers[component](game_state)
                 return True
@@ -121,3 +130,5 @@ class GameUI:
     def render(self, game_state):
         for component in self.components:
             self.components[component].render(self.offset)
+
+        self.building_dialog.render()

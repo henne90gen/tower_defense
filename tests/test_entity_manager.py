@@ -1,13 +1,18 @@
 import unittest
 
 from entities.entity import Entity
-from entities.entity_manager import EntityManager, EditorEntityManager
+from entities.entity_manager import EntityManager, EditorEntityManager, GameEntityManager
 from game_state import GameState
 from game_types import GameMode, TileType
 from helper import Vector
 
 
 class EntityManagerTest(unittest.TestCase):
+    @staticmethod
+    def test_next_wave():
+        entity_manager = EntityManager()
+        entity_manager.next_wave()
+
     def test_render(self):
         game_state = GameState()
         was_called = []
@@ -114,3 +119,19 @@ class EditorEntityManagerTest(unittest.TestCase):
         entity_manager = EditorEntityManager()
         entity_manager.reset()
         self.assertEqual(0, entity_manager.spawn_timer)
+
+
+class GameEntityManagerTest(unittest.TestCase):
+    def test_wave_running(self):
+        entity_manager = GameEntityManager()
+        self.assertFalse(entity_manager.wave_running)
+
+        entity_manager = GameEntityManager()
+        entity_manager.wave = [0]
+        self.assertTrue(entity_manager.wave_running)
+
+    def test_next_wave(self):
+        entity_manager = GameEntityManager()
+        entity_manager.next_wave()
+        self.assertTrue(entity_manager.wave_running)
+        self.assertEqual(1, entity_manager.wave_count)

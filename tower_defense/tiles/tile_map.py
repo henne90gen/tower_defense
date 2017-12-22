@@ -54,8 +54,7 @@ class TileMap:
 
     def render_border(self, game_state):
         def draw_rect(p1, p2, color):
-            vertices = [p1.x, p1.y, p2.x, p1.y, p2.x, p2.y, p1.x,
-                        p2.y]
+            vertices = [p1.x, p1.y, p2.x, p1.y, p2.x, p2.y, p1.x, p2.y]
             pyglet.graphics.draw(4, pyglet.gl.GL_QUADS, ('v2f', vertices), ('c3B', (*color, *color, *color, *color)))
 
         top_left = Vector(-self.border_width, 0) + game_state.world_offset
@@ -103,12 +102,9 @@ class TileMap:
         self.render_border(game_state)
 
         batch = pyglet.graphics.Batch()
-        arrow_batch = pyglet.graphics.Batch()
         for tile in self.tiles.values():
             tile.render(game_state, batch)
-            tile.render_arrow(game_state, arrow_batch)
         batch.draw()
-        arrow_batch.draw()
 
     def update(self, game_state):
         process_clicks(game_state, self.mouse_click_handler)
@@ -270,6 +266,14 @@ class TileMap:
 
 
 class EditorTileMap(TileMap):
+    def render(self, game_state):
+        super().render(game_state)
+
+        arrow_batch = pyglet.graphics.Batch()
+        for tile in self.tiles.values():
+            tile.render_arrow(game_state, arrow_batch)
+        arrow_batch.draw()
+
     def mouse_click_handler(self, _, click: MouseClick) -> bool:
         if not self.is_on_map(click.position) or click.button != 1:
             return False
@@ -293,4 +297,40 @@ class EditorTileMap(TileMap):
 
 
 class GameTileMap(TileMap):
-    pass
+    def __init__(self):
+        super().__init__()
+        self.path_finding()
+        self.highlighted_tile = None
+
+    def render(self, game_state):
+        super().render(game_state)
+
+        highlight_batch = pyglet.graphics.Batch()
+        for tile in self.tiles.values():
+            if tile.highlighted:
+                tile.render_highlight(game_state, highlight_batch)
+                break
+        highlight_batch.draw()
+
+    def mouse_click_handler(self, game_state, click: MouseClick) -> bool:
+        if not self.is_on_map(click.position) or click.button != 1:
+            return False
+
+        for tile in self.tiles:
+            if rect_contains_point(click.position, Vector(self.tiles[tile].world_position.x,
+                                                          self.tiles[tile].world_position.y + self.tiles[tile].size.y),
+                                   self.tiles[tile].size):
+                if self.tiles[tile].tile_type == TileType.BUILDING_GROUND:
+                    self.tiles[tile].highlighted = not self.tiles[tile].highlighted
+                    if self.tiles[tile].highlighted:
+                        self.highlighted_tile = tile
+                    else:
+                        self.highlighted_tile = None
+                else:
+                    self.highlighted_tile = None
+
+                for other_tile in self.tiles:
+                    if tile == other_tile:
+                        continue
+                    self.tiles[other_tile].highlighted = False
+                return True

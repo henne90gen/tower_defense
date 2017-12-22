@@ -2,7 +2,10 @@ from typing import List
 
 import os
 
-from helper import Vector, MouseClick, process_clicks
+import pyglet
+
+from graphics import render_colored_rectangle
+from helper import Vector, MouseClick, process_clicks, rect_contains_point
 from user_interface.components import TextComponent, Input
 
 MAPS_PATH = './res/maps/'
@@ -16,6 +19,9 @@ class Dialog:
     def open(self, game_state):
         self.visible = True
         self.position.y = game_state.window_size.y - 200
+
+    def close(self):
+        self.visible = False
 
     def render(self):
         pass
@@ -156,3 +162,52 @@ class LoadMapDialog(Dialog):
             for tile_map in self.maps:
                 tile_map.render(self.position)
             self.cancel_button.render(self.position)
+
+
+class BuildingDialog(Dialog):
+    def __init__(self):
+        super().__init__(False)
+        self.background_size = Vector(200, 0)
+        button_size = Vector(200, 50)
+        self.components = {
+            'build_button': TextComponent("Build", Vector(0, button_size.y), button_size),
+        }
+        self.handlers = {
+            'build_button': self.build_func
+        }
+
+    def open(self, game_state):
+        super().open(game_state)
+        self.position = Vector()
+
+    def build_func(self):
+        print("building")
+
+    def render_background(self):
+        batch = pyglet.graphics.Batch()
+        color = (0, 255, 0)
+        position = Vector()
+        render_colored_rectangle(batch, color, position, self.background_size)
+        batch.draw()
+
+    def render(self):
+        if not self.visible:
+            return
+
+        self.render_background()
+        for component in self.components:
+            self.components[component].render(self.position)
+
+    def update(self, game_state):
+        if not self.visible:
+            return
+
+        self.background_size = Vector(200, game_state.window_size.y - 50)
+        process_clicks(game_state, self.mouse_click_handler, False, self.position)
+
+    def mouse_click_handler(self, game_state, click: MouseClick) -> bool:
+        for component in self.components:
+            if self.components[component].is_clicked(click):
+                self.handlers[component]()
+                return True
+        return rect_contains_point(click.position, Vector(0, game_state.window_size.y), self.background_size)

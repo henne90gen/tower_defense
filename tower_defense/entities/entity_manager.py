@@ -101,4 +101,4 @@ class GameEntityManager(EntityManager):
     def next_wave(self):
         self.wave_count += 1
         # TODO init next wave
-        self.wave = []
+        self.wave = [1]
