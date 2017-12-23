@@ -171,17 +171,24 @@ class BuildingDialog(Dialog):
         button_size = Vector(200, 50)
         self.components = {
             'build_button': TextComponent("Build", Vector(0, button_size.y), button_size),
+            'upgrade_button': TextComponent("Upgrade", Vector(0, button_size.y), button_size, visible=False)
         }
         self.handlers = {
-            'build_button': self.build_func
+            'build_button': self.build_func,
+            'upgrade_button': self.upgrade_func
         }
 
     def open(self, game_state):
         super().open(game_state)
         self.position = Vector()
 
-    def build_func(self):
-        print("building")
+    @staticmethod
+    def build_func(game_state):
+        game_state.building_manager.spawn_building(game_state, game_state.tile_map.highlighted_tile)
+
+    @staticmethod
+    def upgrade_func(game_state):
+        pass
 
     def render_background(self):
         batch = pyglet.graphics.Batch()
@@ -203,11 +210,19 @@ class BuildingDialog(Dialog):
             return
 
         self.background_size = Vector(200, game_state.window_size.y - 50)
+
+        if game_state.tile_map.highlighted_tile in game_state.building_manager.buildings:
+            self.components['build_button'].visible = False
+            self.components['upgrade_button'].visible = True
+        else:
+            self.components['build_button'].visible = True
+            self.components['upgrade_button'].visible = False
+
         process_clicks(game_state, self.mouse_click_handler, False, self.position)
 
     def mouse_click_handler(self, game_state, click: MouseClick) -> bool:
         for component in self.components:
             if self.components[component].is_clicked(click):
-                self.handlers[component]()
+                self.handlers[component](game_state)
                 return True
         return rect_contains_point(click.position, Vector(0, game_state.window_size.y), self.background_size)

@@ -10,6 +10,7 @@ from helper import Vector, process_clicks
 
 class BuildingManager:
     def __init__(self):
+        self.gold = 500
         self.bullet_size = Vector(25, 25)
         self.bullet_speed = 5
         self.buildings: Dict[(int, int), Building] = {}
