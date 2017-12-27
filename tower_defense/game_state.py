@@ -21,7 +21,7 @@ class GameState:
         self.window_size = Vector()
         self.key_presses: KeyPresses = KeyPresses()
         self.mouse_clicks: List[MouseClick] = []
-        self.mouse_position: (int, int) = (0, 0)
+        self.mouse_position = Vector()
 
         self.main_menu: menu.MainMenu = menu.MainMenu()
         self.map_menu: menu.MapMenu = menu.MapMenu()

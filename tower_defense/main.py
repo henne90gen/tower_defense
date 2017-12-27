@@ -54,6 +54,11 @@ def on_key_release(symbol, modifiers):
 
 
 @window.event
+def on_mouse_motion(x, y, dx, dy):
+    gs.mouse_position = Vector(x, y)
+
+
+@window.event
 def on_mouse_press(x, y, button, modifiers):
     print("MousePress", x, y, button, modifiers)
     mouse_click = MouseClick()

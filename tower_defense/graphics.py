@@ -40,8 +40,10 @@ class Textures:
         }
 
         arrow_texture = pyglet.image.load(os.path.join(base_path, 'arrow.png')).get_texture()
+        ring_texture = pyglet.image.load(os.path.join(base_path, 'ring.png')).get_texture()
         self.other = {
-            'arrow': pyglet.graphics.TextureGroup(arrow_texture)
+            'arrow': pyglet.graphics.TextureGroup(arrow_texture),
+            'ring': pyglet.graphics.TextureGroup(ring_texture)
         }
 
 

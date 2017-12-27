@@ -40,11 +40,15 @@ class EntityManagerTest(unittest.TestCase):
         self.assertEqual([], entity_manager.entities)
 
     def test_spawn_random_entity(self):
+        game_state = GameState()
+        game_state.tile_map.tiles[(0, 0)].tile_type = TileType.START
+        game_state.tile_map.tiles[(1, 0)].tile_type = TileType.FINISH
+
         entity_manager = EntityManager()
-        position = Vector(1, 1)
-        entity_manager.spawn_random_entity(position)
+        entity_manager.spawn_entity(game_state)
         self.assertEqual(1, len(entity_manager.entities))
-        self.assertEqual(position, entity_manager.entities[0].position)
+        # print(entity_manager.entities[0].position)
+        self.assertEqual(Vector(50, 50), entity_manager.entities[0].position)
 
     def test_update_entities(self):
         game_state = GameState()
@@ -101,16 +105,20 @@ class EditorEntityManagerTest(unittest.TestCase):
 
         game_state.tile_map.tiles[(0, 0)].tile_type = TileType.START
         entity_manager.spawn_timer = 60
+        entity_manager.spawn_delay = 60
         entity_manager.update(game_state)
         self.assertEqual(1, len(entity_manager.entities))
         self.assertEqual(0, entity_manager.spawn_timer)
 
     def test_update_reset_spawn_timer(self):
         game_state = GameState()
+        game_state.tile_map.tiles[(0, 0)].tile_type = TileType.FINISH
+
         entity_manager = EditorEntityManager()
         game_state.entity_manager = entity_manager
 
         entity_manager.spawn_timer = 60
+        entity_manager.spawn_delay = 60
         entity_manager.update(game_state)
         self.assertEqual(0, len(entity_manager.entities))
         self.assertEqual(0, entity_manager.spawn_timer)

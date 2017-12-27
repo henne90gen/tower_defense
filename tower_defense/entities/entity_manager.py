@@ -14,6 +14,8 @@ class EntityManager:
         # as values, but rather a list with the directions associated with that tile and a counter with each direction
         # The counter indicates how many time a certain direction has been taken already
         self.directions_graph: Dict[(int, int), List[((int, int), int)]] = {}
+        self.spawn_timer = 0
+        self.spawn_delay = 150
 
     def render(self, game_state):
         batch = pyglet.graphics.Batch()
@@ -25,9 +27,13 @@ class EntityManager:
         self.directions_graph = {}
         self.entities = []
 
-    def spawn_random_entity(self, position: Vector):
-        entity = Entity(position, Vector(100, 100))
-        self.entities.append(entity)
+    def spawn_entity(self, game_state):
+        for tile_index in game_state.tile_map.tiles:
+            tile = game_state.tile_map.tiles[tile_index]
+            if tile.tile_type == TileType.START:
+                entity = Entity(tile.world_position + (tile.size / 2), Vector(100, 100))
+                self.entities.append(entity)
+                break
 
     def update(self, game_state):
         self.generate_directions_graph(game_state)
@@ -63,7 +69,6 @@ class EntityManager:
 class EditorEntityManager(EntityManager):
     def __init__(self):
         super().__init__()
-        self.spawn_timer = 0
         self.should_spawn = True
 
     def update(self, game_state):
@@ -73,15 +78,14 @@ class EditorEntityManager(EntityManager):
             return
 
         self.spawn_timer += 1
-        if self.spawn_timer < 60:
+        if self.spawn_timer < self.spawn_delay:
+            return
+
+        if not game_state.tile_map.has_finish_node:
             return
 
         self.spawn_timer = 0
-        for tile_index in game_state.tile_map.tiles:
-            tile = game_state.tile_map.tiles[tile_index]
-            if tile.tile_type == TileType.START and game_state.tile_map.has_finish_node:
-                self.spawn_random_entity(tile.world_position + (tile.size / 2))
-                break
+        self.spawn_entity(game_state)
 
     def reset(self):
         super().reset()
@@ -100,5 +104,20 @@ class GameEntityManager(EntityManager):
 
     def next_wave(self):
         self.wave_count += 1
-        # TODO init next wave
-        self.wave = [1]
+        self.wave = []
+        for i in range(10):
+            self.wave.append(1)
+
+    def update(self, game_state):
+        super().update(game_state)
+
+        if not self.wave_running:
+            return
+
+        self.spawn_timer += 1
+        if self.spawn_timer < self.spawn_delay:
+            return
+
+        self.spawn_timer = 0
+        self.wave = self.wave[:-1]
+        self.spawn_entity(game_state)

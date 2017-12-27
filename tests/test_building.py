@@ -33,10 +33,11 @@ class BuildingTest(unittest.TestCase):
     def test_update(self):
         was_called = []
 
-        def shoot(position, direction):
+        def shoot(*_):
             was_called.append(0)
 
         game_state = GameState()
+        game_state.window_size = Vector(100, 100)
         game_state.building_manager.shoot = shoot
 
         # no enemy to shoot at
