@@ -94,6 +94,14 @@ def render_colored_rectangle(batch: pyglet.graphics.Batch, color: (int, int, int
 
 def render_rectangle_border(batch: pyglet.graphics.Batch, position: Vector, rect_size: Vector, color=(0, 0, 0),
                             border_width=3):
+    """
+    :param batch:
+    :param position: bottom left of rectangle
+    :param rect_size:
+    :param color:
+    :param border_width:
+    :return:
+    """
     # bottom
     bottom_left = position.copy()
     size = Vector(rect_size.x - border_width, border_width)

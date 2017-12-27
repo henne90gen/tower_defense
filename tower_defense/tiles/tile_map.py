@@ -6,6 +6,7 @@ from typing import Dict
 import pyglet
 
 from game_types import TileType, GameMode
+from graphics import render_rectangle_border
 from helper import Vector, rect_contains_point, process_clicks, MouseClick
 from tiles.tile import Tile
 
@@ -99,11 +100,15 @@ class TileMap:
         return 0 < position.x < self.tile_map_width and 0 < position.y < self.tile_map_height
 
     def render(self, game_state):
-        self.render_border(game_state)
-
         batch = pyglet.graphics.Batch()
+
+        size = Vector(self.tile_map_width + self.border_width, self.tile_map_height + self.border_width)
+        render_rectangle_border(batch, game_state.world_offset, size, (255, 255, 255),
+                                border_width=self.border_width)
+
         for tile in self.tiles.values():
             tile.render(game_state, batch)
+
         batch.draw()
 
     def update(self, game_state):
