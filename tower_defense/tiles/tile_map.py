@@ -53,27 +53,6 @@ class TileMap:
                 pickle.dump((self.tiles, self.max_tiles), f)
                 print("Saved tile map", self.path)
 
-    def render_border(self, game_state):
-        def draw_rect(p1, p2, color):
-            vertices = [p1.x, p1.y, p2.x, p1.y, p2.x, p2.y, p1.x, p2.y]
-            pyglet.graphics.draw(4, pyglet.gl.GL_QUADS, ('v2f', vertices), ('c3B', (*color, *color, *color, *color)))
-
-        top_left = Vector(-self.border_width, 0) + game_state.world_offset
-        bottom_right = top_left + Vector(self.tile_map_width + self.border_width, -self.border_width)
-        draw_rect(top_left, bottom_right, (0, 255, 255))
-
-        top_left = Vector(0, 0) + game_state.world_offset
-        bottom_right = top_left + Vector(-self.border_width, self.tile_map_height + self.border_width)
-        draw_rect(top_left, bottom_right, (255, 0, 255))
-
-        top_left = Vector(0, self.tile_map_height) + game_state.world_offset
-        bottom_right = top_left + Vector(self.tile_map_width + self.border_width, self.border_width)
-        draw_rect(top_left, bottom_right, (255, 255, 0))
-
-        top_left = Vector(self.tile_map_width, -self.border_width) + game_state.world_offset
-        bottom_right = top_left + Vector(self.border_width, self.tile_map_height + self.border_width)
-        draw_rect(top_left, bottom_right, (255, 0, 0))
-
     @property
     def tile_map_width(self):
         return self.tile_size.x * self.max_tiles.x
