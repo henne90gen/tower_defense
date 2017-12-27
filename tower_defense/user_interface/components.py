@@ -2,7 +2,7 @@ from enum import Enum
 
 import pyglet
 
-from graphics import render_colored_rectangle
+from graphics import render_colored_rectangle, render_rectangle_border
 from helper import Vector, KeyPresses, rect_contains_point, MouseClick
 
 
@@ -81,6 +81,9 @@ class HighlightComponent(TextComponent):
         return False
 
     def render(self, offset: Vector):
+        if not self.visible:
+            return
+
         super().render(offset)
         self.render_highlight(offset)
 
@@ -88,29 +91,8 @@ class HighlightComponent(TextComponent):
         if not self.is_highlighted:
             return
 
-        pos = self.position + offset - Vector(0, self.size.y)
-        x, y = pos.x, pos.y
+        position = self.position + offset - Vector(0, self.size.y)
+
         batch = pyglet.graphics.Batch()
-        border_width = 3
-
-        # bottom
-        bottom_left = Vector(x, y)
-        size = Vector(self.size.x - border_width, border_width)
-        render_colored_rectangle(batch, (0, 0, 0), bottom_left, size)
-
-        # right
-        bottom_left = Vector(x + self.size.x - border_width, y)
-        size = Vector(border_width, self.size.y - border_width)
-        render_colored_rectangle(batch, (0, 0, 0), bottom_left, size)
-
-        # top
-        bottom_left = Vector(x + border_width, y + self.size.y - border_width)
-        size = Vector(self.size.x - border_width, border_width)
-        render_colored_rectangle(batch, (0, 0, 0), bottom_left, size)
-
-        # left
-        bottom_left = Vector(x, y + border_width)
-        size = Vector(border_width, self.size.y - border_width)
-        render_colored_rectangle(batch, (0, 0, 0), bottom_left, size)
-
+        render_rectangle_border(batch, position, self.size)
         batch.draw()

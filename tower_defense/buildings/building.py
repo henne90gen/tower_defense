@@ -25,7 +25,6 @@ class Building:
             return 1 / 30
         elif self.building_type == BuildingType.Cannon:
             return 1 / 60
-        return 0
 
     @property
     def range(self):
@@ -33,7 +32,6 @@ class Building:
             return 200
         elif self.building_type == BuildingType.Cannon:
             return 300
-        return 0
 
     def render(self, game_state, batch: pyglet.graphics.Batch):
         position = game_state.world_to_window_space(self.world_position, self.size)
@@ -52,8 +50,9 @@ class Building:
 
     def update(self, game_state):
         position = game_state.world_to_window_space(self.world_position, self.size)
-        position += Vector(0, self.size.y)
-        self.mouse_over = rect_contains_point(game_state.mouse_position, position, self.size)
+        if position:  # building is actually on screen
+            position += Vector(0, self.size.y)
+            self.mouse_over = rect_contains_point(game_state.mouse_position, position, self.size)
 
         if self.cool_down > 0:
             self.cool_down -= 1

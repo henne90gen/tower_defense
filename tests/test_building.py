@@ -26,9 +26,27 @@ class BuildingTest(unittest.TestCase):
         building.render(game_state, batch)
         self.assertEqual(0, len(batch.top_groups))
 
+        batch = pyglet.graphics.Batch()
+        building = Building(Vector(), Vector(10, 10), BuildingType.Archer)
+        building.mouse_over = True
+        building.render(game_state, batch)
+        self.assertEqual(2, len(batch.top_groups))
+        self.assertEqual(pyglet.graphics.TextureGroup, type(batch.top_groups[0]))
+        self.assertEqual(pyglet.graphics.TextureGroup, type(batch.top_groups[1]))
+
     def test_range(self):
         building = Building(Vector(), Vector(10, 10), BuildingType.Archer)
         self.assertEqual(200, building.range)
+
+        building = Building(Vector(), Vector(10, 10), BuildingType.Cannon)
+        self.assertEqual(300, building.range)
+
+    def test_shooting_frequency(self):
+        building = Building(Vector(), Vector(10, 10), BuildingType.Archer)
+        self.assertEqual(1 / 30, building.shooting_frequency)
+
+        building = Building(Vector(), Vector(10, 10), BuildingType.Cannon)
+        self.assertEqual(1 / 60, building.shooting_frequency)
 
     def test_update(self):
         was_called = []

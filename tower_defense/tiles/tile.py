@@ -3,7 +3,7 @@ from typing import List
 import pyglet
 
 from game_types import TileType
-from graphics import render_textured_rectangle, render_colored_rectangle
+from graphics import render_textured_rectangle, render_colored_rectangle, render_rectangle_border
 from helper import Vector
 
 
@@ -69,28 +69,7 @@ class Tile:
         if screen_coordinates is None:
             return
 
-        x, y = screen_coordinates.x, screen_coordinates.y
-        border_width = 3
-
-        # bottom
-        bottom_left = Vector(x, y)
-        size = Vector(self.size.x - border_width, border_width)
-        render_colored_rectangle(batch, (0, 0, 0), bottom_left, size)
-
-        # right
-        bottom_left = Vector(x + self.size.x - border_width, y)
-        size = Vector(border_width, self.size.y - border_width)
-        render_colored_rectangle(batch, (0, 0, 0), bottom_left, size)
-
-        # top
-        bottom_left = Vector(x + border_width, y + self.size.y - border_width)
-        size = Vector(self.size.x - border_width, border_width)
-        render_colored_rectangle(batch, (0, 0, 0), bottom_left, size)
-
-        # left
-        bottom_left = Vector(x, y + border_width)
-        size = Vector(border_width, self.size.y - border_width)
-        render_colored_rectangle(batch, (0, 0, 0), bottom_left, size)
+        render_rectangle_border(batch, screen_coordinates, self.size)
 
     def render_arrow(self, game_state, batch: pyglet.graphics.Batch):
         screen_coordinates = game_state.world_to_window_space(self.world_position, self.size)

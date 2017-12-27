@@ -90,3 +90,26 @@ def render_colored_rectangle(batch: pyglet.graphics.Batch, color: (int, int, int
                 top_left.x, bottom_right.y]
     batch.add(4, pyglet.graphics.GL_QUADS, None, ('v2f/static', vertices),
               ('c3B/static', (*color, *color, *color, *color)))
+
+
+def render_rectangle_border(batch: pyglet.graphics.Batch, position: Vector, rect_size: Vector, color=(0, 0, 0),
+                            border_width=3):
+    # bottom
+    bottom_left = position.copy()
+    size = Vector(rect_size.x - border_width, border_width)
+    render_colored_rectangle(batch, color, bottom_left, size)
+
+    # right
+    bottom_left = position + Vector(rect_size.x - border_width, 0)
+    size = Vector(border_width, rect_size.y - border_width)
+    render_colored_rectangle(batch, color, bottom_left, size)
+
+    # top
+    bottom_left = position + Vector(border_width, rect_size.y - border_width)
+    size = Vector(rect_size.x - border_width, border_width)
+    render_colored_rectangle(batch, color, bottom_left, size)
+
+    # left
+    bottom_left = position + Vector(0, border_width)
+    size = Vector(border_width, rect_size.y - border_width)
+    render_colored_rectangle(batch, color, bottom_left, size)
