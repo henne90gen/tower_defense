@@ -2,6 +2,7 @@ from enum import Enum
 
 import pyglet
 
+from graphics import render_colored_rectangle
 from helper import Vector, KeyPresses, rect_contains_point, MouseClick
 
 
@@ -65,3 +66,51 @@ class Input(TextComponent):
             self.text = self.text[:-1]
         else:
             self.text = self.text + key_presses.text
+
+
+class HighlightComponent(TextComponent):
+    def __init__(self, text: str, position: Vector, size: Vector, font_size: int = 25, visible: bool = True,
+                 is_highlighted: bool = False):
+        super().__init__(text, position, size, font_size, visible)
+        self.is_highlighted = is_highlighted
+
+    def is_clicked(self, mouse_click):
+        if super().is_clicked(mouse_click):
+            self.is_highlighted = True
+            return True
+        return False
+
+    def render(self, offset: Vector):
+        super().render(offset)
+        self.render_highlight(offset)
+
+    def render_highlight(self, offset: Vector):
+        if not self.is_highlighted:
+            return
+
+        pos = self.position + offset - Vector(0, self.size.y)
+        x, y = pos.x, pos.y
+        batch = pyglet.graphics.Batch()
+        border_width = 3
+
+        # bottom
+        bottom_left = Vector(x, y)
+        size = Vector(self.size.x - border_width, border_width)
+        render_colored_rectangle(batch, (0, 0, 0), bottom_left, size)
+
+        # right
+        bottom_left = Vector(x + self.size.x - border_width, y)
+        size = Vector(border_width, self.size.y - border_width)
+        render_colored_rectangle(batch, (0, 0, 0), bottom_left, size)
+
+        # top
+        bottom_left = Vector(x + border_width, y + self.size.y - border_width)
+        size = Vector(self.size.x - border_width, border_width)
+        render_colored_rectangle(batch, (0, 0, 0), bottom_left, size)
+
+        # left
+        bottom_left = Vector(x, y + border_width)
+        size = Vector(border_width, self.size.y - border_width)
+        render_colored_rectangle(batch, (0, 0, 0), bottom_left, size)
+
+        batch.draw()

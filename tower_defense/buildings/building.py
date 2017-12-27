@@ -7,10 +7,10 @@ from helper import Vector
 
 
 class Building:
-    def __init__(self, position: Vector, size: Vector):
+    def __init__(self, position: Vector, size: Vector, building_type: BuildingType):
         self.position = position
         self.size = size
-        self.building_type = BuildingType.TOWER
+        self.building_type = building_type
         self.initial_cool_down = 10
         self.cool_down = 0
 

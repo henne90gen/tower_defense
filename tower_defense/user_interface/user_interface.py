@@ -106,9 +106,9 @@ class GameUI:
         else:
             self.components['game_over_label'].visible = False
 
-        if game_state.tile_map.highlighted_tile:
+        if game_state.tile_map.highlighted_tile and not self.building_dialog.visible:
             self.building_dialog.open(game_state)
-        else:
+        elif self.building_dialog.visible and not game_state.tile_map.highlighted_tile:
             self.building_dialog.close()
 
         self.building_dialog.update(game_state)
@@ -127,7 +127,7 @@ class GameUI:
                 return True
         return False
 
-    def render(self, game_state):
+    def render(self, _):
         for component in self.components:
             self.components[component].render(self.offset)
 

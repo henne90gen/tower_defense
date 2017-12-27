@@ -35,7 +35,8 @@ class Textures:
 
         tower_texture = pyglet.image.load(os.path.join(base_path, 'tower.png')).get_texture()
         self.buildings = {
-            BuildingType.TOWER: pyglet.graphics.TextureGroup(tower_texture)
+            BuildingType.Archer: pyglet.graphics.TextureGroup(tower_texture),
+            BuildingType.Cannon: pyglet.graphics.TextureGroup(tower_texture)
         }
 
         arrow_texture = pyglet.image.load(os.path.join(base_path, 'arrow.png')).get_texture()

@@ -2,6 +2,7 @@ import unittest
 
 from buildings.building_manager import BuildingManager
 from game_state import GameState
+from game_types import BuildingType
 from helper import Vector, MouseClick
 
 
@@ -66,7 +67,7 @@ class TestBuildingManager(unittest.TestCase):
         tile_index = (1, 0)
 
         building_manager = BuildingManager()
-        building_manager.spawn_building(game_state, tile_index)
+        building_manager.spawn_building(game_state, tile_index, BuildingType.Archer)
 
         self.assertEqual(1, len(building_manager.buildings))
         self.assertEqual((1, 0), list(building_manager.buildings.keys())[0])

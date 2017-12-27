@@ -1,36 +1,38 @@
+from copy import deepcopy
+from importlib import reload
 from typing import List
 
 import pyglet
 
-from buildings.building_manager import BuildingManager
-from entities.entity_manager import EntityManager, GameEntityManager, EditorEntityManager
+import buildings.building_manager as bm
+import entities.entity_manager as em
+import tiles.tile_map as tm
+import user_interface.menu as menu
+import user_interface.user_interface as ui
 from game_types import GameMode
 from graphics import Textures
 from helper import KeyPresses, MouseClick, Vector, constrain_rect_to_bounds
-from tiles.tile_map import TileMap, EditorTileMap, GameTileMap
-from user_interface.menu import MainMenu, MapMenu
-from user_interface.user_interface import EditorUI, GameUI
 
 
 class GameState:
     def __init__(self):
-        self.mode = GameMode.MAIN_MENU
+        self.mode = GameMode.GAME
 
         self.window_size = Vector()
         self.key_presses: KeyPresses = KeyPresses()
         self.mouse_clicks: List[MouseClick] = []
         self.mouse_position: (int, int) = (0, 0)
 
-        self.main_menu: MainMenu = MainMenu()
-        self.map_menu: MapMenu = MapMenu()
+        self.main_menu: menu.MainMenu = menu.MainMenu()
+        self.map_menu: menu.MapMenu = menu.MapMenu()
 
-        self.editor_ui: EditorUI = EditorUI()
-        self.game_ui: GameUI = GameUI()
+        self.editor_ui: ui.EditorUI = ui.EditorUI()
+        self.game_ui: ui.GameUI = ui.GameUI()
 
         self.textures: Textures = Textures()
-        self.tile_map: TileMap = TileMap()
-        self.entity_manager: EntityManager = EntityManager()
-        self.building_manager: BuildingManager = BuildingManager()
+        self.tile_map: tm.TileMap = tm.TileMap()
+        self.entity_manager: em.EntityManager = em.EntityManager()
+        self.building_manager: bm.BuildingManager = bm.BuildingManager()
 
         self.player_health = 100
 
@@ -97,11 +99,11 @@ class GameState:
         self.world_offset = constrain_rect_to_bounds(self.window_size, self.world_offset, rect_size)
 
     def tick_editor(self):
-        if type(self.entity_manager) != EditorEntityManager:
-            self.entity_manager = EditorEntityManager()
-        if type(self.tile_map) != EditorTileMap:
+        if type(self.entity_manager) != em.EditorEntityManager:
+            self.entity_manager = em.EditorEntityManager()
+        if type(self.tile_map) != tm.EditorTileMap:
             path = self.tile_map.path
-            self.tile_map = EditorTileMap()
+            self.tile_map = tm.EditorTileMap()
             self.tile_map.load(self, path)
 
         self.update()
@@ -115,11 +117,11 @@ class GameState:
         self.editor_ui.render()
 
     def tick_game(self):
-        if type(self.entity_manager) != GameEntityManager:
-            self.entity_manager = GameEntityManager()
-        if type(self.tile_map) != GameTileMap:
+        if type(self.entity_manager) != em.GameEntityManager:
+            self.entity_manager = em.GameEntityManager()
+        if type(self.tile_map) != tm.GameTileMap:
             path = self.tile_map.path
-            self.tile_map = GameTileMap()
+            self.tile_map = tm.GameTileMap()
             self.tile_map.load(self, path)
 
         self.update()

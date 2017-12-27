@@ -21,7 +21,8 @@ class EntityType(Enum):
 
 
 class BuildingType(Enum):
-    TOWER = 0
+    Archer = 0
+    Cannon = 1
 
 
 class BulletType(Enum):

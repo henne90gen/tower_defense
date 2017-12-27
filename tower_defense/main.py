@@ -1,12 +1,14 @@
+from importlib import reload
+
 import pyglet
 
-from game_state import GameState
+import game_state
 from helper import MouseClick, Vector
 
 window = pyglet.window.Window(width=1280, height=720, resizable=True)
 window.set_caption("Tower Defense")
-game_state = GameState()
-game_state.init()
+gs = game_state.GameState()
+gs.init()
 
 pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
 pyglet.gl.glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
@@ -15,7 +17,7 @@ pyglet.gl.glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
 def handle_key(symbol, modifiers, key_down):
     print("KeyEvent", key_down, symbol, modifiers)
 
-    kp = game_state.key_presses
+    kp = gs.key_presses
 
     if symbol == pyglet.window.key.W:
         kp.up = key_down
@@ -38,7 +40,7 @@ def handle_key(symbol, modifiers, key_down):
             text = text[4:]
         kp.text = kp.text + text.lower()
 
-    game_state.key_presses = kp
+    gs.key_presses = kp
 
 
 @window.event
@@ -57,16 +59,16 @@ def on_mouse_press(x, y, button, modifiers):
     mouse_click = MouseClick()
     mouse_click.position = Vector(x, y)
     mouse_click.button = button
-    game_state.mouse_clicks.append(mouse_click)
+    gs.mouse_clicks.append(mouse_click)
 
 
 @window.event
-def on_draw(value=None):
+def on_draw(_=None):
     window.clear()
 
-    game_state.tick(window)
+    gs.tick(window)
 
-    game_state.clean_up()
+    gs.clean_up()
 
 
 pyglet.clock.schedule_interval(on_draw, 1 / 60.0)

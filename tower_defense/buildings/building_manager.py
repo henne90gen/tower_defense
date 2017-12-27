@@ -4,7 +4,7 @@ import pyglet
 
 from buildings.building import Building
 from entities.bullet import Bullet
-from game_types import TileType, GameMode
+from game_types import TileType, GameMode, BuildingType
 from helper import Vector, process_clicks
 
 
@@ -39,7 +39,7 @@ class BuildingManager:
         bullet = Bullet(world_position, self.bullet_size, direction / direction.length() * self.bullet_speed)
         self.bullets.append(bullet)
 
-    def spawn_building(self, game_state, tile_index: (int, int)):
+    def spawn_building(self, game_state, tile_index: (int, int), building_type: BuildingType):
         position = Vector(point=tile_index)
-        building = Building(position, game_state.tile_map.tile_size)
+        building = Building(position, game_state.tile_map.tile_size, building_type)
         self.buildings[tile_index] = building

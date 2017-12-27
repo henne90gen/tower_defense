@@ -4,9 +4,10 @@ import os
 
 import pyglet
 
+from game_types import BuildingType
 from graphics import render_colored_rectangle
 from helper import Vector, MouseClick, process_clicks, rect_contains_point
-from user_interface.components import TextComponent, Input
+from user_interface.components import TextComponent, Input, HighlightComponent
 
 MAPS_PATH = './res/maps/'
 
@@ -168,23 +169,39 @@ class BuildingDialog(Dialog):
     def __init__(self):
         super().__init__(False)
         self.background_size = Vector(200, 0)
-        button_size = Vector(200, 50)
+        self.button_size = Vector(200, 50)
         self.components = {
-            'build_button': TextComponent("Build", Vector(0, button_size.y), button_size),
-            'upgrade_button': TextComponent("Upgrade", Vector(0, button_size.y), button_size, visible=False)
+            'build_button': TextComponent("Build", Vector(0, self.button_size.y), self.button_size),
+            'upgrade_button': TextComponent("Upgrade", Vector(0, self.button_size.y), self.button_size, visible=False)
         }
         self.handlers = {
             'build_button': self.build_func,
             'upgrade_button': self.upgrade_func
         }
+        self.building_types = {
+            BuildingType.Archer: HighlightComponent("", Vector(), Vector()),
+            BuildingType.Cannon: HighlightComponent("", Vector(), Vector()),
+        }
+        # self.upgrade_buttons = {}
 
     def open(self, game_state):
         super().open(game_state)
         self.position = Vector()
 
-    @staticmethod
-    def build_func(game_state):
-        game_state.building_manager.spawn_building(game_state, game_state.tile_map.highlighted_tile)
+        position = Vector(0, game_state.window_size.y)
+        # noinspection PyTypeChecker
+        for index, bt in enumerate(BuildingType):
+            highlight = index == 0
+            self.building_types[bt] = HighlightComponent(str(bt)[13:], position, self.button_size,
+                                                         is_highlighted=highlight)
+            position -= Vector(0, self.button_size.y)
+
+    def build_func(self, game_state):
+        building_type = None
+        for bt in self.building_types:
+            if self.building_types[bt].is_highlighted:
+                building_type = bt
+        game_state.building_manager.spawn_building(game_state, game_state.tile_map.highlighted_tile, building_type)
 
     @staticmethod
     def upgrade_func(game_state):
@@ -193,8 +210,7 @@ class BuildingDialog(Dialog):
     def render_background(self):
         batch = pyglet.graphics.Batch()
         color = (0, 255, 0)
-        position = Vector()
-        render_colored_rectangle(batch, color, position, self.background_size)
+        render_colored_rectangle(batch, color, self.position, self.background_size)
         batch.draw()
 
     def render(self):
@@ -205,11 +221,15 @@ class BuildingDialog(Dialog):
         for component in self.components:
             self.components[component].render(self.position)
 
+        for bt in self.building_types:
+            self.building_types[bt].render(self.position)
+
     def update(self, game_state):
         if not self.visible:
             return
 
-        self.background_size = Vector(200, game_state.window_size.y - 50)
+        self.background_size = Vector(self.background_size.x, game_state.window_size.y)
+        self.position = Vector(game_state.window_size.x - self.background_size.x, 0)
 
         if game_state.tile_map.highlighted_tile in game_state.building_manager.buildings:
             self.components['build_button'].visible = False
@@ -220,9 +240,20 @@ class BuildingDialog(Dialog):
 
         process_clicks(game_state, self.mouse_click_handler, False, self.position)
 
+    def highlight_building(self, building_type):
+        for bt in self.building_types:
+            if bt != building_type:
+                self.building_types[bt].is_highlighted = False
+
     def mouse_click_handler(self, game_state, click: MouseClick) -> bool:
         for component in self.components:
             if self.components[component].is_clicked(click):
                 self.handlers[component](game_state)
                 return True
+
+        for bt in self.building_types:
+            if self.building_types[bt].is_clicked(click):
+                self.highlight_building(bt)
+                return True
+
         return rect_contains_point(click.position, Vector(0, game_state.window_size.y), self.background_size)
