@@ -38,6 +38,10 @@ class TextComponent:
         self.label.x = pos.x + self.size.x / 2
         self.label.y = pos.y - self.size.y / 2
         self.label.text = self.text
+        if self.disabled:
+            self.label.color = (100, 0, 100, 100)
+        else:
+            self.label.color = (255, 0, 255, 255)
         self.label.end_update()
 
         bottom_right = Vector(pos.x + self.size.x, pos.y - self.size.y)

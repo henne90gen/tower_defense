@@ -85,6 +85,7 @@ class GameUI:
             'next_wave_button': TextComponent("Next Wave", Vector(), size),
             'current_wave_label': TextComponent("", Vector(size.x, 0), size),
             'health_label': TextComponent("", Vector(size.x * 2, 0), size),
+            'gold_label': TextComponent("", Vector(size.x * 3, 0), size),
             'game_over_label': TextComponent("Game Over", Vector(0, -100), Vector(400, 90), font_size=50, visible=False)
         }
         self.handlers = {
@@ -95,6 +96,7 @@ class GameUI:
     def update(self, game_state):
         self.offset.y = game_state.window_size.y
         self.components['health_label'].text = str(game_state.player_health)
+        self.components['gold_label'].text = str(game_state.building_manager.gold)
         self.components['current_wave_label'].text = str(game_state.entity_manager.wave_count)
 
         self.components['next_wave_button'].disabled = game_state.entity_manager.wave_running

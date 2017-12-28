@@ -40,6 +40,16 @@ class BuildingManager:
         self.bullets.append(bullet)
 
     def spawn_building(self, game_state, tile_index: (int, int), building_type: BuildingType):
+        cost = 0
+        if building_type == BuildingType.Archer:
+            cost = 20
+        elif building_type == BuildingType.Cannon:
+            cost = 50
+
+        if cost > self.gold:
+            return
+
         position = Vector(point=tile_index)
         building = Building(position, game_state.tile_map.tile_size, building_type)
+        self.gold -= cost
         self.buildings[tile_index] = building
