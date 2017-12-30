@@ -90,6 +90,7 @@ class EditorEntityManagerTest(unittest.TestCase):
         game_state.tile_map.tiles[(0, 0)].tile_type = TileType.START
         game_state.tile_map.tiles[(1, 1)].tile_type = TileType.FINISH
         entity_manager = EditorEntityManager()
+        entity_manager.spawn_timer = 0
         game_state.entity_manager = entity_manager
 
         entity_manager.update(game_state)

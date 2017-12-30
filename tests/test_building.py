@@ -41,6 +41,7 @@ class BuildingTest(unittest.TestCase):
         building = Building(Vector(), Vector(10, 10), BuildingType.CATAPULT)
         self.assertEqual(1 / 60, building.shooting_frequency)
 
+    @unittest.skip("Make separate tests for all buildings")
     def test_update(self):
         was_called = []
 
