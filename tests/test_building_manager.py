@@ -67,7 +67,7 @@ class TestBuildingManager(unittest.TestCase):
         tile_index = (1, 0)
 
         building_manager = BuildingManager()
-        building_manager.spawn_building(game_state, tile_index, BuildingType.Archer)
+        building_manager.spawn_building(game_state, tile_index, BuildingType.LASER)
 
         self.assertEqual(1, len(building_manager.buildings))
         self.assertEqual((1, 0), list(building_manager.buildings.keys())[0])

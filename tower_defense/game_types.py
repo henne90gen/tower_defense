@@ -17,13 +17,16 @@ class TileType(Enum):
 
 
 class EntityType(Enum):
-    WARRIOR = 0
+    BOULDER = 0
+    MINERAL = 1
 
 
 class BuildingType(Enum):
-    Archer = 0
-    Cannon = 1
+    LASER = 0
+    CATAPULT = 1
+    DRILL = 2
 
 
 class BulletType(Enum):
     STANDARD = 0
+    DYNAMITE = 1

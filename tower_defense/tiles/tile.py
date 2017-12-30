@@ -3,7 +3,7 @@ from typing import List
 import pyglet
 
 from game_types import TileType
-from graphics import render_textured_rectangle, render_colored_rectangle, render_rectangle_border
+from graphics import Renderer
 from helper import Vector
 
 
@@ -69,7 +69,7 @@ class Tile:
         if screen_coordinates is None:
             return
 
-        render_rectangle_border(batch, screen_coordinates, self.size)
+        Renderer.rectangle_border(batch, screen_coordinates, self.size)
 
     def render_arrow(self, game_state, batch: pyglet.graphics.Batch):
         screen_coordinates = game_state.world_to_window_space(self.world_position, self.size)
@@ -117,8 +117,8 @@ class Tile:
                           tex_top_right.x, tex_top_right.y,
                           tex_top_left.x, tex_top_left.y,
                           tex_bottom_left.x, tex_bottom_left.y]
-        render_textured_rectangle(batch, game_state.textures.other['arrow'], Vector(x, y), self.size,
-                                  texture_coords=texture_coords)
+        Renderer.textured_rectangle(batch, game_state.textures.other['arrow'], Vector(x, y), self.size,
+                                    texture_coords=texture_coords)
 
     def render(self, game_state, batch: pyglet.graphics.Batch):
         screen_coordinates = game_state.world_to_window_space(self.world_position, self.size)
@@ -128,7 +128,7 @@ class Tile:
         x, y = screen_coordinates.x, screen_coordinates.y
         if self.tile_type == TileType.START or self.tile_type == TileType.FINISH:
             color = (0, 255, 0) if self.tile_type == TileType.START else (255, 0, 0)
-            render_colored_rectangle(batch, color, Vector(x, y), self.size)
+            Renderer.colored_rectangle(batch, color, Vector(x, y), self.size)
         else:
-            render_textured_rectangle(batch, game_state.textures.tiles[self.tile_type], Vector(x, y), self.size,
-                                      tex_max=0.75)
+            Renderer.textured_rectangle(batch, game_state.textures.tiles[self.tile_type], Vector(x, y), self.size,
+                                        tex_max=0.75)

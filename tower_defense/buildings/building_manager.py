@@ -2,7 +2,7 @@ from typing import List, Dict
 
 import pyglet
 
-from buildings.building import Building
+from buildings.building import Building, Laser, Drill, Catapult
 from entities.bullet import Bullet
 from game_types import TileType, GameMode, BuildingType
 from helper import Vector, process_clicks
@@ -41,15 +41,24 @@ class BuildingManager:
 
     def spawn_building(self, game_state, tile_index: (int, int), building_type: BuildingType):
         cost = 0
-        if building_type == BuildingType.Archer:
+        if building_type == BuildingType.LASER:
             cost = 20
-        elif building_type == BuildingType.Cannon:
+        elif building_type == BuildingType.CATAPULT:
             cost = 50
 
         if cost > self.gold:
             return
 
         position = Vector(point=tile_index)
-        building = Building(position, game_state.tile_map.tile_size, building_type)
+        args = (position, game_state.tile_map.tile_size, building_type)
+        if building_type == BuildingType.LASER:
+            building = Laser(*args)
+        elif building_type == BuildingType.DRILL:
+            building = Drill(*args)
+        elif building_type == BuildingType.CATAPULT:
+            building = Catapult(*args)
+        else:
+            building = Building(*args)
+
         self.gold -= cost
         self.buildings[tile_index] = building

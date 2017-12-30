@@ -1,8 +1,6 @@
-from enum import Enum
-
 import pyglet
 
-from graphics import render_colored_rectangle, render_rectangle_border
+from graphics import Renderer
 from helper import Vector, KeyPresses, rect_contains_point, MouseClick
 
 
@@ -98,5 +96,5 @@ class HighlightComponent(TextComponent):
         position = self.position + offset - Vector(0, self.size.y)
 
         batch = pyglet.graphics.Batch()
-        render_rectangle_border(batch, position, self.size)
+        Renderer.rectangle_border(batch, position, self.size)
         batch.draw()

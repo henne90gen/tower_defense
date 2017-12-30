@@ -1,11 +1,10 @@
-from typing import List
-
 import os
+from typing import List
 
 import pyglet
 
 from game_types import BuildingType
-from graphics import render_colored_rectangle
+from graphics import Renderer
 from helper import Vector, MouseClick, process_clicks, rect_contains_point
 from user_interface.components import TextComponent, Input, HighlightComponent
 
@@ -179,8 +178,8 @@ class BuildingDialog(Dialog):
             'upgrade_button': self.upgrade_func
         }
         self.building_types = {
-            BuildingType.Archer: HighlightComponent("", Vector(), Vector()),
-            BuildingType.Cannon: HighlightComponent("", Vector(), Vector()),
+            BuildingType.LASER: HighlightComponent("", Vector(), Vector()),
+            BuildingType.CATAPULT: HighlightComponent("", Vector(), Vector()),
         }
         # self.upgrade_buttons = {}
 
@@ -210,7 +209,7 @@ class BuildingDialog(Dialog):
     def render_background(self):
         batch = pyglet.graphics.Batch()
         color = (0, 255, 0)
-        render_colored_rectangle(batch, color, self.position, self.background_size)
+        Renderer.colored_rectangle(batch, color, self.position, self.background_size)
         batch.draw()
 
     def render(self):

@@ -1,13 +1,13 @@
 import pyglet
 
 from game_types import EntityType
-from graphics import render_textured_rectangle
+from graphics import Renderer
 from helper import Vector
 
 
 class Entity:
     def __init__(self, position: Vector, size: Vector):
-        self.entity_type = EntityType.WARRIOR
+        self.entity_type = EntityType.BOULDER
         self.position = position  # center of sprite
         self.size = size
         self.velocity = Vector()
@@ -68,7 +68,7 @@ class Entity:
         if position is None:
             return
 
-        render_textured_rectangle(batch, game_state.textures.entities[self.entity_type], position, self.size)
+        Renderer.textured_rectangle(batch, game_state.textures.entities[self.entity_type], position, self.size)
 
     def take_damage(self, damage):
         self.health -= damage

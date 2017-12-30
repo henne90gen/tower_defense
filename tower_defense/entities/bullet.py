@@ -1,7 +1,7 @@
 import pyglet
 
 from game_types import BulletType
-from graphics import render_textured_rectangle
+from graphics import Renderer
 from helper import Vector, rect_contains_point
 
 
@@ -22,8 +22,8 @@ class Bullet:
         if position is None:
             return
 
-        render_textured_rectangle(batch, game_state.textures.bullets[self.bullet_type], position, self.size,
-                                  tex_max=1.0)
+        Renderer.textured_rectangle(batch, game_state.textures.bullets[self.bullet_type], position, self.size,
+                                    tex_max=1.0)
 
     def update(self, game_state):
         self.position += self.velocity
