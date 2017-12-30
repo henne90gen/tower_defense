@@ -37,6 +37,9 @@ class Vector:
     def length(self):
         return math.sqrt(self.x * self.x + self.y * self.y)
 
+    def angle(self):
+        return math.atan2(self.y, self.x)
+
     def copy(self):
         return Vector(self.x, self.y)
 
@@ -125,4 +128,3 @@ def maps_list(maps_path: str):
         if '.map' in file:
             maps.append(file)
     return maps
-

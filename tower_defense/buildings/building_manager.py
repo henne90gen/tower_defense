@@ -28,6 +28,10 @@ class BuildingManager:
         bullet_batch.draw()
 
     def update(self, game_state):
+        # TODO remove this at some point
+        if len(self.buildings) == 0:
+            self.spawn_building(game_state, (6, 4), BuildingType.DRILL)
+
         for index in self.buildings:
             self.buildings[index].update(game_state)
 

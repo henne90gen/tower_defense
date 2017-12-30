@@ -14,8 +14,8 @@ class EntityManager:
         # as values, but rather a list with the directions associated with that tile and a counter with each direction
         # The counter indicates how many time a certain direction has been taken already
         self.directions_graph: Dict[(int, int), List[((int, int), int)]] = {}
-        self.spawn_timer = 0
         self.spawn_delay = 150
+        self.spawn_timer = self.spawn_delay
 
     def render(self, game_state):
         batch = pyglet.graphics.Batch()
@@ -31,7 +31,9 @@ class EntityManager:
         for tile_index in game_state.tile_map.tiles:
             tile = game_state.tile_map.tiles[tile_index]
             if tile.tile_type == TileType.START:
-                entity = Entity(tile.world_position + (tile.size / 2), Vector(100, 100))
+                position = tile.world_position + (tile.size / 2)
+                # position = tile.world_position
+                entity = Entity(position, tile.size)
                 self.entities.append(entity)
                 break
 

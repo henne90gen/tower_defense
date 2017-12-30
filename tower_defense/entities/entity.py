@@ -48,7 +48,7 @@ class Entity:
         self.acceleration += steer
         self.velocity += self.acceleration
         self.position += self.velocity
-        self.acceleration = (0, 0)
+        self.acceleration = Vector()
 
     def update_next_tile_index(self, game_state):
         if game_state.world_to_index_space(self.position) == self.next_tile_index:
@@ -68,7 +68,8 @@ class Entity:
         if position is None:
             return
 
-        Renderer.textured_rectangle(batch, game_state.textures.entities[self.entity_type], position, self.size)
+        Renderer.textured_rectangle(batch, game_state.textures.entities[self.entity_type], position, self.size,
+                                    tex_max=0.775)
 
     def take_damage(self, damage):
         self.health -= damage
