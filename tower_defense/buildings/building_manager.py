@@ -31,6 +31,7 @@ class BuildingManager:
         # TODO remove this at some point
         if len(self.buildings) == 0:
             self.spawn_building(game_state, (6, 4), BuildingType.DRILL)
+            self.spawn_building(game_state, (5, 4), BuildingType.DRILL)
 
         for index in self.buildings:
             self.buildings[index].update(game_state)
@@ -49,12 +50,14 @@ class BuildingManager:
             cost = 20
         elif building_type == BuildingType.CATAPULT:
             cost = 50
+        elif building_type == BuildingType.DRILL:
+            cost = 30
 
         if cost > self.gold:
             return
 
         position = Vector(point=tile_index)
-        args = (position, game_state.tile_map.tile_size, building_type)
+        args = (position, game_state.tile_map.tile_size)
         if building_type == BuildingType.LASER:
             building = Laser(*args)
         elif building_type == BuildingType.DRILL:
@@ -62,6 +65,7 @@ class BuildingManager:
         elif building_type == BuildingType.CATAPULT:
             building = Catapult(*args)
         else:
+            args = (*args, BuildingType.CATAPULT)
             building = Building(*args)
 
         self.gold -= cost

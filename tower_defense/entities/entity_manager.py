@@ -2,8 +2,8 @@ from typing import List, Dict
 
 import pyglet
 
-from entities.entity import Entity
-from game_types import TileType
+from entities.entity import Entity, SmallBoulder
+from game_types import TileType, EntityType
 from helper import Vector
 
 
@@ -27,17 +27,21 @@ class EntityManager:
         self.directions_graph = {}
         self.entities = []
 
-    def spawn_entity(self, game_state):
-        for tile_index in game_state.tile_map.tiles:
-            tile = game_state.tile_map.tiles[tile_index]
-            if tile.tile_type == TileType.START:
-                position = tile.world_position + (tile.size / 2)
-                # position = tile.world_position
-                entity = Entity(position, tile.size)
-                self.entities.append(entity)
-                break
+    def spawn_entity(self, game_state, entity_type: EntityType, position: Vector = None):
+        if position is None:
+            for tile_index in game_state.tile_map.tiles:
+                tile = game_state.tile_map.tiles[tile_index]
+                if tile.tile_type == TileType.START:
+                    position = tile.world_position + (game_state.tile_map.tile_size / 2)
+                    break
+
+        entity = Entity(position, game_state.tile_map.tile_size, entity_type)
+        if entity_type == EntityType.SMALL_BOULDER:
+            entity = SmallBoulder(position, game_state.tile_map.tile_size / 2)
+        self.entities.append(entity)
 
     def update(self, game_state):
+        # print(len(self.entities))
         self.generate_directions_graph(game_state)
         self.update_entities(game_state)
 
@@ -47,11 +51,15 @@ class EntityManager:
     def update_entities(self, game_state):
         for entity in self.entities.copy():
             entity.update(game_state)
+
             tile_index = game_state.world_to_index_space(entity.position)
             if game_state.tile_map.tiles[tile_index].tile_type == TileType.FINISH:
                 game_state.player_health -= entity.player_damage
                 self.entities.remove(entity)
             elif entity.health <= 0:
+                if entity.entity_type == EntityType.LARGE_BOULDER:
+                    self.spawn_entity(game_state, EntityType.SMALL_BOULDER, entity.position)
+                    self.spawn_entity(game_state, EntityType.SMALL_BOULDER, entity.position)
                 self.entities.remove(entity)
 
     def generate_directions_graph(self, game_state):
@@ -87,7 +95,7 @@ class EditorEntityManager(EntityManager):
             return
 
         self.spawn_timer = 0
-        self.spawn_entity(game_state)
+        self.spawn_entity(game_state, EntityType.LARGE_BOULDER)
 
     def reset(self):
         super().reset()
@@ -122,4 +130,4 @@ class GameEntityManager(EntityManager):
 
         self.spawn_timer = 0
         self.wave = self.wave[:-1]
-        self.spawn_entity(game_state)
+        self.spawn_entity(game_state, EntityType.LARGE_BOULDER)

@@ -17,8 +17,9 @@ class TileType(Enum):
 
 
 class EntityType(Enum):
-    BOULDER = 0
-    MINERAL = 1
+    LARGE_BOULDER = 0
+    SMALL_BOULDER = 1
+    MINERAL = 2
 
 
 class BuildingType(Enum):

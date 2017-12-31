@@ -3,7 +3,7 @@ import unittest
 from entities.entity import Entity
 from entities.entity_manager import EntityManager, EditorEntityManager, GameEntityManager
 from game_state import GameState
-from game_types import GameMode, TileType
+from game_types import TileType, EntityType
 from helper import Vector
 
 
@@ -17,12 +17,12 @@ class EntityManagerTest(unittest.TestCase):
         game_state = GameState()
         was_called = []
 
-        def render(game_state, batch):
+        def render(*_):
             was_called.append(0)
 
         position = Vector()
         size = Vector()
-        entity = Entity(position, size)
+        entity = Entity(position, size, EntityType.LARGE_BOULDER)
         entity.render = render
 
         entity_manager = EntityManager()
@@ -45,19 +45,18 @@ class EntityManagerTest(unittest.TestCase):
         game_state.tile_map.tiles[(1, 0)].tile_type = TileType.FINISH
 
         entity_manager = EntityManager()
-        entity_manager.spawn_entity(game_state)
+        entity_manager.spawn_entity(game_state, EntityType.LARGE_BOULDER)
         self.assertEqual(1, len(entity_manager.entities))
-        # print(entity_manager.entities[0].position)
         self.assertEqual(Vector(50, 50), entity_manager.entities[0].position)
 
     def test_update_entities(self):
         game_state = GameState()
         was_called = []
 
-        def update(game_state):
+        def update(*_):
             was_called.append(0)
 
-        entity = Entity(Vector(), Vector())
+        entity = Entity(Vector(), Vector(), EntityType.LARGE_BOULDER)
         entity.update = update
 
         entity_manager = EntityManager()
@@ -75,9 +74,19 @@ class EntityManagerTest(unittest.TestCase):
 
         game_state = GameState()
         entity.health = 0
+        entity.entity_type = EntityType.SMALL_BOULDER
         entity_manager.entities = [entity]
         entity_manager.update_entities(game_state)
         self.assertEqual(0, len(entity_manager.entities))
+
+    def test_update_split_large_boulder(self):
+        game_state = GameState()
+        entity = Entity(Vector(), Vector(), EntityType.LARGE_BOULDER)
+        entity.health = 0
+        entity_manager = EntityManager()
+        entity_manager.entities = [entity]
+        entity_manager.update_entities(game_state)
+        self.assertEqual(2, len(entity_manager.entities))
 
     @unittest.skip("Implement this")
     def test_generate_directions_graph(self):
@@ -121,7 +130,7 @@ class EditorEntityManagerTest(unittest.TestCase):
         entity_manager.spawn_timer = 60
         entity_manager.spawn_delay = 60
         entity_manager.update(game_state)
-        self.assertEqual(0, len(entity_manager.entities))
+        self.assertEqual(1, len(entity_manager.entities))
         self.assertEqual(0, entity_manager.spawn_timer)
 
     def test_reset(self):

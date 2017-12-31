@@ -61,6 +61,9 @@ class Building:
 
 
 class Laser(Building):
+    def __init__(self, position: Vector, size: Vector):
+        super().__init__(position, size, BuildingType.LASER)
+
     def render(self, game_state, batch: pyglet.graphics.Batch):
         position = super().render(game_state, batch)
         if position is None:
@@ -91,6 +94,9 @@ class Laser(Building):
 
 
 class Catapult(Building):
+    def __init__(self, position: Vector, size: Vector):
+        super().__init__(position, size, BuildingType.CATAPULT)
+
     def render(self, game_state, batch: pyglet.graphics.Batch):
         position = super().render(game_state, batch)
         if position is None:
@@ -101,8 +107,8 @@ class Catapult(Building):
 
 
 class Drill(Building):
-    def __init__(self, position: Vector, size: Vector, building_type: BuildingType):
-        super().__init__(position, size, building_type)
+    def __init__(self, position: Vector, size: Vector):
+        super().__init__(position, size, BuildingType.DRILL)
         self.rotation_angle = 0
         self.rotation_speed = 2
 
@@ -159,8 +165,9 @@ class Drill(Building):
 
         texture = game_state.textures.buildings[self.building_type].texture
         position += self.size / 2
-        group = MovementGroup(texture, self.rotation_angle, position)
+        movement_group = MovementGroup(self.rotation_angle, position)
+        texture_group = pyglet.graphics.TextureGroup(texture, movement_group)
 
         drilling = math.sin(self.animation_angle * math.pi / 180) * 10
         offset = Vector(self.drill_size.x / -4, self.drill_size.y / -1.5 + drilling)
-        Renderer.textured_rectangle(batch, group, offset, self.drill_size)
+        Renderer.textured_rectangle(batch, texture_group, offset, self.drill_size)

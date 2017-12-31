@@ -6,8 +6,8 @@ from helper import Vector
 
 
 class Entity:
-    def __init__(self, position: Vector, size: Vector):
-        self.entity_type = EntityType.BOULDER
+    def __init__(self, position: Vector, size: Vector, entity_type: EntityType):
+        self.entity_type = entity_type
         self.position = position  # center of sprite
         self.size = size
         self.velocity = Vector()
@@ -73,3 +73,11 @@ class Entity:
 
     def take_damage(self, damage):
         self.health -= damage
+
+
+class SmallBoulder(Entity):
+    def __init__(self, position: Vector, size: Vector):
+        super().__init__(position, size, EntityType.SMALL_BOULDER)
+
+    def update(self, game_state):
+        super().update(game_state)

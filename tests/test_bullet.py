@@ -5,6 +5,7 @@ import pyglet
 from entities.bullet import Bullet
 from entities.entity import Entity
 from game_state import GameState
+from game_types import EntityType
 from helper import Vector
 
 
@@ -38,7 +39,7 @@ class BulletTest(unittest.TestCase):
 
     def test_update_with_entity_hit(self):
         game_state = GameState()
-        entity = Entity(Vector(0, 0), Vector(10, 10))
+        entity = Entity(Vector(0, 0), Vector(10, 10), EntityType.LARGE_BOULDER)
         game_state.entity_manager.entities = [entity]
 
         bullet = Bullet(Vector(), Vector(10, 10), Vector(1, 1))

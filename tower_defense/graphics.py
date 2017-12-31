@@ -29,7 +29,8 @@ class Textures:
 
         boulder_texture = load_image('boulder.png')
         self.entities = {
-            EntityType.BOULDER: pyglet.graphics.TextureGroup(boulder_texture)
+            EntityType.LARGE_BOULDER: pyglet.graphics.TextureGroup(boulder_texture),
+            EntityType.SMALL_BOULDER: pyglet.graphics.TextureGroup(boulder_texture)
         }
 
         # TODO find bullet texture
@@ -59,12 +60,12 @@ class Textures:
 
 class Renderer:
     @staticmethod
-    def textured_rectangle(batch: pyglet.graphics.Batch, texture: pyglet.graphics.TextureGroup, position: Vector,
+    def textured_rectangle(batch: pyglet.graphics.Batch, texture_group: pyglet.graphics.TextureGroup, position: Vector,
                            size: Vector, tex_max: float = 1.0, tex_min: float = 0.0,
                            texture_coords: List[int] = None):
         """
         :param batch:
-        :param texture:
+        :param texture_group:
         :param position: bottom left of rectangle
         :param size:
         :param tex_max:
@@ -83,7 +84,7 @@ class Renderer:
                               tex_max, tex_max,
                               tex_min, tex_max,
                               tex_min, tex_min]
-        batch.add(4, pyglet.graphics.GL_QUADS, texture, ('v2f/static', vertices), ('t2f/static', texture_coords))
+        batch.add(4, pyglet.graphics.GL_QUADS, texture_group, ('v2f/static', vertices), ('t2f/static', texture_coords))
 
     @staticmethod
     def colored_rectangle(batch: pyglet.graphics.Batch, color: (int, int, int), position: Vector, size: Vector):
@@ -135,20 +136,19 @@ class Renderer:
         Renderer.colored_rectangle(batch, color, bottom_left, size)
 
 
-class MovementGroup(pyglet.graphics.TextureGroup):
-    def __init__(self, texture: pyglet.image.Texture, angle: float, position: Vector):
-        super().__init__(texture)
+class MovementGroup(pyglet.graphics.Group):
+    def __init__(self, angle: float, position: Vector, parent: pyglet.graphics.Group = None):
+        super().__init__(parent)
         self.angle = angle
         self.position = position
 
     def set_state(self):
-        super().set_state()
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
         glTranslatef(self.position.x, self.position.y, 0)
         glRotatef(self.angle, 0, 0, 1)
 
+    # noinspection PyMethodMayBeStatic
     def unset_state(self):
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
-        super().unset_state()
