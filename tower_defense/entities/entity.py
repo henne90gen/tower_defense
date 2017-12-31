@@ -33,11 +33,13 @@ class Entity:
 
         self.calculate_movement(game_state)
 
-    def calculate_movement(self, game_state):
+    def get_movement_target(self, game_state):
         tile = game_state.tile_map.tiles[self.next_tile_index]
-        target = tile.world_position
         half_tile_size = tile.size / 2
-        target += half_tile_size
+        return tile.world_position + half_tile_size
+
+    def calculate_movement(self, game_state):
+        target = self.get_movement_target(game_state)
 
         desired_velocity = target - self.position
         desired_speed = desired_velocity.length()
@@ -76,8 +78,13 @@ class Entity:
 
 
 class SmallBoulder(Entity):
-    def __init__(self, position: Vector, size: Vector):
+    def __init__(self, position: Vector, size: Vector, path_side: int):
         super().__init__(position, size, EntityType.SMALL_BOULDER)
+        self.path_side = path_side
 
-    def update(self, game_state):
-        super().update(game_state)
+    def get_movement_target(self, game_state):
+        tile = game_state.tile_map.tiles[self.next_tile_index]
+        half_tile_size = tile.size / 2
+        center = tile.world_position + half_tile_size
+        quarter_tile_size = half_tile_size / 2
+        return center + quarter_tile_size * self.path_side

@@ -27,7 +27,7 @@ class EntityManager:
         self.directions_graph = {}
         self.entities = []
 
-    def spawn_entity(self, game_state, entity_type: EntityType, position: Vector = None):
+    def spawn_entity(self, game_state, entity_type: EntityType, position: Vector = None, path_side: int = 0):
         if position is None:
             for tile_index in game_state.tile_map.tiles:
                 tile = game_state.tile_map.tiles[tile_index]
@@ -37,11 +37,10 @@ class EntityManager:
 
         entity = Entity(position, game_state.tile_map.tile_size, entity_type)
         if entity_type == EntityType.SMALL_BOULDER:
-            entity = SmallBoulder(position, game_state.tile_map.tile_size / 2)
+            entity = SmallBoulder(position, game_state.tile_map.tile_size / 2, path_side)
         self.entities.append(entity)
 
     def update(self, game_state):
-        # print(len(self.entities))
         self.generate_directions_graph(game_state)
         self.update_entities(game_state)
 
@@ -58,8 +57,8 @@ class EntityManager:
                 self.entities.remove(entity)
             elif entity.health <= 0:
                 if entity.entity_type == EntityType.LARGE_BOULDER:
-                    self.spawn_entity(game_state, EntityType.SMALL_BOULDER, entity.position)
-                    self.spawn_entity(game_state, EntityType.SMALL_BOULDER, entity.position)
+                    self.spawn_entity(game_state, EntityType.SMALL_BOULDER, entity.position, path_side=-1)
+                    self.spawn_entity(game_state, EntityType.SMALL_BOULDER, entity.position, path_side=1)
                 self.entities.remove(entity)
 
     def generate_directions_graph(self, game_state):
