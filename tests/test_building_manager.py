@@ -1,5 +1,6 @@
 import unittest
 
+from buildings.building import Laser, Drill, Catapult, Building
 from buildings.building_manager import BuildingManager
 from game_state import GameState
 from game_types import BuildingType
@@ -37,7 +38,7 @@ class TestBuildingManager(unittest.TestCase):
         game_state = GameState()
         was_called = []
 
-        def dummy(game_state, batch):
+        def dummy(*_):
             was_called.append(0)
 
         building = Object()
@@ -68,8 +69,23 @@ class TestBuildingManager(unittest.TestCase):
 
         building_manager = BuildingManager()
         building_manager.spawn_building(game_state, tile_index, BuildingType.LASER)
-
         self.assertEqual(1, len(building_manager.buildings))
         self.assertEqual((1, 0), list(building_manager.buildings.keys())[0])
+
         building = building_manager.buildings[(1, 0)]
         self.assertEqual(Vector(1, 0), building.position)
+        self.assertEqual(Laser, type(building))
+
+        building_manager.spawn_building(game_state, tile_index, BuildingType.DRILL)
+        self.assertEqual(Drill, type(building_manager.buildings[(1, 0)]))
+
+        building_manager.spawn_building(game_state, tile_index, BuildingType.CATAPULT)
+        self.assertEqual(Catapult, type(building_manager.buildings[(1, 0)]))
+
+        building_manager.spawn_building(game_state, tile_index, -1)
+        self.assertEqual(Building, type(building_manager.buildings[(1, 0)]))
+
+        building_manager = BuildingManager()
+        building_manager.gold = 0
+        building_manager.spawn_building(game_state, tile_index, BuildingType.CATAPULT)
+        self.assertEqual(0, len(building_manager.buildings.keys()))
