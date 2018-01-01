@@ -5,7 +5,7 @@ import pyglet
 from buildings.building import Building, Laser, Catapult, Drill
 from entities.entity import Entity
 from game_state import GameState
-from game_types import BuildingType, EntityType
+from game_types import BuildingType, EntityType, TileType
 from graphics import MovementGroup
 from helper import Vector
 
@@ -198,3 +198,29 @@ class DrillTest(unittest.TestCase):
         self.assertEqual(True, result)
         self.assertEqual(5, building.animation_speed)
         self.assertEqual(99, game_state.entity_manager.entities[0].health)
+
+    def test_closest_tile_angle(self):
+        game_state = GameState()
+        building = Drill(Vector(1, 1), Vector(10, 10))
+        actual = building.closest_tile_angle(game_state)
+        self.assertEqual(0, actual)
+
+        game_state = GameState()
+        game_state.tile_map.tiles[(1, 0)].tile_type = TileType.PATH
+        actual = building.closest_tile_angle(game_state)
+        self.assertEqual(0, actual)
+
+        game_state = GameState()
+        game_state.tile_map.tiles[(0, 1)].tile_type = TileType.PATH
+        actual = building.closest_tile_angle(game_state)
+        self.assertEqual(-90, actual)
+
+        game_state = GameState()
+        game_state.tile_map.tiles[(1, 2)].tile_type = TileType.PATH
+        actual = building.closest_tile_angle(game_state)
+        self.assertEqual(180, actual)
+
+        game_state = GameState()
+        game_state.tile_map.tiles[(2, 1)].tile_type = TileType.PATH
+        actual = building.closest_tile_angle(game_state)
+        self.assertEqual(90, actual)

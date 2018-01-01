@@ -2,7 +2,7 @@ import math
 
 import pyglet
 
-from game_types import BuildingType
+from game_types import BuildingType, TileType
 from graphics import Renderer, MovementGroup
 from helper import Vector, rect_contains_point
 
@@ -132,7 +132,25 @@ class Drill(Building):
             if self.animation_speed > 0:
                 self.animation_speed -= 5
 
-            self.rotate_towards(0)
+            self.rotate_towards(self.closest_tile_angle(game_state))
+
+    def closest_tile_angle(self, game_state) -> float:
+        def test_tile(x, y):
+            x += self.position.x
+            y += self.position.y
+            if (x, y) not in game_state.tile_map.tiles:
+                return False
+            return game_state.tile_map.tiles[(x, y)].tile_type != TileType.BUILDING_GROUND
+
+        if test_tile(-1, 0):
+            return -90
+        elif test_tile(1, 0):
+            return 90
+        elif test_tile(0, -1):
+            return 0
+        elif test_tile(0, 1):
+            return 180
+        return 0
 
     def check_for_entities(self, game_state):
         something_in_sight = False
