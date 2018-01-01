@@ -3,7 +3,7 @@ import unittest
 import pyglet
 
 from helper import Vector
-from tower_defense.graphics import Textures, Renderer
+from tower_defense.graphics import Textures, Renderer, MovementGroup
 
 
 class Object(object):
@@ -48,3 +48,15 @@ class MethodTest(unittest.TestCase):
         batch = Object()
         batch.add = add
         Renderer.textured_rectangle(batch, texture, position, size, tex_max=1, tex_min=0)
+
+
+class MovementGroupTest(unittest.TestCase):
+    @staticmethod
+    def test_set_state():
+        group = MovementGroup(0, Vector())
+        group.set_state()
+
+    @staticmethod
+    def test_unset_state():
+        group = MovementGroup(0, Vector())
+        group.unset_state()
