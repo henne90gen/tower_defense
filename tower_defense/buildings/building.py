@@ -136,9 +136,7 @@ class Drill(Building):
             distance = direction.length()
             if distance < self.sight_range:
                 angle = direction.angle() * 180 / math.pi + 90
-                angle -= self.rotation_angle
-                if angle != 0:
-                    self.rotation_angle += angle / abs(angle) * self.rotation_speed
+                self.rotate_towards(angle)
 
                 if self.animation_speed < self.max_animation_speed:
                     self.animation_speed += 5
@@ -152,9 +150,12 @@ class Drill(Building):
                 self.animation_speed -= 5
 
             angle = 0
-            angle -= self.rotation_angle
-            if angle != 0:
-                self.rotation_angle += angle / abs(angle) * self.rotation_speed
+            self.rotate_towards(angle)
+
+    def rotate_towards(self, angle):
+        angle -= self.rotation_angle
+        if angle != 0:
+            self.rotation_angle += angle / abs(angle) * self.rotation_speed
 
     def render(self, game_state, batch: pyglet.graphics.Batch):
         position = super().render(game_state, batch)

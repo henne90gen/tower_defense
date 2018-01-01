@@ -30,8 +30,8 @@ class BuildingManager:
     def update(self, game_state):
         # TODO remove this at some point
         if len(self.buildings) == 0:
-            self.spawn_building(game_state, (6, 4), BuildingType.DRILL)
-            self.spawn_building(game_state, (5, 4), BuildingType.DRILL)
+            self.spawn_building(game_state, (6, 4), BuildingType.LASER)
+            self.spawn_building(game_state, (5, 4), BuildingType.LASER)
 
         for index in self.buildings:
             self.buildings[index].update(game_state)

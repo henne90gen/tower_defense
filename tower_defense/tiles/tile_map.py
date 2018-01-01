@@ -81,8 +81,9 @@ class TileMap:
     def render(self, game_state):
         batch = pyglet.graphics.Batch()
 
-        size = Vector(self.tile_map_width + self.border_width, self.tile_map_height + self.border_width)
-        Renderer.rectangle_border(batch, game_state.world_offset, size, (255, 255, 255),
+        size = Vector(self.tile_map_width + self.border_width * 2, self.tile_map_height + self.border_width * 2)
+        position = game_state.world_offset - Vector(self.border_width, self.border_width)
+        Renderer.rectangle_border(batch, position, size, (255, 255, 255),
                                   border_width=self.border_width)
 
         for tile in self.tiles.values():
