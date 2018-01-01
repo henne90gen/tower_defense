@@ -41,20 +41,20 @@ class Textures:
         }
 
         tower_texture = load_image('tower.png')
-        drill_texture = load_image('drill.png')
+        platform_texture = load_image('platform.png')
         self.buildings = {
             BuildingType.LASER: pyglet.graphics.TextureGroup(tower_texture),
             BuildingType.CATAPULT: pyglet.graphics.TextureGroup(tower_texture),
-            BuildingType.DRILL: pyglet.graphics.TextureGroup(drill_texture)
+            BuildingType.DRILL: pyglet.graphics.TextureGroup(platform_texture)
         }
 
         arrow_texture = load_image('arrow.png')
         ring_texture = load_image('ring.png')
-        platform_texture = load_image('platform.png')
+        drill_texture = load_image('drill.png')
         self.other = {
             'arrow': pyglet.graphics.TextureGroup(arrow_texture),
             'ring': pyglet.graphics.TextureGroup(ring_texture),
-            'platform': pyglet.graphics.TextureGroup(platform_texture)
+            'drill': pyglet.graphics.TextureGroup(drill_texture)
         }
 
 

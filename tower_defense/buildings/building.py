@@ -36,7 +36,7 @@ class Building:
             return 150
 
         print("Missing range for", self.building_type)
-        assert False
+        return -1
 
     @property
     def cost(self):
@@ -47,10 +47,16 @@ class Building:
         elif self.building_type == BuildingType.DRILL:
             return 30
 
-    def render(self, game_state, batch: pyglet.graphics.Batch):
+        print("Missing cost for", self.building_type)
+        return -1
+
+    def render(self, game_state, batch: pyglet.graphics.Batch, tex_max=0.8):
         position = game_state.world_to_window_space(self.world_position, self.size)
         if position is None:
             return
+
+        Renderer.textured_rectangle(batch, game_state.textures.buildings[self.building_type], position, self.size,
+                                    tex_max=tex_max)
 
         if self.mouse_over:
             size = self.size / self.size.length()
@@ -72,14 +78,6 @@ class Building:
 class Laser(Building):
     def __init__(self, position: Vector, size: Vector):
         super().__init__(position, size, BuildingType.LASER)
-
-    def render(self, game_state, batch: pyglet.graphics.Batch):
-        position = super().render(game_state, batch)
-        if position is None:
-            return
-
-        Renderer.textured_rectangle(batch, game_state.textures.buildings[self.building_type], position, self.size,
-                                    tex_max=0.8)
 
     def update(self, game_state):
         super().update(game_state)
@@ -106,14 +104,6 @@ class Catapult(Building):
     def __init__(self, position: Vector, size: Vector):
         super().__init__(position, size, BuildingType.CATAPULT)
 
-    def render(self, game_state, batch: pyglet.graphics.Batch):
-        position = super().render(game_state, batch)
-        if position is None:
-            return
-
-        Renderer.textured_rectangle(batch, game_state.textures.buildings[self.building_type], position, self.size,
-                                    tex_max=0.8)
-
 
 class Drill(Building):
     def __init__(self, position: Vector, size: Vector):
@@ -136,6 +126,15 @@ class Drill(Building):
         if self.animation_angle > 360:
             self.animation_angle = 0
 
+        something_in_sight = self.check_for_entities(game_state)
+
+        if not something_in_sight:
+            if self.animation_speed > 0:
+                self.animation_speed -= 5
+
+            self.rotate_towards(0)
+
+    def check_for_entities(self, game_state):
         something_in_sight = False
         for entity in game_state.entity_manager.entities:
             world_position = game_state.index_to_world_space(self.position)
@@ -153,27 +152,21 @@ class Drill(Building):
 
             if distance < self.range:
                 entity.take_damage(1)
+                break
 
-        if not something_in_sight:
-            if self.animation_speed > 0:
-                self.animation_speed -= 5
-
-            angle = 0
-            self.rotate_towards(angle)
+        return something_in_sight
 
     def rotate_towards(self, angle):
         angle -= self.rotation_angle
         if angle != 0:
             self.rotation_angle += angle / abs(angle) * self.rotation_speed
 
-    def render(self, game_state, batch: pyglet.graphics.Batch):
-        position = super().render(game_state, batch)
+    def render(self, game_state, batch: pyglet.graphics.Batch, tex_max=1):
+        position = super().render(game_state, batch, tex_max)
         if position is None:
             return
 
-        Renderer.textured_rectangle(batch, game_state.textures.other['platform'], position, self.size)
-
-        texture = game_state.textures.buildings[self.building_type].texture
+        texture = game_state.textures.other['drill'].texture
         position += self.size / 2
         movement_group = MovementGroup(self.rotation_angle, position)
         texture_group = pyglet.graphics.TextureGroup(texture, movement_group)
