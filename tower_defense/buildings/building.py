@@ -38,6 +38,15 @@ class Building:
         print("Missing range for", self.building_type)
         assert False
 
+    @property
+    def cost(self):
+        if self.building_type == BuildingType.LASER:
+            return 20
+        elif self.building_type == BuildingType.CATAPULT:
+            return 50
+        elif self.building_type == BuildingType.DRILL:
+            return 30
+
     def render(self, game_state, batch: pyglet.graphics.Batch):
         position = game_state.world_to_window_space(self.world_position, self.size)
         if position is None:

@@ -45,17 +45,6 @@ class BuildingManager:
         self.bullets.append(bullet)
 
     def spawn_building(self, game_state, tile_index: (int, int), building_type: BuildingType):
-        cost = 0
-        if building_type == BuildingType.LASER:
-            cost = 20
-        elif building_type == BuildingType.CATAPULT:
-            cost = 50
-        elif building_type == BuildingType.DRILL:
-            cost = 30
-
-        if cost > self.gold:
-            return
-
         position = Vector(point=tile_index)
         args = (position, game_state.tile_map.tile_size)
         if building_type == BuildingType.LASER:
@@ -68,5 +57,8 @@ class BuildingManager:
             args = (*args, BuildingType.CATAPULT)
             building = Building(*args)
 
-        self.gold -= cost
+        if building.cost > self.gold:
+            return
+
+        self.gold -= building.cost
         self.buildings[tile_index] = building
