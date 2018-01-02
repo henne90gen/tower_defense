@@ -42,8 +42,9 @@ class Textures:
 
         tower_texture = load_image('tower.png')
         platform_texture = load_image('platform.png')
+        laser_tower_texture = load_image('laser-tower.png')
         self.buildings = {
-            BuildingType.LASER: pyglet.graphics.TextureGroup(tower_texture),
+            BuildingType.LASER: pyglet.graphics.TextureGroup(laser_tower_texture),
             BuildingType.CATAPULT: pyglet.graphics.TextureGroup(tower_texture),
             BuildingType.DRILL: pyglet.graphics.TextureGroup(platform_texture)
         }
@@ -87,21 +88,22 @@ class Renderer:
         batch.add(4, pyglet.graphics.GL_QUADS, texture_group, ('v2f/static', vertices), ('t2f/static', texture_coords))
 
     @staticmethod
-    def colored_rectangle(batch: pyglet.graphics.Batch, color: (int, int, int), position: Vector, size: Vector):
+    def colored_rectangle(batch: pyglet.graphics.Batch, color: (int, int, int), position: Vector, size: Vector,
+                          angle: float = 0, group: pyglet.graphics.Group = None):
         """
         :param batch:
         :param color: triple with values ranging from 0 to 255
         :param position: bottom left of rectangle
         :param size:
+        :param angle:
         :return:
         """
-        top_left = Vector(position.x, position.y + size.y)
-        bottom_right = Vector(top_left.x + size.x, top_left.y - size.y)
-        vertices = [bottom_right.x, bottom_right.y,
-                    bottom_right.x, top_left.y,
-                    top_left.x, top_left.y,
-                    top_left.x, bottom_right.y]
-        batch.add(4, pyglet.graphics.GL_QUADS, None, ('v2f/static', vertices),
+        vertices = [size.x, 0,
+                    size.x, size.y,
+                    0, size.y,
+                    0, 0]
+        movement_group = MovementGroup(angle, position, group)
+        batch.add(4, pyglet.graphics.GL_QUADS, movement_group, ('v2f/static', vertices),
                   ('c3B/static', (*color, *color, *color, *color)))
 
     @staticmethod

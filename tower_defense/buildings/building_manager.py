@@ -18,8 +18,11 @@ class BuildingManager:
 
     def render(self, game_state):
         batch = pyglet.graphics.Batch()
+        foreground = pyglet.graphics.OrderedGroup(1)
+        background = pyglet.graphics.OrderedGroup(0)
+
         for key in self.buildings:
-            self.buildings[key].render(game_state, batch)
+            self.buildings[key].render(game_state, batch, foreground=foreground, background=background)
         batch.draw()
 
         bullet_batch = pyglet.graphics.Batch()
@@ -30,8 +33,8 @@ class BuildingManager:
     def update(self, game_state):
         # TODO remove this at some point
         if len(self.buildings) == 0:
-            self.spawn_building(game_state, (6, 4), BuildingType.DRILL)
-            self.spawn_building(game_state, (6, 2), BuildingType.DRILL)
+            self.spawn_building(game_state, (6, 4), BuildingType.LASER)
+            self.spawn_building(game_state, (6, 2), BuildingType.LASER)
 
         for index in self.buildings:
             self.buildings[index].update(game_state)
