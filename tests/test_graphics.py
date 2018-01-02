@@ -22,7 +22,7 @@ class MethodTest(unittest.TestCase):
         def add(count, mode, group, *data):
             self.assertEqual(4, count)
             self.assertEqual(pyglet.graphics.GL_QUADS, mode)
-            self.assertIsNone(group)
+            self.assertEqual(MovementGroup, type(group))
             expected = (('v2f/static', [10, 0, 10, 10, 0, 10, 0, 0]),
                         ('c3B/static', (255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255)))
             self.assertEqual(expected, data)

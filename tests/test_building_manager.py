@@ -11,12 +11,12 @@ class Object(object):
     pass
 
 
-class TestBuildingManager(unittest.TestCase):
+class BuildingManagerTest(unittest.TestCase):
     def test_update(self):
         game_state = GameState()
         was_called = []
 
-        def dummy(game_state):
+        def dummy(*_):
             was_called.append(0)
             return True
 
@@ -38,7 +38,7 @@ class TestBuildingManager(unittest.TestCase):
         game_state = GameState()
         was_called = []
 
-        def dummy(*_):
+        def dummy(*_, **kwargs):
             was_called.append(0)
 
         building = Object()

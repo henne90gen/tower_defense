@@ -4,6 +4,7 @@ import pyglet
 
 from game_state import GameState
 from game_types import TileType
+from graphics import MovementGroup
 from helper import Vector
 from tiles.tile import Tile
 
@@ -120,7 +121,7 @@ class TileTest(unittest.TestCase):
         tile.tile_type = TileType.START
         tile.render(game_state, batch)
         self.assertEqual(1, len(batch.top_groups))
-        self.assertEqual(pyglet.graphics.NullGroup, type(batch.top_groups[0]))
+        self.assertEqual(MovementGroup, type(batch.top_groups[0]))
 
     def test_no_render(self):
         game_state = GameState()
