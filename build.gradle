@@ -7,10 +7,7 @@ def executeCommand(String command) {
     proc.consumeProcessOutput(System.out, System.err)
     proc.waitForOrKill(120000)
     if (proc.exitValue()) {
-        throw new TaskExecutionException( it,
-            new Exception( "Command '$command' failed; "
-                          + "see task output for details." )
-        )
+        throw new Exception( "Command '$command' failed; see task output for details." )
     }
 }
 
@@ -27,8 +24,15 @@ task buildSetup() {
 
 task build(dependsOn: ['requirements', 'buildSetup']) {
     doLast {
-        def command = 'pyinstaller --onefile --specpath bin --distpath bin/dist --workpath bin/build tower_defense/main.py'
-        executeCommand command
+        def command = [ 'pyinstaller',
+                        '--onefile',
+                        '--specpath bin',
+                        '--distpath bin/dist',
+                        '--workpath bin/build',
+                        '-p tower_defense',
+                     // '--add-data ../tower_defense/res:res',
+                        'tower_defense/main.py']
+        executeCommand command.join(' ')
     }
 }
 

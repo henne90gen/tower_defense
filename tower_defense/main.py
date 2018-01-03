@@ -1,13 +1,11 @@
-from importlib import reload
-
 import pyglet
 
-import game_state
+from game_state import GameState
 from helper import MouseClick, Vector
 
 window = pyglet.window.Window(width=1280, height=720, resizable=True)
 window.set_caption("Tower Defense")
-gs = game_state.GameState()
+gs = GameState()
 gs.init()
 
 pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
