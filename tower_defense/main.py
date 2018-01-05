@@ -1,10 +1,16 @@
+from datetime import datetime
+
 import pyglet
 
 from game_state import GameState
 from helper import MouseClick, Vector
 
+num_frames = 0
+program_start = datetime.now()
+
 window = pyglet.window.Window(width=1280, height=720, resizable=True)
 window.set_caption("Tower Defense")
+
 gs = GameState()
 gs.init()
 
@@ -41,6 +47,15 @@ def handle_key(symbol, modifiers, key_down):
     gs.key_presses = kp
 
 
+def show_average_time():
+    global num_frames
+    num_frames += 1
+    end = datetime.now()
+    diff = end - program_start
+    average = diff.total_seconds() * 1000.0 / num_frames
+    window.set_caption("Tower Defense " + str(average))
+
+
 @window.event
 def on_key_press(symbol, modifiers):
     handle_key(symbol, modifiers, True)
@@ -67,13 +82,16 @@ def on_mouse_press(x, y, button, modifiers):
 
 @window.event
 def on_draw(_=None):
+    global num_frames
     window.clear()
 
     gs.tick(window)
 
     gs.clean_up()
 
+    show_average_time()
 
-pyglet.clock.schedule_interval(on_draw, 1 / 60.0)
-pyglet.clock.set_fps_limit(60)
+
+pyglet.clock.schedule_interval(on_draw, 1 / 120.0)
+pyglet.clock.set_fps_limit(120)
 pyglet.app.run()
