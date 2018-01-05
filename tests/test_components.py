@@ -72,7 +72,7 @@ class InputTest(unittest.TestCase):
 
         key_presses.back_space = True
         input_component = Input(Vector(), Vector(), has_focus=True)
-        input_component.text = "test"
+        input_component.update(text="test")
         input_component.add_text(key_presses)
         self.assertEqual("tes", input_component.text)
 

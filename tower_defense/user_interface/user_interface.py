@@ -53,7 +53,7 @@ class EditorUI:
             self.load_dialog.update(game_state)
         else:
             self.components[
-                'entities_toggle'].text = "Entities" if game_state.entity_manager.should_spawn else "No Entities"
+                'entities_toggle'].update(text="Entities" if game_state.entity_manager.should_spawn else "No Entities")
             process_clicks(game_state, self.mouse_click_handler, False, offset=self.offset)
 
     def mouse_click_handler(self, game_state, click):
@@ -95,11 +95,11 @@ class GameUI:
 
     def update(self, game_state):
         self.offset.y = game_state.window_size.y
-        self.components['health_label'].text = str(game_state.player_health)
-        self.components['gold_label'].text = str(game_state.building_manager.gold)
-        self.components['current_wave_label'].text = str(game_state.entity_manager.wave_count)
+        self.components['health_label'].update(text=str(game_state.player_health))
+        self.components['gold_label'].update(text=str(game_state.building_manager.gold))
+        self.components['current_wave_label'].update(text=str(game_state.entity_manager.wave_count))
 
-        self.components['next_wave_button'].disabled = game_state.entity_manager.wave_running
+        self.components['next_wave_button'].update(disabled = game_state.entity_manager.wave_running)
 
         self.components['game_over_label'].position.x = game_state.window_size.x / 2 - self.components[
             'game_over_label'].size.x / 2
@@ -123,7 +123,7 @@ class GameUI:
 
     def mouse_click_handler(self, game_state, click: MouseClick) -> bool:
         for component in self.components:
-            if self.components[component].is_clicked(click) and not self.components[component].disabled:
+            if self.components[component].is_clicked(click) and not self.components[component]._disabled:
                 if component in self.handlers:
                     self.handlers[component](game_state)
                 return True

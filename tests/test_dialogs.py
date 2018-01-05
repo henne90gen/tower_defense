@@ -2,6 +2,7 @@ import unittest
 
 from game_state import GameState
 from helper import Vector, MouseClick
+from user_interface.components import Input
 from user_interface.dialogs import Dialog, NewMapDialog, LoadMapDialog
 
 
@@ -97,7 +98,7 @@ class NewMapDialogTest(unittest.TestCase):
     def test_submit_func(self):
         was_called = []
 
-        def dummy(game_state, path, size):
+        def dummy(*_):
             was_called.append(0)
 
         game_state = GameState()
@@ -160,12 +161,12 @@ class NewMapDialogTest(unittest.TestCase):
 
     def test_open(self):
         game_state = GameState()
-        width_input = Object()
-        width_input.text = "5"
-        height_input = Object()
-        height_input.text = "5"
-        name_input = Object()
-        name_input.text = ""
+        width_input = Input(Vector(), Vector())
+        # width_input.text = "5"
+        height_input = Input(Vector(), Vector())
+        # height_input.text = "5"
+        name_input = Input(Vector(), Vector())
+        # name_input.text = ""
 
         new_map_dialog = NewMapDialog()
         new_map_dialog.components = {"width_input": width_input, "height_input": height_input, "name_input": name_input}
@@ -225,7 +226,7 @@ class LoadMapDialogTest(unittest.TestCase):
         load_map_dialog = LoadMapDialog()
         load_map_dialog.refresh_maps("./tests/maps")
         self.assertEqual(1, len(load_map_dialog.maps))
-        self.assertEqual("test.map", load_map_dialog.maps[0].text)
+        self.assertEqual("test.map", load_map_dialog.maps[0]._text)
 
     def test_open(self):
         game_state = GameState()
@@ -261,11 +262,11 @@ class LoadMapDialogTest(unittest.TestCase):
         game_state = GameState()
         click = Object()
 
-        def dummy_true(*args):
+        def dummy_true(*_):
             was_called.append(0)
             return True
 
-        def dummy_false(*args):
+        def dummy_false(*_):
             was_called.append(0)
             return False
 

@@ -103,7 +103,7 @@ class MapMenu:
 
         for m in self.maps:
             if m.is_clicked(click):
-                self.load_func(game_state, m.text)
+                self.load_func(game_state, m._text)
                 return True
 
         return False

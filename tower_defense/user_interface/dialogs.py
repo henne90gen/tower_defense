@@ -65,9 +65,9 @@ class NewMapDialog(Dialog):
 
     def open(self, game_state):
         super().open(game_state)
-        self.components['width_input'].text = ""
-        self.components['height_input'].text = ""
-        self.components['name_input'].text = ""
+        self.components['width_input'].update(text="")
+        self.components['height_input'].update(text="")
+        self.components['name_input'].update(text="")
 
     def render(self):
         if self.visible:
