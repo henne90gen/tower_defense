@@ -4,19 +4,20 @@ import inspect
 import types
 from datetime import datetime
 import pyglet
-import reload
 
+import hot_reload
 import game_state
 import helper
 
 module_whitelist = ['helper', 'graphics', 'game_types', 'game_state',
-                    'user_interface.menu', 'user_interface.components', 'user_interface.dialogs', 'user_interface.user_interface',
+                    'user_interface.menu', 'user_interface.components',
+                    'user_interface.dialogs', 'user_interface.user_interface',
                     'tiles.tile_map', 'tiles.tile',
                     'entities.bullet', 'entities.entity_manager', 'entities.entity',
                     'buildings.building_manager', 'building.building']
 
 num_frames = 0
-program_start = datetime.now()
+start_time = datetime.now()
 
 window = pyglet.window.Window(width=1280, height=720, resizable=True)
 window.set_caption("Tower Defense")
@@ -58,12 +59,16 @@ def handle_key(symbol, modifiers, key_down):
 
 
 def show_average_time():
-    global num_frames
+    global num_frames, start_time
     num_frames += 1
     end = datetime.now()
-    diff = end - program_start
+    diff = end - start_time
     average = diff.total_seconds() * 1000.0 / num_frames
     window.set_caption("Tower Defense " + str(average))
+
+    if diff.total_seconds() > 1:
+        start_time = end
+        num_frames = 0
 
 
 @window.event
@@ -92,7 +97,6 @@ def on_mouse_press(x, y, button, modifiers):
 
 @window.event
 def on_draw(_=None):
-    global num_frames
     window.clear()
 
     gs.tick(window)
@@ -101,7 +105,7 @@ def on_draw(_=None):
 
     show_average_time()
 
-    reload.reloadAll(whitelist=module_whitelist, debug=False)
+    hot_reload.reloadAll(whitelist=module_whitelist, debug=False)
 
 
 pyglet.clock.schedule_interval(on_draw, 1 / 120.0)
