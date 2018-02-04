@@ -1,9 +1,19 @@
+import sys
+import importlib
+import inspect
+import types
 from datetime import datetime
-
 import pyglet
+import reload
 
-from game_state import GameState
-from helper import MouseClick, Vector
+import game_state
+import helper
+
+module_whitelist = ['helper', 'graphics', 'game_types', 'game_state',
+                    'user_interface.menu', 'user_interface.components', 'user_interface.dialogs', 'user_interface.user_interface',
+                    'tiles.tile_map', 'tiles.tile',
+                    'entities.bullet', 'entities.entity_manager', 'entities.entity',
+                    'buildings.building_manager', 'building.building']
 
 num_frames = 0
 program_start = datetime.now()
@@ -11,7 +21,7 @@ program_start = datetime.now()
 window = pyglet.window.Window(width=1280, height=720, resizable=True)
 window.set_caption("Tower Defense")
 
-gs = GameState()
+gs = game_state.GameState()
 gs.init()
 
 pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
@@ -68,14 +78,14 @@ def on_key_release(symbol, modifiers):
 
 @window.event
 def on_mouse_motion(x, y, dx, dy):
-    gs.mouse_position = Vector(x, y)
+    gs.mouse_position = helper.Vector(x, y)
 
 
 @window.event
 def on_mouse_press(x, y, button, modifiers):
     print("MousePress", x, y, button, modifiers)
-    mouse_click = MouseClick()
-    mouse_click.position = Vector(x, y)
+    mouse_click = helper.MouseClick()
+    mouse_click.position = helper.Vector(x, y)
     mouse_click.button = button
     gs.mouse_clicks.append(mouse_click)
 
@@ -90,6 +100,8 @@ def on_draw(_=None):
     gs.clean_up()
 
     show_average_time()
+
+    reload.reloadAll(whitelist=module_whitelist, debug=False)
 
 
 pyglet.clock.schedule_interval(on_draw, 1 / 120.0)
