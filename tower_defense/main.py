@@ -64,7 +64,8 @@ def show_average_time():
     end = datetime.now()
     diff = end - start_time
     average = diff.total_seconds() * 1000.0 / num_frames
-    window.set_caption("Tower Defense " + str(average))
+    average_string = '%.5f' % average
+    window.set_caption("Tower Defense " + str(average_string))
 
     if diff.total_seconds() > 1:
         start_time = end
@@ -97,6 +98,8 @@ def on_mouse_press(x, y, button, modifiers):
 
 @window.event
 def on_draw(_=None):
+    hot_reload.reload_all(whitelist=module_whitelist, debug=False)
+
     window.clear()
 
     gs.tick(window)
@@ -104,8 +107,6 @@ def on_draw(_=None):
     gs.clean_up()
 
     show_average_time()
-
-    hot_reload.reload_all(whitelist=module_whitelist, debug=False)
 
 
 pyglet.clock.schedule_interval(on_draw, 1 / 120.0)
