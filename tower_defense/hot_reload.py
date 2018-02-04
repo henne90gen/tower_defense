@@ -29,7 +29,7 @@ import gc
 import traceback
 
 
-def reloadAll(whitelist=None, debug=False):
+def reload_all(whitelist=None, debug=False):
     """
     Automatically reload everything that's in the whitelist.
     - Skips reload if the file has not been updated (if .pyc is newer than .py)
@@ -66,13 +66,13 @@ def reloadAll(whitelist=None, debug=False):
             continue
 
         try:
-            reload(module, debug=debug, lists=True, dicts=True)
+            reload_module(module, debug=debug, lists=True, dicts=True)
         except Exception as e:
             print(e)
             print("Error while reloading module %s, skipping\n" % module)
 
 
-def reload(module, debug=False, lists=False, dicts=False):
+def reload_module(module, debug=False, lists=False, dicts=False):
     """
     Replacement for the builtin reload function:
     - Reloads the module as usual
@@ -103,21 +103,23 @@ def reload(module, debug=False, lists=False, dicts=False):
             if debug:
                 print("  Updating class %s.%s (0x%x -> 0x%x)" %
                       (module.__name__, k, id(old), id(new)))
-            updateClass(old, new, debug)
+            update_class(old, new, debug)
 
         elif inspect.isfunction(old):
-            depth = updateFunction(old, new, debug)
+            depth = update_function(old, new, debug)
             if debug:
                 extra = ""
                 if depth > 0:
                     extra = " (and %d previous versions)" % depth
                 print("  Updating function %s.%s%s" %
                       (module.__name__, k, extra))
+
         elif lists and isinstance(old, list):
             l = len(old)
             old.extend(new)
             for i in range(l):
                 old.pop(0)
+
         elif dicts and isinstance(old, dict):
             old.update(new)
             for k in old:
@@ -125,12 +127,12 @@ def reload(module, debug=False, lists=False, dicts=False):
                     del old[k]
 
 
-def updateFunction(old, new, debug):
+def update_function(old, new, debug):
     old.__code__ = new.__code__
     old.__defaults__ = new.__defaults__
 
 
-def oldUpdateFunction(old, new, debug, depth=0, visited=None):
+def old_update_function(old, new, debug, depth=0, visited=None):
     # For functions:
     # 1) update the code and defaults to new versions.
     # 2) keep a reference to the previous version so ALL versions get updated for every reload
@@ -148,19 +150,19 @@ def oldUpdateFunction(old, new, debug, depth=0, visited=None):
 
     # finally, update any previous versions still hanging around..
     if hasattr(old, '__previous_reload_version__'):
-        maxDepth = oldUpdateFunction(
+        max_depth = old_update_function(
             old.__previous_reload_version__, new, debug, depth=depth + 1, visited=visited)
     else:
-        maxDepth = depth
+        max_depth = depth
 
     # We need to keep a pointer to the previous version so we remember to update BOTH
     # when the next reload comes around.
     if depth == 0:
         new.__previous_reload_version__ = old
-    return maxDepth
+    return max_depth
 
 
-def updateClass(old, new, debug):
+def update_class(old, new, debug):
     # For classes:
     # 1) find all instances of the old class and set instance.__class__ to the new class
     # 2) update all old class methods to use code from the new class methods
@@ -172,7 +174,7 @@ def updateClass(old, new, debug):
             if isinstance(ref, old) and ref.__class__ is old:
                 ref.__class__ = new
                 if debug:
-                    print("    Changed class for", safeStr(ref))
+                    print("    Changed class for", safe_str(ref))
             elif inspect.isclass(ref) and issubclass(ref, old) and old in ref.__bases__:
                 ind = ref.__bases__.index(old)
 
@@ -189,13 +191,13 @@ def updateClass(old, new, debug):
                 ref.__bases__ = ref.__bases__[
                     :ind] + (new, old) + ref.__bases__[ind + 1:]
                 if debug:
-                    print("    Changed superclass for", safeStr(ref))
+                    print("    Changed superclass for", safe_str(ref))
             # else:
                 # if debug:
                     # print "    Ignoring reference", type(ref)
         except:
             print("Error updating reference (%s) for class change (%s -> %s)" %
-                  (safeStr(ref), safeStr(old), safeStr(new)))
+                  (safe_str(ref), safe_str(old), safe_str(new)))
             raise
 
     # update all class methods to use new code.
@@ -213,7 +215,7 @@ def updateClass(old, new, debug):
                 continue
 
             if hasattr(oa, 'im_func') and hasattr(na, 'im_func') and oa.im_func is not na.im_func:
-                depth = updateFunction(oa.im_func, na.im_func, debug)
+                depth = update_function(oa.im_func, na.im_func, debug)
                 # oa.im_class = new  ## bind old method to new class  ## not allowed
                 if debug:
                     extra = ""
@@ -230,17 +232,17 @@ def updateClass(old, new, debug):
 
     # finally, update any previous versions still hanging around..
     if hasattr(old, '__previous_reload_version__'):
-        updateClass(old.__previous_reload_version__, new, debug)
+        update_class(old.__previous_reload_version__, new, debug)
 
 
 # It is possible to build classes for which str(obj) just causes an exception.
 # Avoid thusly:
-def safeStr(obj):
+def safe_str(obj):
     try:
         s = str(obj)
     except:
         try:
             s = repr(obj)
         except:
-            s = "<instance of %s at 0x%x>" % (safeStr(type(obj)), id(obj))
+            s = "<instance of %s at 0x%x>" % (safe_str(type(obj)), id(obj))
     return s

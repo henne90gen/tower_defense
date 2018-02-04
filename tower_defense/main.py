@@ -105,7 +105,7 @@ def on_draw(_=None):
 
     show_average_time()
 
-    hot_reload.reloadAll(whitelist=module_whitelist, debug=False)
+    hot_reload.reload_all(whitelist=module_whitelist, debug=False)
 
 
 pyglet.clock.schedule_interval(on_draw, 1 / 120.0)
