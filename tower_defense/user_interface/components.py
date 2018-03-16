@@ -38,21 +38,22 @@ class TextComponent:
     def update(self, text: str = None, disabled: bool = None):
         updated = False
 
-        if text and text != self._text:
+        if text is not None and text != self._text:
             self._text = text
             self.label.begin_update()
             self.label.text = self._text
             updated = True
 
         if disabled is not None and disabled != self._disabled:
-            self._disabled = disabled
-
             if not updated:
                 self.label.begin_update()
+
+            self._disabled = disabled
             if self._disabled:
                 self.label.color = (100, 0, 100, 100)
             else:
                 self.label.color = (255, 0, 255, 255)
+            updated = True
 
         if updated:
             self.label.end_update()

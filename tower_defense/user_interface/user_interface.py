@@ -1,3 +1,4 @@
+from game_types import GameMode
 from helper import Vector, process_clicks, MouseClick
 from user_interface.components import TextComponent
 from user_interface.dialogs import Dialog, NewMapDialog, LoadMapDialog, BuildingDialog
@@ -12,6 +13,7 @@ class EditorUI:
             'new_button': TextComponent("New", Vector(0, -1 * button_height), size, visible=False),
             'save_button': TextComponent("Save", Vector(0, -2 * button_height), size, visible=False),
             'load_button': TextComponent("Load", Vector(0, -3 * button_height), size, visible=False),
+            'back_button': TextComponent("Back", Vector(0, -4 * button_height), size, visible=False),
             'entities_toggle': TextComponent("", Vector(size.x, 0), size + Vector(20, 0)),
         }
         self.handlers = {
@@ -19,6 +21,7 @@ class EditorUI:
             'save_button': self.save_func,
             'new_button': self.new_func,
             'load_button': self.load_func,
+            'back_button': self.back_func,
             'entities_toggle': self.entities_func,
         }
         self.new_dialog: Dialog = NewMapDialog()
@@ -41,8 +44,13 @@ class EditorUI:
         self.load_dialog.open(game_state)
 
     @staticmethod
+    def back_func(game_state):
+        game_state.mode = GameMode.MAIN_MENU
+
+    @staticmethod
     def entities_func(game_state):
         game_state.entity_manager.should_spawn = not game_state.entity_manager.should_spawn
+        game_state.entity_manager.reset()
 
     def update(self, game_state):
         self.offset.y = game_state.window_size.y
@@ -52,8 +60,8 @@ class EditorUI:
         elif self.load_dialog.visible:
             self.load_dialog.update(game_state)
         else:
-            self.components[
-                'entities_toggle'].update(text="Entities" if game_state.entity_manager.should_spawn else "No Entities")
+            text = "Entities" if game_state.entity_manager.should_spawn else "No Entities"
+            self.components['entities_toggle'].update(text=text)
             process_clicks(game_state, self.mouse_click_handler, False, offset=self.offset)
 
     def mouse_click_handler(self, game_state, click):
@@ -67,6 +75,7 @@ class EditorUI:
         self.components['new_button'].toggle_visibility()
         self.components['save_button'].toggle_visibility()
         self.components['load_button'].toggle_visibility()
+        self.components['back_button'].toggle_visibility()
 
     def render(self):
         for component in self.components:
@@ -99,7 +108,7 @@ class GameUI:
         self.components['gold_label'].update(text=str(game_state.building_manager.gold))
         self.components['current_wave_label'].update(text=str(game_state.entity_manager.wave_count))
 
-        self.components['next_wave_button'].update(disabled = game_state.entity_manager.wave_running)
+        self.components['next_wave_button'].update(disabled=game_state.entity_manager.wave_running)
 
         self.components['game_over_label'].position.x = game_state.window_size.x / 2 - self.components[
             'game_over_label'].size.x / 2
@@ -123,7 +132,7 @@ class GameUI:
 
     def mouse_click_handler(self, game_state, click: MouseClick) -> bool:
         for component in self.components:
-            if self.components[component].is_clicked(click) and not self.components[component]._disabled:
+            if self.components[component].is_clicked(click) and not self.components[component].disabled:
                 if component in self.handlers:
                     self.handlers[component](game_state)
                 return True

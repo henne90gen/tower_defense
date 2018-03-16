@@ -136,7 +136,7 @@ class EditorEntityManagerTest(unittest.TestCase):
     def test_reset(self):
         entity_manager = EditorEntityManager()
         entity_manager.reset()
-        self.assertEqual(0, entity_manager.spawn_timer)
+        self.assertEqual(entity_manager.spawn_delay, entity_manager.spawn_timer)
 
 
 class GameEntityManagerTest(unittest.TestCase):

@@ -1,4 +1,3 @@
-import os
 from typing import List
 
 from game_types import GameMode
@@ -24,7 +23,7 @@ class MainMenu:
             "exit_button": self.exit_func
         }
 
-    def render(self, game_state):
+    def render(self):
         for component in self.components:
             self.components[component].render(self.position)
 
@@ -83,12 +82,19 @@ class MapMenu:
     def update(self, game_state):
         self.position = Vector(game_state.window_size.x / 2 - 150, game_state.window_size.y / 2 + 200)
 
-        if self.new_dialog.visible:
+        if game_state.mode == GameMode.MAP_CHOICE_EDITOR and self.new_dialog.visible:
             self.new_dialog.update(game_state)
             return
 
         if len(self.maps) == 0:
             self.refresh_maps(self.map_path)
+
+        offset = 0
+        if game_state.mode == GameMode.MAP_CHOICE_EDITOR:
+            self.new_button.position = Vector(y=-self.button_size.y * len(self.maps))
+            offset = 1
+
+        self.back_button.position = Vector(y=-self.button_size.y * (len(self.maps) + offset))
 
         process_clicks(game_state, self.mouse_click_handler, False, self.position)
 
@@ -97,33 +103,31 @@ class MapMenu:
             self.back_func(game_state)
             return True
 
-        if self.new_button.is_clicked(click):
+        if game_state.mode == GameMode.MAP_CHOICE_EDITOR and self.new_button.is_clicked(click):
             self.new_func(game_state)
             return True
 
         for m in self.maps:
             if m.is_clicked(click):
-                self.load_func(game_state, m._text)
+                self.load_func(game_state, m.text)
                 return True
 
         return False
 
     def refresh_maps(self, maps_path: str):
-        height = 50
         maps = maps_list(maps_path)
         self.maps = []
 
         for index, m in enumerate(maps):
-            self.maps.append(TextComponent(m, Vector(y=-height * index), Vector(300, height)))
+            self.maps.append(TextComponent(m, Vector(y=-self.button_size.y * index), self.button_size))
 
-        self.new_button.position = Vector(y=-height * len(self.maps))
-        self.back_button.position = Vector(y=-height * (len(self.maps) + 1))
-
-    def render(self):
-        self.new_dialog.position = Vector(10, self.position.y)
-        self.new_dialog.render()
+    def render(self, game_state):
+        if game_state.mode == GameMode.MAP_CHOICE_EDITOR:
+            self.new_dialog.position = Vector(10, self.position.y)
+            self.new_dialog.render()
+            self.new_button.render(self.position)
 
         self.back_button.render(self.position)
-        self.new_button.render(self.position)
+
         for m in self.maps:
             m.render(self.position)

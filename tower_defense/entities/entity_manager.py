@@ -98,7 +98,7 @@ class EditorEntityManager(EntityManager):
 
     def reset(self):
         super().reset()
-        self.spawn_timer = 0
+        self.spawn_timer = self.spawn_delay
 
 
 class GameEntityManager(EntityManager):

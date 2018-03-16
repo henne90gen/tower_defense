@@ -16,7 +16,7 @@ from helper import KeyPresses, MouseClick, Vector, constrain_rect_to_bounds
 
 class GameState:
     def __init__(self):
-        self.mode = GameMode.GAME
+        self.mode = GameMode.MAIN_MENU
 
         self.window_size = Vector()
         self.key_presses: KeyPresses = KeyPresses()
@@ -139,11 +139,11 @@ class GameState:
 
     def tick_main_menu(self):
         self.main_menu.update(self)
-        self.main_menu.render(self)
+        self.main_menu.render()
 
     def tick_map_menu(self):
         self.map_menu.update(self)
-        self.map_menu.render()
+        self.map_menu.render(self)
 
     def tick(self, window: pyglet.window.Window):
         self.window_size = Vector(*window.get_size())
