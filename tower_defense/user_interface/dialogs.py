@@ -25,7 +25,10 @@ class Dialog:
         pass
 
     def update(self, game_state):
-        game_state.key_presses.up = game_state.key_presses.down = game_state.key_presses.left = game_state.key_presses.right = False
+        game_state.key_presses.up = False
+        game_state.key_presses.down = False
+        game_state.key_presses.left = False
+        game_state.key_presses.right = False
 
 
 class NewMapDialog(Dialog):

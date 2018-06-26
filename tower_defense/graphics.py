@@ -2,7 +2,7 @@ import os
 from typing import Dict, List
 
 import pyglet
-from pyglet.gl import *
+from pyglet import gl
 
 from .game_types import TileType, EntityType, BuildingType, BulletType
 from .helper import Vector, get_res_path
@@ -145,11 +145,11 @@ class MovementGroup(pyglet.graphics.Group):
         self.position = position
 
     def set_state(self):
-        glMatrixMode(GL_MODELVIEW)
-        glLoadIdentity()
-        glTranslatef(self.position.x, self.position.y, 0)
-        glRotatef(self.angle, 0, 0, 1)
+        gl.glMatrixMode(gl.GL_MODELVIEW)
+        gl.glLoadIdentity()
+        gl.glTranslatef(self.position.x, self.position.y, 0)
+        gl.glRotatef(self.angle, 0, 0, 1)
 
     def unset_state(self):
-        glMatrixMode(GL_MODELVIEW)
-        glLoadIdentity()
+        gl.glMatrixMode(gl.GL_MODELVIEW)
+        gl.glLoadIdentity()

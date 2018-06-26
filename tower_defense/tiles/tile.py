@@ -22,7 +22,10 @@ class Tile:
     def __eq__(self, other):
         if type(other) != Tile:
             return False
-        return self.position == other.position and self.size == other.size and self.tile_type == other.tile_type and self.directions == other.directions
+        return self.position == other.position and \
+            self.size == other.size and \
+            self.tile_type == other.tile_type and \
+            self.directions == other.directions
 
     def __str__(self):
         return "Tile: " + str(self.position) + ": " + str(self.tile_type)
@@ -52,7 +55,8 @@ class Tile:
         return True
 
     def render_label(self, game_state, batch: pyglet.graphics.Batch):
-        screen_coordinates = game_state.world_to_window_space(self.world_position, self.size)
+        screen_coordinates = game_state.world_to_window_space(
+            self.world_position, self.size)
         if screen_coordinates is None:
             return
 
@@ -65,14 +69,16 @@ class Tile:
                           anchor_x='left', anchor_y='bottom')
 
     def render_highlight(self, game_state, batch: pyglet.graphics.Batch):
-        screen_coordinates = game_state.world_to_window_space(self.world_position, self.size)
+        screen_coordinates = game_state.world_to_window_space(
+            self.world_position, self.size)
         if screen_coordinates is None:
             return
 
         Renderer.rectangle_border(batch, screen_coordinates, self.size)
 
     def render_arrow(self, game_state, batch: pyglet.graphics.Batch):
-        screen_coordinates = game_state.world_to_window_space(self.world_position, self.size)
+        screen_coordinates = game_state.world_to_window_space(
+            self.world_position, self.size)
         if screen_coordinates is None:
             return
 
@@ -82,7 +88,8 @@ class Tile:
         if self.direction_index >= len(self.directions):
             self.direction_index = 0
 
-        dir_x, dir_y = self.directions[self.direction_index % len(self.directions)]
+        dir_x, dir_y = self.directions[self.direction_index % len(
+            self.directions)]
         self.timer += 1
         if self.timer > 50:
             self.timer = 0
@@ -121,13 +128,15 @@ class Tile:
                                     texture_coords=texture_coords)
 
     def render(self, game_state, batch: pyglet.graphics.Batch):
-        screen_coordinates = game_state.world_to_window_space(self.world_position, self.size)
+        screen_coordinates = game_state.world_to_window_space(
+            self.world_position, self.size)
         if screen_coordinates is None:
             return
 
         x, y = screen_coordinates.x, screen_coordinates.y
         if self.tile_type == TileType.START or self.tile_type == TileType.FINISH:
-            color = (0, 255, 0) if self.tile_type == TileType.START else (255, 0, 0)
+            color = (0, 255, 0) if self.tile_type == TileType.START else (
+                255, 0, 0)
             Renderer.colored_rectangle(batch, color, Vector(x, y), self.size)
         else:
             Renderer.textured_rectangle(batch, game_state.textures.tiles[self.tile_type], Vector(x, y), self.size,

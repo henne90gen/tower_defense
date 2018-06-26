@@ -8,7 +8,7 @@ Python reload function that actually works (the way you expect it to)
  - Replaces functions and methods with their updated code
  - Changes instances to use updated classes
  - Automatically decides which modules to update by comparing file modification times
- 
+
 Does NOT:
  - re-initialize exting instances, even if __init__ changes
  - update references to any module-level objects
@@ -23,10 +23,8 @@ Does NOT:
 import inspect
 import os
 import sys
-import builtins
 import importlib
 import gc
-import traceback
 
 
 def reload_all(whitelist=None, debug=False):
@@ -115,9 +113,9 @@ def reload_module(module, debug=False, lists=False, dicts=False):
                       (module.__name__, k, extra))
 
         elif lists and isinstance(old, list):
-            l = len(old)
+            length = len(old)
             old.extend(new)
-            for i in range(l):
+            for _ in range(length):
                 old.pop(0)
 
         elif dicts and isinstance(old, dict):
@@ -179,7 +177,7 @@ def update_class(old, new, debug):
                 ind = ref.__bases__.index(old)
 
                 # Does not work:
-                #ref.__bases__ = ref.__bases__[:ind] + (new,) + ref.__bases__[ind+1:]
+                # ref.__bases__ = ref.__bases__[:ind] + (new,) + ref.__bases__[ind+1:]
                 # reason: Even though we change the code on methods, they remain bound
                 # to their old classes (changing im_class is not allowed). Instead,
                 # we have to update the __bases__ such that this class will be allowed
@@ -195,7 +193,7 @@ def update_class(old, new, debug):
             # else:
                 # if debug:
                     # print "    Ignoring reference", type(ref)
-        except:
+        except Exception as err:
             print("Error updating reference (%s) for class change (%s -> %s)" %
                   (safe_str(ref), safe_str(old), safe_str(new)))
             raise
@@ -240,9 +238,9 @@ def update_class(old, new, debug):
 def safe_str(obj):
     try:
         s = str(obj)
-    except:
+    except Exception as err:
         try:
             s = repr(obj)
-        except:
+        except Exception as err:
             s = "<instance of %s at 0x%x>" % (safe_str(type(obj)), id(obj))
     return s

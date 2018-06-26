@@ -114,7 +114,7 @@ class GameEntityManager(EntityManager):
     def next_wave(self):
         self.wave_count += 1
         self.wave = []
-        for i in range(10):
+        for _ in range(10):
             self.wave.append(1)
 
     def update(self, game_state):

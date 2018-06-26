@@ -17,7 +17,8 @@ class TileMap:
         self.border_width = 50
         self.tile_size = Vector(100, 100)
         self.max_tiles = Vector(10, 10)
-        self.tiles: Dict[(int, int), Tile] = self.generate_tiles(self.max_tiles, self.tile_size)
+        self.tiles: Dict[(int, int), Tile] = self.generate_tiles(
+            self.max_tiles, self.tile_size)
 
     @staticmethod
     def generate_tiles(max_tiles: Vector, tile_size: Vector) -> dict:
@@ -81,8 +82,10 @@ class TileMap:
     def render(self, game_state):
         batch = pyglet.graphics.Batch()
 
-        size = Vector(self.tile_map_width + self.border_width * 2, self.tile_map_height + self.border_width * 2)
-        position = game_state.world_offset - Vector(self.border_width, self.border_width)
+        size = Vector(self.tile_map_width + self.border_width * 2,
+                      self.tile_map_height + self.border_width * 2)
+        position = game_state.world_offset - \
+            Vector(self.border_width, self.border_width)
         Renderer.rectangle_border(batch, position, size, (255, 255, 255),
                                   border_width=self.border_width)
 
@@ -144,11 +147,15 @@ class TileMap:
                     path.append(next_node)
 
                     # remove the links between current_node and next_node
-                    temp_paths[current_node]['open_directions'] = self.remove_node_from_open_directions(next_node,
-                                                                                                        open_directions)
+                    temp_paths[current_node]['open_directions'] = self.remove_node_from_open_directions(
+                        next_node,
+                        open_directions
+                    )
                     next_open_directions = temp_paths[next_node]['open_directions']
-                    temp_paths[next_node]['open_directions'] = self.remove_node_from_open_directions(current_node,
-                                                                                                     next_open_directions)
+                    temp_paths[next_node]['open_directions'] = self.remove_node_from_open_directions(
+                        current_node,
+                        next_open_directions
+                    )
 
                     current_node = next_node
                 elif current_node == finish_node:

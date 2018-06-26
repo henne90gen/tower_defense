@@ -20,7 +20,7 @@ lint :
 	-python -m pylint tower_defense
 
 lint_fast :
-	python -m flake8 tower_defense --max-line-length=100
+	python -m flake8 tower_defense --max-line-length=120
 
 type_check :
 	python -m mypy tower_defense --ignore-missing-imports
