@@ -2,10 +2,10 @@ from typing import List, Dict
 
 import pyglet
 
-from buildings.building import Building, Laser, Drill, Catapult
-from entities.bullet import Bullet
-from game_types import TileType, GameMode, BuildingType
-from helper import Vector, process_clicks
+from .building import Building, Laser, Drill, Catapult
+from ..entities.bullet import Bullet
+from ..game_types import TileType, GameMode, BuildingType
+from ..helper import Vector, process_clicks
 
 
 class BuildingManager:

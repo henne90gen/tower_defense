@@ -1,8 +1,8 @@
 import pyglet
 
-from game_types import BulletType
-from graphics import Renderer
-from helper import Vector, rect_contains_point
+from ..game_types import BulletType
+from ..graphics import Renderer
+from ..helper import Vector, rect_contains_point
 
 
 class Bullet:

@@ -2,9 +2,9 @@ import math
 
 import pyglet
 
-from game_types import BuildingType, TileType
-from graphics import Renderer, MovementGroup
-from helper import Vector, rect_contains_point
+from ..game_types import BuildingType, TileType
+from ..graphics import Renderer, MovementGroup
+from ..helper import Vector, rect_contains_point
 
 
 class Building:

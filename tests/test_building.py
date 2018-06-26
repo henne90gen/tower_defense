@@ -2,12 +2,12 @@ import unittest
 
 import pyglet
 
-from buildings.building import Building, Laser, Catapult, Drill
-from entities.entity import Entity
-from game_state import GameState
-from game_types import BuildingType, EntityType, TileType
-from graphics import MovementGroup
-from helper import Vector
+from tower_defense.buildings.building import Building, Laser, Catapult, Drill
+from tower_defense.entities.entity import Entity
+from tower_defense.game_state import GameState
+from tower_defense.game_types import BuildingType, EntityType, TileType
+from tower_defense.graphics import MovementGroup
+from tower_defense.helper import Vector
 
 
 class BuildingTest(unittest.TestCase):

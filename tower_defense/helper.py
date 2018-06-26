@@ -115,7 +115,8 @@ def process_clicks(game_state, processor: Callable[[object, MouseClick], bool], 
         copy_click = MouseClick()
         copy_click.button = click.button
         if map_to_world_space:
-            copy_click.position = game_state.window_to_world_space(click.position)
+            copy_click.position = game_state.window_to_world_space(
+                click.position)
         else:
             copy_click.position = click.position - offset
         if processor(game_state, copy_click):
@@ -128,3 +129,19 @@ def maps_list(maps_path: str):
         if '.map' in file:
             maps.append(file)
     return maps
+
+
+def resolve_relative_path(path_func):
+    def wrapper():
+        return os.path.join(os.path.dirname(os.path.realpath(__file__)), path_func())
+    return wrapper
+
+
+@resolve_relative_path
+def get_res_path():
+    return "res"
+
+
+@resolve_relative_path
+def get_maps_path():
+    return os.path.join(get_res_path(), "maps")

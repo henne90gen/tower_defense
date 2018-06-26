@@ -1,8 +1,8 @@
 import pyglet
 
-from game_types import EntityType
-from graphics import Renderer
-from helper import Vector
+from ..game_types import EntityType
+from ..graphics import Renderer
+from ..helper import Vector
 
 
 class Entity:

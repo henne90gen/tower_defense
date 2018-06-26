@@ -5,10 +5,10 @@ from typing import Dict
 
 import pyglet
 
-from game_types import TileType
-from graphics import Renderer
-from helper import Vector, rect_contains_point, process_clicks, MouseClick
-from tiles.tile import Tile
+from ..game_types import TileType
+from ..graphics import Renderer
+from ..helper import Vector, rect_contains_point, process_clicks, MouseClick
+from .tile import Tile
 
 
 class TileMap:

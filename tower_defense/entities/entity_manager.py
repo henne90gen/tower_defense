@@ -2,9 +2,9 @@ from typing import List, Dict
 
 import pyglet
 
-from entities.entity import Entity, SmallBoulder
-from game_types import TileType, EntityType
-from helper import Vector
+from .entity import Entity, SmallBoulder
+from ..game_types import TileType, EntityType
+from ..helper import Vector
 
 
 class EntityManager:

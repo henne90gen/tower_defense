@@ -2,7 +2,7 @@ import unittest
 
 import pyglet
 
-from helper import Vector
+from tower_defense.helper import Vector
 from tower_defense.graphics import Textures, Renderer, MovementGroup
 
 

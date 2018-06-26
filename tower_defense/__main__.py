@@ -1,13 +1,10 @@
-import sys
-import importlib
-import inspect
-import types
 from datetime import datetime
+
 import pyglet
 
-import hot_reload
-import game_state
-import helper
+from . import game_state
+from . import helper
+from . import hot_reload
 
 module_whitelist = ['helper', 'graphics', 'game_types', 'game_state',
                     'user_interface.menu', 'user_interface.components',

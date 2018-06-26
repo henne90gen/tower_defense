@@ -1,10 +1,10 @@
 import unittest
 
-from buildings.building import Laser, Drill, Catapult, Building
-from buildings.building_manager import BuildingManager
-from game_state import GameState
-from game_types import BuildingType
-from helper import Vector, MouseClick
+from tower_defense.buildings.building import Laser, Drill, Catapult, Building
+from tower_defense.buildings.building_manager import BuildingManager
+from tower_defense.game_state import GameState
+from tower_defense.game_types import BuildingType
+from tower_defense.helper import Vector, MouseClick
 
 
 class Object(object):

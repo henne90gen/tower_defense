@@ -1,6 +1,6 @@
 import unittest
 
-from game_state import GameState
+from tower_defense.game_state import GameState
 from tower_defense.helper import Vector, rect_contains_point, constrain_rect_to_bounds, MouseClick, process_clicks
 
 

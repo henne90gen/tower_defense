@@ -2,10 +2,10 @@ import unittest
 
 import pyglet
 
-from entities.entity import Entity
-from game_state import GameState
-from game_types import TileType, EntityType
-from helper import Vector
+from tower_defense.entities.entity import Entity
+from tower_defense.game_state import GameState
+from tower_defense.game_types import TileType, EntityType
+from tower_defense.helper import Vector
 
 
 class EntityTest(unittest.TestCase):

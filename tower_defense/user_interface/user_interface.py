@@ -1,7 +1,7 @@
-from game_types import GameMode
-from helper import Vector, process_clicks, MouseClick
-from user_interface.components import TextComponent
-from user_interface.dialogs import Dialog, NewMapDialog, LoadMapDialog, BuildingDialog
+from ..game_types import GameMode
+from ..helper import Vector, process_clicks, MouseClick
+from .components import TextComponent
+from .dialogs import Dialog, NewMapDialog, LoadMapDialog, BuildingDialog
 
 
 class EditorUI:

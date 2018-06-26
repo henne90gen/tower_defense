@@ -2,11 +2,11 @@ import unittest
 
 import pyglet
 
-from entities.bullet import Bullet
-from entities.entity import Entity
-from game_state import GameState
-from game_types import EntityType
-from helper import Vector
+from tower_defense.entities.bullet import Bullet
+from tower_defense.entities.entity import Entity
+from tower_defense.game_state import GameState
+from tower_defense.game_types import EntityType
+from tower_defense.helper import Vector
 
 
 class BulletTest(unittest.TestCase):

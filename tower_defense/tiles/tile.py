@@ -2,9 +2,9 @@ from typing import List
 
 import pyglet
 
-from game_types import TileType
-from graphics import Renderer
-from helper import Vector
+from ..game_types import TileType
+from ..graphics import Renderer
+from ..helper import Vector
 
 
 class Tile:

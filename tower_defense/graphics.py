@@ -4,8 +4,8 @@ from typing import Dict, List
 import pyglet
 from pyglet.gl import *
 
-from game_types import TileType, EntityType, BuildingType, BulletType
-from helper import Vector
+from .game_types import TileType, EntityType, BuildingType, BulletType
+from .helper import Vector, get_res_path
 
 
 class Textures:
@@ -16,9 +16,9 @@ class Textures:
         self.buildings: Dict[BuildingType, pyglet.graphics.TextureGroup] = {}
         self.other: Dict[str, pyglet.graphics.TextureGroup] = {}
 
-    def load(self, base_path: str = "./res"):
+    def load(self, base_path: str):
         def load_image(path: str) -> pyglet.image.Texture:
-            return pyglet.image.load(os.path.join(base_path, path)).get_texture()
+            return pyglet.image.load(os.path.join(get_res_path(), path)).get_texture()
 
         grass_texture = load_image('grass.jpg')
         sand_texture = load_image('sand.jpg')
@@ -150,7 +150,6 @@ class MovementGroup(pyglet.graphics.Group):
         glTranslatef(self.position.x, self.position.y, 0)
         glRotatef(self.angle, 0, 0, 1)
 
-    # noinspection PyMethodMayBeStatic
     def unset_state(self):
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()

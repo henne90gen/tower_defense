@@ -3,12 +3,10 @@ from typing import List
 
 import pyglet
 
-from game_types import BuildingType
-from graphics import Renderer
-from helper import Vector, MouseClick, process_clicks, rect_contains_point
-from user_interface.components import TextComponent, Input, HighlightComponent
-
-MAPS_PATH = './res/maps/'
+from ..game_types import BuildingType
+from ..graphics import Renderer
+from ..helper import Vector, MouseClick, process_clicks, rect_contains_point, get_maps_path
+from .components import TextComponent, Input, HighlightComponent
 
 
 class Dialog:
@@ -82,7 +80,9 @@ class NewMapDialog(Dialog):
             print(e)
             return
         if self.components['name_input'].text:
-            game_state.tile_map.new(game_state, MAPS_PATH + self.components['name_input'].text + '.map',
+            file_name = os.path.join(
+                get_maps_path(), self.components['name_input'].text + '.map')
+            game_state.tile_map.new(game_state, file_name,
                                     Vector(new_width, new_height))
         self.visible = False
 
@@ -96,7 +96,8 @@ class NewMapDialog(Dialog):
             if 'input' in component:
                 self.components[component].add_text(game_state.key_presses)
 
-        process_clicks(game_state, self.mouse_click_handler, False, self.position)
+        process_clicks(game_state, self.mouse_click_handler,
+                       False, self.position)
 
     def mouse_click_handler(self, game_state, click: MouseClick) -> bool:
         for component in self.components:
@@ -129,22 +130,25 @@ class LoadMapDialog(Dialog):
         height = 50
         for file in os.listdir(maps_path):
             if '.map' in file:
-                text_component = TextComponent(file, Vector(150, 100 - height * current_index), Vector(300, height))
+                text_component = TextComponent(file, Vector(
+                    150, 100 - height * current_index), Vector(300, height))
                 self.maps.append(text_component)
                 current_index += 1
         return current_index, height
 
     def update_cancel_button(self, current_index, height):
-        self.cancel_button = TextComponent("Cancel", Vector(150, 100 - height * current_index), Vector(200, height))
+        self.cancel_button = TextComponent("Cancel", Vector(
+            150, 100 - height * current_index), Vector(200, height))
 
     def open(self, game_state):
         super().open(game_state)
-        current_index, height = self.refresh_maps(MAPS_PATH)
+        current_index, height = self.refresh_maps(get_maps_path())
         self.update_cancel_button(current_index, height)
 
     def update(self, game_state):
         super().update(game_state)
-        process_clicks(game_state, self.mouse_click_handler, False, self.position)
+        process_clicks(game_state, self.mouse_click_handler,
+                       False, self.position)
 
     def mouse_click_handler(self, game_state, click):
         if self.cancel_button.is_clicked(click):
@@ -152,7 +156,8 @@ class LoadMapDialog(Dialog):
             return True
         for tile_map in self.maps:
             if tile_map.is_clicked(click):
-                game_state.tile_map.load(game_state, MAPS_PATH + tile_map.text)
+                file_name = os.path.join(get_maps_path(), tile_map.text)
+                game_state.tile_map.load(game_state, file_name)
                 self.visible = False
                 return True
         return False
@@ -200,7 +205,8 @@ class BuildingDialog(Dialog):
         for bt in self.building_types:
             if self.building_types[bt].is_highlighted:
                 building_type = bt
-        game_state.building_manager.spawn_building(game_state, game_state.tile_map.highlighted_tile, building_type)
+        game_state.building_manager.spawn_building(
+            game_state, game_state.tile_map.highlighted_tile, building_type)
 
     @staticmethod
     def upgrade_func(game_state):
@@ -209,7 +215,8 @@ class BuildingDialog(Dialog):
     def render_background(self):
         batch = pyglet.graphics.Batch()
         color = (0, 255, 0)
-        Renderer.colored_rectangle(batch, color, self.position, self.background_size)
+        Renderer.colored_rectangle(
+            batch, color, self.position, self.background_size)
         batch.draw()
 
     def render(self):
@@ -227,8 +234,10 @@ class BuildingDialog(Dialog):
         if not self.visible:
             return
 
-        self.background_size = Vector(self.background_size.x, game_state.window_size.y)
-        self.position = Vector(game_state.window_size.x - self.background_size.x, 0)
+        self.background_size = Vector(
+            self.background_size.x, game_state.window_size.y)
+        self.position = Vector(
+            game_state.window_size.x - self.background_size.x, 0)
 
         if game_state.tile_map.highlighted_tile in game_state.building_manager.buildings:
             self.components['build_button'].visible = False
@@ -237,7 +246,8 @@ class BuildingDialog(Dialog):
             self.components['build_button'].visible = True
             self.components['upgrade_button'].visible = False
 
-        process_clicks(game_state, self.mouse_click_handler, False, self.position)
+        process_clicks(game_state, self.mouse_click_handler,
+                       False, self.position)
 
     def highlight_building(self, building_type):
         for bt in self.building_types:

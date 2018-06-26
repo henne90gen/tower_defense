@@ -4,10 +4,10 @@ from unittest import TestCase
 
 import os
 
-from game_state import GameState
-from game_types import TileType, GameMode
-from helper import Vector, MouseClick
-from tiles.tile_map import Tile, TileMap, EditorTileMap, GameTileMap
+from tower_defense.game_state import GameState
+from tower_defense.game_types import TileType, GameMode
+from tower_defense.helper import Vector, MouseClick
+from tower_defense.tiles.tile_map import Tile, TileMap, EditorTileMap, GameTileMap
 
 
 class Object(object):

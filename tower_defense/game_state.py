@@ -1,17 +1,15 @@
-from copy import deepcopy
-from importlib import reload
 from typing import List
 
 import pyglet
 
-import buildings.building_manager as bm
-import entities.entity_manager as em
-import tiles.tile_map as tm
-import user_interface.menu as menu
-import user_interface.user_interface as ui
-from game_types import GameMode
-from graphics import Textures
-from helper import KeyPresses, MouseClick, Vector, constrain_rect_to_bounds
+from .buildings import building_manager as bm
+from .entities import entity_manager as em
+from .tiles import tile_map as tm
+from .user_interface import menu as menu
+from .user_interface import user_interface as ui
+from .game_types import GameMode
+from .graphics import Textures
+from .helper import KeyPresses, MouseClick, Vector, constrain_rect_to_bounds
 
 
 class GameState:

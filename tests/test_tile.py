@@ -2,11 +2,11 @@ import unittest
 
 import pyglet
 
-from game_state import GameState
-from game_types import TileType
-from graphics import MovementGroup
-from helper import Vector
-from tiles.tile import Tile
+from tower_defense.game_state import GameState
+from tower_defense.game_types import TileType
+from tower_defense.graphics import MovementGroup
+from tower_defense.helper import Vector
+from tower_defense.tiles.tile import Tile
 
 
 class Object(object):

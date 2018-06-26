@@ -1,7 +1,7 @@
 import pyglet
 
-from graphics import Renderer
-from helper import Vector, KeyPresses, rect_contains_point, MouseClick
+from ..graphics import Renderer
+from ..helper import Vector, KeyPresses, rect_contains_point, MouseClick
 
 
 class TextComponent:

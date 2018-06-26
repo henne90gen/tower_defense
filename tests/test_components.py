@@ -1,7 +1,7 @@
 import unittest
 
-from helper import Vector, MouseClick, KeyPresses
-from user_interface.components import TextComponent, Input, HighlightComponent
+from tower_defense.helper import Vector, MouseClick, KeyPresses
+from tower_defense.user_interface.components import TextComponent, Input, HighlightComponent
 
 
 class TextComponentTest(unittest.TestCase):

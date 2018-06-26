@@ -1,9 +1,9 @@
 from typing import List
 
-from game_types import GameMode
-from helper import Vector, process_clicks, MouseClick, maps_list
-from user_interface.components import TextComponent
-from user_interface.dialogs import NewMapDialog
+from ..game_types import GameMode
+from ..helper import Vector, process_clicks, MouseClick, maps_list, get_maps_path
+from .components import TextComponent
+from .dialogs import NewMapDialog
 
 
 class MainMenu:
@@ -53,9 +53,11 @@ class MainMenu:
 
 
 class MapMenu:
-    def __init__(self, map_path: str = './res/maps'):
+    def __init__(self, map_path: str = None):
         self.position = Vector()
         self.map_path = map_path
+        if self.map_path is None:
+            self.map_path = get_maps_path()
 
         self.button_size = Vector(300, 50)
         self.back_button = TextComponent("Back", Vector(), self.button_size)
