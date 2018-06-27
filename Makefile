@@ -4,8 +4,18 @@ install :
 	pip install -r requirements.txt
 
 executable :
-	pyinstaller --onefile --specpath bin --distpath bin/dist --workpath bin/build -p tower_defense tower_defense/__main__.py
-	# --add-data ../tower_defense/res:res
+	pyinstaller \
+		--onefile \
+		--specpath bin \
+		--distpath bin/dist \
+		--workpath bin/build \
+		--add-data ../tower_defense/res:tower_defense/res \
+		-p tower_defense \
+		-n tower_defense \
+		tower_defense/__main__.py
+
+executable_run :
+	./bin/dist/tower_defense
 
 run :
 	python -m tower_defense
@@ -24,3 +34,6 @@ lint_fast :
 
 type_check :
 	python -m mypy tower_defense --ignore-missing-imports
+
+clean :
+	rm -rf bin

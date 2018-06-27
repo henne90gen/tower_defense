@@ -2,9 +2,10 @@ from datetime import datetime
 
 import pyglet
 
-from . import game_state
-from . import helper
-from . import hot_reload
+# using explicit import to make pyinstaller work
+from tower_defense import game_state
+from tower_defense import helper
+from tower_defense import hot_reload
 
 module_whitelist = ['helper', 'graphics', 'game_types', 'game_state',
                     'user_interface.menu', 'user_interface.components',
