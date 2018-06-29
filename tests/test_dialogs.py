@@ -172,8 +172,8 @@ class NewMapDialogTest(unittest.TestCase):
         new_map_dialog.components = {"width_input": width_input, "height_input": height_input, "name_input": name_input}
         new_map_dialog.open(game_state)
         self.assertTrue(new_map_dialog.visible)
-        self.assertEqual("", width_input.text)
-        self.assertEqual("", height_input.text)
+        self.assertEqual("10", width_input.text)
+        self.assertEqual("10", height_input.text)
         self.assertEqual("", name_input.text)
 
     def test_mouse_click_handler(self):

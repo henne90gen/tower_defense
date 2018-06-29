@@ -2,7 +2,7 @@ from typing import List
 
 from ..game_types import GameMode
 from ..helper import Vector, process_clicks, MouseClick, maps_list, get_maps_path
-from .components import TextComponent
+from .components import Button
 from .dialogs import NewMapDialog
 
 
@@ -12,9 +12,9 @@ class MainMenu:
         button_size = Vector(300, 50)
 
         self.components = {
-            "game_button": TextComponent("Play", Vector(), button_size),
-            "editor_button": TextComponent("Editor", Vector(0, -50), button_size),
-            "exit_button": TextComponent("Exit", Vector(0, -100), button_size)
+            "game_button": Button("Play", Vector(), button_size),
+            "editor_button": Button("Editor", Vector(0, -50), button_size),
+            "exit_button": Button("Exit", Vector(0, -100), button_size)
         }
 
         self.handlers = {
@@ -60,11 +60,11 @@ class MapMenu:
             self.map_path = get_maps_path()
 
         self.button_size = Vector(300, 50)
-        self.back_button = TextComponent("Back", Vector(), self.button_size)
-        self.new_button = TextComponent("New", Vector(), self.button_size)
+        self.back_button = Button("Back", Vector(), self.button_size)
+        self.new_button = Button("New", Vector(), self.button_size)
         self.new_dialog = NewMapDialog()
 
-        self.maps: List[TextComponent] = []
+        self.maps: List[Button] = []
 
     @staticmethod
     def back_func(game_state):
@@ -121,7 +121,7 @@ class MapMenu:
         self.maps = []
 
         for index, m in enumerate(maps):
-            self.maps.append(TextComponent(m, Vector(y=-self.button_size.y * index), self.button_size))
+            self.maps.append(Button(m, Vector(y=-self.button_size.y * index), self.button_size))
 
     def render(self, game_state):
         if game_state.mode == GameMode.MAP_CHOICE_EDITOR:

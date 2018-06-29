@@ -6,7 +6,8 @@ import pyglet
 from ..game_types import BuildingType
 from ..graphics import Renderer
 from ..helper import Vector, MouseClick, process_clicks, rect_contains_point, get_maps_path
-from .components import TextComponent, Input, HighlightComponent
+from .old_components import HighlightComponent
+from .components import Input, Label, Button
 
 
 class Dialog:
@@ -39,20 +40,20 @@ class NewMapDialog(Dialog):
         text_height = 40
 
         self.components = {
-            'width_text': TextComponent("Width:", Vector(0, 0), Vector(text_width, text_height)),
+            'width_text': Label("Width:", Vector(0, 0), Vector(text_width, text_height)),
             'width_input': Input(Vector(text_width, 0), Vector(300, text_height), has_focus=True),
 
-            'height_text': TextComponent("Height:",
+            'height_text': Label("Height:",
                                          Vector(0, -text_height), Vector(text_width, text_height)),
             'height_input': Input(Vector(text_width, -text_height), Vector(300, text_height)),
 
-            'name_text': TextComponent("Name:",
+            'name_text': Label("Name:",
                                        Vector(0, -text_height * 2), Vector(text_width, text_height)),
             'name_input': Input(Vector(text_width, -text_height * 2), Vector(300, text_height)),
 
-            'submit_button': TextComponent("Create",
+            'submit_button': Button("Create",
                                            Vector(0, -text_height * 3), Vector(text_width, text_height)),
-            'cancel_button': TextComponent("Cancel", Vector(text_width, -text_height * 3),
+            'cancel_button': Button("Cancel", Vector(text_width, -text_height * 3),
                                            Vector(text_width, text_height))
         }
 
@@ -66,8 +67,8 @@ class NewMapDialog(Dialog):
 
     def open(self, game_state):
         super().open(game_state)
-        self.components['width_input'].update(text="")
-        self.components['height_input'].update(text="")
+        self.components['width_input'].update(text="10")
+        self.components['height_input'].update(text="10")
         self.components['name_input'].update(text="")
 
     def render(self):
@@ -124,8 +125,8 @@ class NewMapDialog(Dialog):
 class LoadMapDialog(Dialog):
     def __init__(self, visible: bool = False) -> None:
         super().__init__(visible)
-        self.maps: List[TextComponent] = []
-        self.cancel_button: Optional[TextComponent] = None
+        self.maps: List[Button] = []
+        self.cancel_button: Optional[Widget] = None
 
     def refresh_maps(self, maps_path: str):
         self.maps = []
@@ -133,14 +134,14 @@ class LoadMapDialog(Dialog):
         height = 50
         for file in os.listdir(maps_path):
             if '.map' in file:
-                text_component = TextComponent(file, Vector(
+                text_component = Button(file, Vector(
                     150, 100 - height * current_index), Vector(300, height))
                 self.maps.append(text_component)
                 current_index += 1
         return current_index, height
 
     def update_cancel_button(self, current_index, height):
-        self.cancel_button = TextComponent("Cancel", Vector(
+        self.cancel_button = Button("Cancel", Vector(
             150, 100 - height * current_index), Vector(200, height))
 
     def open(self, game_state):
@@ -178,8 +179,8 @@ class BuildingDialog(Dialog):
         self.background_size = Vector(200, 0)
         self.button_size = Vector(200, 50)
         self.components = {
-            'build_button': TextComponent("Build", Vector(0, self.button_size.y), self.button_size),
-            'upgrade_button': TextComponent("Upgrade", Vector(0, self.button_size.y), self.button_size, visible=False)
+            'build_button': Button("Build", Vector(0, self.button_size.y), self.button_size),
+            'upgrade_button': Button("Upgrade", Vector(0, self.button_size.y), self.button_size, visible=False)
         }
         self.handlers = {
             'build_button': self.build_func,
@@ -196,7 +197,6 @@ class BuildingDialog(Dialog):
         self.position = Vector()
 
         position = Vector(0, game_state.window_size.y)
-        # noinspection PyTypeChecker
         for index, bt in enumerate(BuildingType):
             highlight = index == 0
             self.building_types[bt] = HighlightComponent(str(bt)[13:], position, self.button_size,

@@ -1,6 +1,6 @@
 from ..game_types import GameMode
 from ..helper import Vector, process_clicks, MouseClick
-from .components import TextComponent
+from .components import Button, Label
 from .dialogs import Dialog, NewMapDialog, LoadMapDialog, BuildingDialog
 
 
@@ -9,12 +9,12 @@ class EditorUI:
         button_height = 50
         size = Vector(180, button_height)
         self.components = {
-            'menu_button': TextComponent("Menu", Vector(0, 0), size),
-            'new_button': TextComponent("New", Vector(0, -1 * button_height), size, visible=False),
-            'save_button': TextComponent("Save", Vector(0, -2 * button_height), size, visible=False),
-            'load_button': TextComponent("Load", Vector(0, -3 * button_height), size, visible=False),
-            'back_button': TextComponent("Back", Vector(0, -4 * button_height), size, visible=False),
-            'entities_toggle': TextComponent("", Vector(size.x, 0), size + Vector(20, 0)),
+            'menu_button': Button("Menu", Vector(0, 0), size),
+            'new_button': Button("New", Vector(0, -1 * button_height), size, visible=False),
+            'save_button': Button("Save", Vector(0, -2 * button_height), size, visible=False),
+            'load_button': Button("Load", Vector(0, -3 * button_height), size, visible=False),
+            'back_button': Button("Back", Vector(0, -4 * button_height), size, visible=False),
+            'entities_toggle': Button("", Vector(size.x, 0), size + Vector(20, 0)),
         }
         self.handlers = {
             'menu_button': self.menu_func,
@@ -91,11 +91,11 @@ class GameUI:
         button_height = 50
         size = Vector(180, button_height)
         self.components = {
-            'next_wave_button': TextComponent("Next Wave", Vector(), size),
-            'current_wave_label': TextComponent("", Vector(size.x, 0), size),
-            'health_label': TextComponent("", Vector(size.x * 2, 0), size),
-            'gold_label': TextComponent("", Vector(size.x * 3, 0), size),
-            'game_over_label': TextComponent("Game Over", Vector(0, -100), Vector(400, 90), font_size=50, visible=False)
+            'next_wave_button': Button("Next Wave", Vector(), size),
+            'current_wave_label': Label("", Vector(size.x, 0), size),
+            'health_label': Label("", Vector(size.x * 2, 0), size),
+            'gold_label': Label("", Vector(size.x * 3, 0), size),
+            'game_over_label': Label("Game Over", Vector(0, -100), Vector(400, 90), font_size=50, visible=False)
         }
         self.handlers = {
             'next_wave_button': self.next_wave_func
