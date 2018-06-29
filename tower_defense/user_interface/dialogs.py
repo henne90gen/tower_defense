@@ -126,7 +126,7 @@ class LoadMapDialog(Dialog):
     def __init__(self, visible: bool = False) -> None:
         super().__init__(visible)
         self.maps: List[Button] = []
-        self.cancel_button: Optional[Widget] = None
+        self.cancel_button: Optional[Button] = None
 
     def refresh_maps(self, maps_path: str):
         self.maps = []
