@@ -1,3 +1,4 @@
+import os
 from typing import List
 
 from ..game_types import GameMode
@@ -75,7 +76,8 @@ class MapMenu:
 
     @staticmethod
     def load_func(game_state, path):
-        game_state.tile_map.load(game_state, "./res/maps/" + path)
+        map_path = os.path.join(get_maps_path(), path)
+        game_state.tile_map.load(game_state, map_path)
         if game_state.mode == GameMode.MAP_CHOICE_GAME:
             game_state.mode = GameMode.GAME
         elif game_state.mode == GameMode.MAP_CHOICE_EDITOR:
