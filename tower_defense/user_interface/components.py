@@ -1,5 +1,5 @@
 import pyglet
-
+from ..graphics import Renderer
 from ..helper import Vector, MouseClick, KeyPresses, rect_contains_point
 
 
@@ -77,8 +77,33 @@ class Label(Widget):
 
 
 class HighlightableLabel(Label):
-    def __init__(self, text: str, position: Vector, size: Vector, font_size: int = 25) -> None:
-        super().__init__(text, position, size, font_size)
+    def __init__(self, text: str, position: Vector, size: Vector, font_size: int = 25, visible: bool = True,
+                 is_highlighted: bool = False) -> None:
+        super().__init__(text, position, size, font_size, visible)
+        self.is_highlighted = is_highlighted
+
+    def is_clicked(self, mouse_click):
+        if rect_contains_point(mouse_click.position, self.position, self.size):
+            self.is_highlighted = True
+            return True
+        return False
+
+    def render(self, offset: Vector):
+        if not self.visible:
+            return
+
+        super().render(offset)
+        self.render_highlight(offset)
+
+    def render_highlight(self, offset: Vector):
+        if not self.is_highlighted:
+            return
+
+        position = self.position + offset - Vector(0, self.size.y)
+
+        batch = pyglet.graphics.Batch()
+        Renderer.rectangle_border(batch, position, self.size)
+        batch.draw()
 
 
 class Button(Label):

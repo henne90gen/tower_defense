@@ -1,8 +1,7 @@
 import unittest
 
 from tower_defense.helper import Vector, MouseClick, KeyPresses
-from tower_defense.user_interface.components import Button, Label, Input
-from tower_defense.user_interface.old_components import HighlightComponent
+from tower_defense.user_interface.components import Button, Label, Input, HighlightableLabel
 
 
 class ButtonTest(unittest.TestCase):
@@ -85,11 +84,11 @@ class HighlightComponentTest(unittest.TestCase):
         click = MouseClick()
         click.position = Vector(1, 1)
 
-        highlight_component = HighlightComponent("", Vector(0, 10), Vector(10, 10))
+        highlight_component = HighlightableLabel("", Vector(0, 10), Vector(10, 10))
         highlight_component.is_clicked(click)
         self.assertTrue(highlight_component.is_highlighted)
 
-        highlight_component = HighlightComponent("", Vector(), Vector(10, 10))
+        highlight_component = HighlightableLabel("", Vector(), Vector(10, 10))
         highlight_component.is_clicked(click)
         self.assertFalse(highlight_component.is_highlighted)
 
@@ -99,21 +98,21 @@ class HighlightComponentTest(unittest.TestCase):
         def dummy(*args):
             was_called.append(0)
 
-        highlight_component = HighlightComponent("", Vector(), Vector(10, 10), visible=False)
+        highlight_component = HighlightableLabel("", Vector(), Vector(10, 10), visible=False)
         highlight_component.render_highlight = dummy
         highlight_component.render(Vector())
         self.assertEqual(0, len(was_called))
 
-        highlight_component = HighlightComponent("", Vector(), Vector(10, 10))
+        highlight_component = HighlightableLabel("", Vector(), Vector(10, 10))
         highlight_component.render_highlight = dummy
         highlight_component.render(Vector())
         self.assertEqual(1, len(was_called))
 
     @staticmethod
     def test_render_highlight():
-        highlight_component = HighlightComponent("", Vector(), Vector(10, 10))
+        highlight_component = HighlightableLabel("", Vector(), Vector(10, 10))
         highlight_component.render_highlight(Vector())
 
-        highlight_component = HighlightComponent("", Vector(), Vector(10, 10))
+        highlight_component = HighlightableLabel("", Vector(), Vector(10, 10))
         highlight_component.is_highlighted = True
         highlight_component.render_highlight(Vector())

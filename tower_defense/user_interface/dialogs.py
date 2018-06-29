@@ -6,8 +6,7 @@ import pyglet
 from ..game_types import BuildingType
 from ..graphics import Renderer
 from ..helper import Vector, MouseClick, process_clicks, rect_contains_point, get_maps_path
-from .old_components import HighlightComponent
-from .components import Input, Label, Button
+from .components import Input, Label, Button, HighlightableLabel
 
 
 class Dialog:
@@ -187,8 +186,8 @@ class BuildingDialog(Dialog):
             'upgrade_button': self.upgrade_func
         }
         self.building_types = {
-            BuildingType.LASER: HighlightComponent("", Vector(), Vector()),
-            BuildingType.CATAPULT: HighlightComponent("", Vector(), Vector()),
+            BuildingType.LASER: HighlightableLabel("", Vector(), Vector()),
+            BuildingType.CATAPULT: HighlightableLabel("", Vector(), Vector()),
         }
         # self.upgrade_buttons = {}
 
@@ -199,7 +198,7 @@ class BuildingDialog(Dialog):
         position = Vector(0, game_state.window_size.y)
         for index, bt in enumerate(BuildingType):
             highlight = index == 0
-            self.building_types[bt] = HighlightComponent(str(bt)[13:], position, self.button_size,
+            self.building_types[bt] = HighlightableLabel(str(bt)[13:], position, self.button_size,
                                                          is_highlighted=highlight)
             position -= Vector(0, self.button_size.y)
 
