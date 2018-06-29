@@ -79,7 +79,7 @@ class BuildingManagerTest(unittest.TestCase):
         building_manager.spawn_building(game_state, tile_index, BuildingType.DRILL)
         self.assertEqual(Drill, type(building_manager.buildings[(1, 0)]))
 
-        building_manager.spawn_building(game_state, tile_index, BuildingType.CATAPULT)
+        building_manager.spawn_building(game_state, tile_index, BuildingType.HAMMER)
         self.assertEqual(Catapult, type(building_manager.buildings[(1, 0)]))
 
         building_manager.spawn_building(game_state, tile_index, -1)
@@ -87,5 +87,5 @@ class BuildingManagerTest(unittest.TestCase):
 
         building_manager = BuildingManager()
         building_manager.gold = 0
-        building_manager.spawn_building(game_state, tile_index, BuildingType.CATAPULT)
+        building_manager.spawn_building(game_state, tile_index, BuildingType.HAMMER)
         self.assertEqual(0, len(building_manager.buildings.keys()))

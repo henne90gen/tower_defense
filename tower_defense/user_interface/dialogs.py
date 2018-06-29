@@ -187,7 +187,7 @@ class BuildingDialog(Dialog):
         }
         self.building_types = {
             BuildingType.LASER: HighlightableLabel("", Vector(), Vector()),
-            BuildingType.CATAPULT: HighlightableLabel("", Vector(), Vector()),
+            BuildingType.HAMMER: HighlightableLabel("", Vector(), Vector()),
         }
         # self.upgrade_buttons = {}
 

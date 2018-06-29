@@ -60,7 +60,7 @@ def reload_all(whitelist=None, debug=False):
 
         if os.path.isfile(pyc) and os.path.isfile(py) and os.stat(pyc).st_mtime >= os.stat(py).st_mtime:
             if debug:
-                print("Ignoring module %s; unchanged" % str(module))
+                print(f"Ignoring unchanged module {module}")
             continue
 
         try:

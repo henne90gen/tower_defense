@@ -2,7 +2,7 @@ from typing import List, Dict, Tuple
 
 import pyglet
 
-from .building import Building, Laser, Drill, Catapult
+from .building import Building, Laser, Drill, Hammer
 from ..entities.bullet import Bullet
 from ..game_types import BuildingType
 from ..helper import Vector
@@ -33,8 +33,8 @@ class BuildingManager:
     def update(self, game_state):
         # TODO remove this at some point
         if len(self.buildings) == 0:
-            self.spawn_building(game_state, (6, 4), BuildingType.LASER)
-            self.spawn_building(game_state, (6, 2), BuildingType.LASER)
+            self.spawn_building(game_state, (3, 4), BuildingType.HAMMER)
+        #     self.spawn_building(game_state, (6, 2), BuildingType.LASER)
 
         for index in self.buildings:
             self.buildings[index].update(game_state)
@@ -50,15 +50,15 @@ class BuildingManager:
     def spawn_building(self, game_state, tile_index: Tuple[int, int], building_type: BuildingType):
         position = Vector(point=tile_index)
 
-        args = (position, game_state.tile_map.tile_size, BuildingType.CATAPULT)
+        args = (position, game_state.tile_map.tile_size, BuildingType.HAMMER)
         building: Building = Building(*args)
 
         if building_type == BuildingType.LASER:
             building = Laser(*args[:-1])
         elif building_type == BuildingType.DRILL:
             building = Drill(*args[:-1])
-        elif building_type == BuildingType.CATAPULT:
-            building = Catapult(*args[:-1])
+        elif building_type == BuildingType.HAMMER:
+            building = Hammer(*args[:-1])
 
         if building.cost > self.gold:
             return

@@ -64,7 +64,6 @@ class GameState:
     def world_to_index_space(self, position: Vector) -> Tuple[int, int]:
         return int(position.x / self.tile_map.tile_size.x), int(position.y / self.tile_map.tile_size.y)
 
-    # noinspection PyUnresolvedReferences
     def index_to_world_space(self, index: Vector) -> Vector:
         # TODO change indexes to Vector objects
         if type(index) == tuple:

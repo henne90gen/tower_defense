@@ -41,22 +41,23 @@ class Textures:
             BulletType.DYNAMITE: pyglet.graphics.TextureGroup(bullet_texture)
         }
 
-        tower_texture = load_image('tower.png')
         platform_texture = load_image('platform.png')
+        tower_texture = load_image('tower.png')
+        hammer_texture = load_image('hammer.png')
         laser_tower_texture = load_image('laser-tower.png')
+        drill_texture = load_image('drill.png')
         self.buildings = {
+            'platform': pyglet.graphics.TextureGroup(platform_texture),
             BuildingType.LASER: pyglet.graphics.TextureGroup(laser_tower_texture),
-            BuildingType.CATAPULT: pyglet.graphics.TextureGroup(tower_texture),
-            BuildingType.DRILL: pyglet.graphics.TextureGroup(platform_texture)
+            BuildingType.HAMMER: pyglet.graphics.TextureGroup(hammer_texture),
+            BuildingType.DRILL: pyglet.graphics.TextureGroup(drill_texture)
         }
 
         arrow_texture = load_image('arrow.png')
         ring_texture = load_image('ring.png')
-        drill_texture = load_image('drill.png')
         self.other = {
             'arrow': pyglet.graphics.TextureGroup(arrow_texture),
             'ring': pyglet.graphics.TextureGroup(ring_texture),
-            'drill': pyglet.graphics.TextureGroup(drill_texture)
         }
 
 

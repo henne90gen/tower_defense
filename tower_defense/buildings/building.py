@@ -1,10 +1,12 @@
 import math
+from typing import Optional
 
 import pyglet
 
 from ..game_types import BuildingType, TileType
 from ..graphics import Renderer, MovementGroup
 from ..helper import Vector, rect_contains_point
+from ..entities.entity import Entity
 
 
 class Building:
@@ -22,15 +24,13 @@ class Building:
     def shooting_frequency(self):
         if self.building_type == BuildingType.LASER:
             return 1 / 30
-        elif self.building_type == BuildingType.CATAPULT:
-            return 1 / 60
 
     @property
     def range(self):
         if self.building_type == BuildingType.LASER:
             return 350
-        elif self.building_type == BuildingType.CATAPULT:
-            return 300
+        elif self.building_type == BuildingType.HAMMER:
+            return 200
         elif self.building_type == BuildingType.DRILL:
             return 150
 
@@ -41,7 +41,7 @@ class Building:
     def cost(self):
         if self.building_type == BuildingType.LASER:
             return 20
-        elif self.building_type == BuildingType.CATAPULT:
+        elif self.building_type == BuildingType.HAMMER:
             return 50
         elif self.building_type == BuildingType.DRILL:
             return 30
@@ -75,6 +75,24 @@ class Building:
             self.mouse_over = rect_contains_point(
                 game_state.mouse_position, position, self.size)
 
+    def get_center_world_position(self, game_state):
+        world_position = game_state.index_to_world_space(self.position)
+        return world_position + self.size / 2
+
+    def get_target(self, game_state) -> Optional[Entity]:
+        """
+        Returns the position and direction vector of the closest entity.
+        If no entity is in range, None is returned.
+        """
+        for entity in game_state.entity_manager.entities:
+            direction = entity.position - \
+                self.get_center_world_position(game_state)
+
+            distance = direction.length()
+            if distance < self.range:
+                yield entity
+        return None
+
 
 class Laser(Building):
     def __init__(self, position: Vector, size: Vector) -> None:
@@ -95,8 +113,8 @@ class Laser(Building):
         if self.target is None:
             return
 
-        size = Vector(self.target[1], 10)
-        angle = self.target[2].angle() / math.pi * 180
+        size = Vector(self.target[0].length(), 10)
+        angle = self.target[1].angle() / math.pi * 180
         position += self.size / 2 + Vector(0, 35)
         Renderer.colored_rectangle(
             batch, (0, 255, 255), position, size, angle, background)
@@ -104,25 +122,44 @@ class Laser(Building):
     def update(self, game_state):
         super().update(game_state)
 
-        self.target = None
-        for entity in game_state.entity_manager.entities:
-            world_position = game_state.index_to_world_space(self.position)
-            world_position = world_position + self.size / 2
-            direction = entity.position - world_position
-
-            distance = direction.length()
-            if distance < self.range:
-                self.target = entity.position, distance, direction
+        self.target = self.get_target(game_state)
 
 
-class Catapult(Building):
+class Hammer(Building):
     def __init__(self, position: Vector, size: Vector) -> None:
-        super().__init__(position, size, BuildingType.CATAPULT)
+        super().__init__(position, size, BuildingType.HAMMER)
+        self.rotation_angle = 0
+        self.hammer_size = Vector(65, 163)
 
     def update(self, game_state):
-        pass
-        # lead the target in the direction it is going, depending on how far away it is
-        # direction += entity.velocity * (math.sqrt(distance) * 2)
+        # TODO increase rotation speed gradually instead of setting it
+        targets = list(self.get_target(game_state))
+        if targets:
+            rotation_speed = 5
+        else:
+            rotation_speed = 1
+        self.rotation_angle -= rotation_speed
+
+    def render(self, game_state, batch: pyglet.graphics.Batch, tex_max=0.5, foreground: pyglet.graphics.Group = None,
+               background: pyglet.graphics.Group = None):
+        position = super().render(game_state, batch)
+        if position is None:
+            return
+
+        texture = game_state.textures.buildings['platform'].texture
+        group = pyglet.graphics.TextureGroup(texture, parent=background)
+        Renderer.textured_rectangle(batch, group, position, self.size,
+                                    tex_max=1.0)
+
+        texture = game_state.textures.buildings[self.building_type].texture
+        position += self.size / 2
+        movement_group = MovementGroup(
+            self.rotation_angle, position, foreground)
+        texture_group = pyglet.graphics.TextureGroup(texture, movement_group)
+
+        offset = Vector(self.hammer_size.x / -4, 0)
+        Renderer.textured_rectangle(
+            batch, texture_group, offset, self.hammer_size)
 
 
 class Drill(Building):
@@ -137,7 +174,7 @@ class Drill(Building):
 
         self.drill_size = Vector(65, 144)
 
-        self.sight_range = 150
+        self.damage_range = 150
 
     def update(self, game_state):
         super().update(game_state)
@@ -174,22 +211,20 @@ class Drill(Building):
 
     def check_for_entities(self, game_state):
         something_in_sight = False
-        for entity in game_state.entity_manager.entities:
-            world_position = game_state.index_to_world_space(self.position)
-            world_position = world_position + self.size / 2
-            direction = entity.position - world_position
+        for target in self.get_target(game_state):
+            direction = target.position - \
+                self.get_center_world_position(game_state)
 
             distance = direction.length()
-            if distance < self.sight_range:
-                angle = direction.angle() * 180 / math.pi + 90
-                self.rotate_towards(angle)
+            angle = direction.angle() * 180 / math.pi + 90
+            self.rotate_towards(angle)
 
-                if self.animation_speed < self.max_animation_speed:
-                    self.animation_speed += 5
-                something_in_sight = True
+            if self.animation_speed < self.max_animation_speed:
+                self.animation_speed += 5
+            something_in_sight = True
 
-            if distance < self.range:
-                entity.take_damage(1)
+            if distance < self.damage_range:
+                target.take_damage(1)
                 break
 
         return something_in_sight
@@ -205,12 +240,12 @@ class Drill(Building):
         if position is None:
             return
 
-        texture = game_state.textures.buildings[self.building_type].texture
+        texture = game_state.textures.buildings['platform'].texture
         group = pyglet.graphics.TextureGroup(texture, parent=background)
         Renderer.textured_rectangle(batch, group, position, self.size,
                                     tex_max=1.0)
 
-        texture = game_state.textures.other['drill'].texture
+        texture = game_state.textures.buildings[self.building_type].texture
         position += self.size / 2
         movement_group = MovementGroup(
             self.rotation_angle, position, foreground)

@@ -39,7 +39,7 @@ class BuildingTest(unittest.TestCase):
         building = Building(Vector(), Vector(10, 10), BuildingType.LASER)
         self.assertEqual(350, building.range)
 
-        building = Building(Vector(), Vector(10, 10), BuildingType.CATAPULT)
+        building = Building(Vector(), Vector(10, 10), BuildingType.HAMMER)
         self.assertEqual(300, building.range)
 
         building = Building(Vector(), Vector(10, 10), BuildingType.DRILL)
@@ -52,7 +52,7 @@ class BuildingTest(unittest.TestCase):
         building = Building(Vector(), Vector(10, 10), BuildingType.LASER)
         self.assertEqual(20, building.cost)
 
-        building = Building(Vector(), Vector(10, 10), BuildingType.CATAPULT)
+        building = Building(Vector(), Vector(10, 10), BuildingType.HAMMER)
         self.assertEqual(50, building.cost)
 
         building = Building(Vector(), Vector(10, 10), BuildingType.DRILL)
@@ -65,7 +65,7 @@ class BuildingTest(unittest.TestCase):
         building = Building(Vector(), Vector(10, 10), BuildingType.LASER)
         self.assertEqual(1 / 30, building.shooting_frequency)
 
-        building = Building(Vector(), Vector(10, 10), BuildingType.CATAPULT)
+        building = Building(Vector(), Vector(10, 10), BuildingType.HAMMER)
         self.assertEqual(1 / 60, building.shooting_frequency)
 
 

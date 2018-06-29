@@ -24,7 +24,7 @@ class EntityType(Enum):
 
 class BuildingType(Enum):
     LASER = 0
-    CATAPULT = 1
+    HAMMER = 1
     DRILL = 2
 
 

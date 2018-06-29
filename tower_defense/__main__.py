@@ -12,7 +12,7 @@ module_whitelist = ['helper', 'graphics', 'game_types', 'game_state',
                     'user_interface.dialogs', 'user_interface.user_interface',
                     'tiles.tile_map', 'tiles.tile',
                     'entities.bullet', 'entities.entity_manager', 'entities.entity',
-                    'buildings.building_manager', 'building.building']
+                    'buildings.building_manager', 'buildings.building']
 
 num_frames = 0
 start_time = datetime.now()
@@ -96,7 +96,7 @@ def on_mouse_press(x, y, button, modifiers):
 
 @window.event
 def on_draw(_=None):
-    hot_reload.reload_all(whitelist=module_whitelist, debug=False)
+    hot_reload.reload_all(whitelist=module_whitelist, debug=True)
 
     window.clear()
 
