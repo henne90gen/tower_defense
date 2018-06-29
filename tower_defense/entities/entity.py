@@ -6,7 +6,7 @@ from ..helper import Vector
 
 
 class Entity:
-    def __init__(self, position: Vector, size: Vector, entity_type: EntityType):
+    def __init__(self, position: Vector, size: Vector, entity_type: EntityType) -> None:
         self.entity_type = entity_type
         self.position = position  # center of sprite
         self.size = size
@@ -78,7 +78,7 @@ class Entity:
 
 
 class SmallBoulder(Entity):
-    def __init__(self, position: Vector, size: Vector, path_side: int):
+    def __init__(self, position: Vector, size: Vector, path_side: int) -> None:
         super().__init__(position, size, EntityType.SMALL_BOULDER)
         self.path_side = path_side
 

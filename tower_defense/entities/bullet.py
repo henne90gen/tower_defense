@@ -6,7 +6,7 @@ from ..helper import Vector, rect_contains_point
 
 
 class Bullet:
-    def __init__(self, position: Vector, size: Vector, velocity: Vector):
+    def __init__(self, position: Vector, size: Vector, velocity: Vector) -> None:
         self.position = position
         self.size = size
         self.velocity = velocity

@@ -8,7 +8,7 @@ from ..helper import Vector, rect_contains_point
 
 
 class Building:
-    def __init__(self, position: Vector, size: Vector, building_type: BuildingType):
+    def __init__(self, position: Vector, size: Vector, building_type: BuildingType) -> None:
         self.position = position
         self.size = size
         self.building_type = building_type
@@ -51,7 +51,8 @@ class Building:
 
     def render(self, game_state, batch: pyglet.graphics.Batch, tex_max: float = 0.8,
                foreground: pyglet.graphics.Group = None, background: pyglet.graphics.Group = None):
-        position = game_state.world_to_window_space(self.world_position, self.size)
+        position = game_state.world_to_window_space(
+            self.world_position, self.size)
         if position is None:
             return
 
@@ -61,19 +62,22 @@ class Building:
             size *= self.range * 2.5
             ring_position = position - size / 2
             ring_position += self.size / 2
-            Renderer.textured_rectangle(batch, game_state.textures.other['ring'], ring_position, size)
+            Renderer.textured_rectangle(
+                batch, game_state.textures.other['ring'], ring_position, size)
 
         return position
 
     def update(self, game_state):
-        position = game_state.world_to_window_space(self.world_position, self.size)
+        position = game_state.world_to_window_space(
+            self.world_position, self.size)
         if position:  # building is actually on screen
             position += Vector(0, self.size.y)
-            self.mouse_over = rect_contains_point(game_state.mouse_position, position, self.size)
+            self.mouse_over = rect_contains_point(
+                game_state.mouse_position, position, self.size)
 
 
 class Laser(Building):
-    def __init__(self, position: Vector, size: Vector):
+    def __init__(self, position: Vector, size: Vector) -> None:
         super().__init__(position, size, BuildingType.LASER)
         self.target = None
 
@@ -94,7 +98,8 @@ class Laser(Building):
         size = Vector(self.target[1], 10)
         angle = self.target[2].angle() / math.pi * 180
         position += self.size / 2 + Vector(0, 35)
-        Renderer.colored_rectangle(batch, (0, 255, 255), position, size, angle, background)
+        Renderer.colored_rectangle(
+            batch, (0, 255, 255), position, size, angle, background)
 
     def update(self, game_state):
         super().update(game_state)
@@ -111,7 +116,7 @@ class Laser(Building):
 
 
 class Catapult(Building):
-    def __init__(self, position: Vector, size: Vector):
+    def __init__(self, position: Vector, size: Vector) -> None:
         super().__init__(position, size, BuildingType.CATAPULT)
 
     def update(self, game_state):
@@ -121,7 +126,7 @@ class Catapult(Building):
 
 
 class Drill(Building):
-    def __init__(self, position: Vector, size: Vector):
+    def __init__(self, position: Vector, size: Vector) -> None:
         super().__init__(position, size, BuildingType.DRILL)
         self.rotation_angle = 0
         self.rotation_speed = 2
@@ -207,9 +212,12 @@ class Drill(Building):
 
         texture = game_state.textures.other['drill'].texture
         position += self.size / 2
-        movement_group = MovementGroup(self.rotation_angle, position, foreground)
+        movement_group = MovementGroup(
+            self.rotation_angle, position, foreground)
         texture_group = pyglet.graphics.TextureGroup(texture, movement_group)
 
         drilling = math.sin(self.animation_angle * math.pi / 180) * 10
-        offset = Vector(self.drill_size.x / -4, self.drill_size.y / -1.5 + drilling)
-        Renderer.textured_rectangle(batch, texture_group, offset, self.drill_size)
+        offset = Vector(self.drill_size.x / -4,
+                        self.drill_size.y / -1.5 + drilling)
+        Renderer.textured_rectangle(
+            batch, texture_group, offset, self.drill_size)

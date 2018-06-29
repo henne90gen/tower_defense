@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Tuple
 
 import pyglet
 
@@ -47,18 +47,18 @@ class BuildingManager:
         bullet = Bullet(world_position, self.bullet_size, direction / direction.length() * self.bullet_speed)
         self.bullets.append(bullet)
 
-    def spawn_building(self, game_state, tile_index: (int, int), building_type: BuildingType):
+    def spawn_building(self, game_state, tile_index: Tuple[int, int], building_type: BuildingType):
         position = Vector(point=tile_index)
-        args = (position, game_state.tile_map.tile_size)
+
+        args = (position, game_state.tile_map.tile_size, BuildingType.CATAPULT)
+        building: Building = Building(*args)
+
         if building_type == BuildingType.LASER:
-            building = Laser(*args)
+            building = Laser(*args[:-1])
         elif building_type == BuildingType.DRILL:
-            building = Drill(*args)
+            building = Drill(*args[:-1])
         elif building_type == BuildingType.CATAPULT:
-            building = Catapult(*args)
-        else:
-            args = (*args, BuildingType.CATAPULT)
-            building = Building(*args)
+            building = Catapult(*args[:-1])
 
         if building.cost > self.gold:
             return

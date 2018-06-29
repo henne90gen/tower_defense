@@ -1,5 +1,5 @@
 import os
-from typing import List
+from typing import List, Optional
 
 import pyglet
 
@@ -10,7 +10,7 @@ from .components import TextComponent, Input, HighlightComponent
 
 
 class Dialog:
-    def __init__(self, visible: bool):
+    def __init__(self, visible: bool) -> None:
         self.position = Vector()
         self.visible = visible
 
@@ -32,7 +32,7 @@ class Dialog:
 
 
 class NewMapDialog(Dialog):
-    def __init__(self, visible: bool = False):
+    def __init__(self, visible: bool = False) -> None:
         super().__init__(visible)
         self.position = Vector(200, 0)
         text_width = 150
@@ -57,9 +57,9 @@ class NewMapDialog(Dialog):
         }
 
         self.handlers = {
-            'width_input': None,
-            'height_input': None,
-            'name_input': None,
+            'width_input': lambda x: x,
+            'height_input': lambda x: x,
+            'name_input': lambda x: x,
             'submit_button': self.submit_func,
             'cancel_button': self.cancel_func
         }
@@ -122,10 +122,10 @@ class NewMapDialog(Dialog):
 
 
 class LoadMapDialog(Dialog):
-    def __init__(self, visible: bool = False):
+    def __init__(self, visible: bool = False) -> None:
         super().__init__(visible)
         self.maps: List[TextComponent] = []
-        self.cancel_button: TextComponent = None
+        self.cancel_button: Optional[TextComponent] = None
 
     def refresh_maps(self, maps_path: str):
         self.maps = []

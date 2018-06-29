@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 
 import pyglet
 
@@ -8,14 +8,14 @@ from ..helper import Vector
 
 
 class Tile:
-    def __init__(self, position: Vector, size: Vector, tile_type: TileType):
+    def __init__(self, position: Vector, size: Vector, tile_type: TileType) -> None:
         # position in index space
         self.position = position
         self.size = size
         self.tile_type = tile_type
         self.highlighted = False
 
-        self.directions: List[(int, int)] = []
+        self.directions: List[Tuple[int, int]] = []
         self.direction_index = 0
         self.timer = 0
 

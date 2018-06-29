@@ -6,7 +6,7 @@ from ..helper import Vector, KeyPresses, rect_contains_point, MouseClick
 
 class TextComponent:
     def __init__(self, text: str, position: Vector, size: Vector, font_size: int = 25, visible: bool = True,
-                 disabled: bool = False):
+                 disabled: bool = False) -> None:
         self.visible = visible
         self._disabled = disabled
         self._text = text
@@ -74,7 +74,7 @@ class TextComponent:
 
 class Input(TextComponent):
     def __init__(self, position: Vector, size: Vector, font_size: int = 25, visible: bool = True,
-                 has_focus: bool = False):
+                 has_focus: bool = False) -> None:
         super().__init__("", position, size, font_size, visible)
         self.has_focus = has_focus
 
@@ -96,7 +96,7 @@ class Input(TextComponent):
 
 class HighlightComponent(TextComponent):
     def __init__(self, text: str, position: Vector, size: Vector, font_size: int = 25, visible: bool = True,
-                 is_highlighted: bool = False):
+                 is_highlighted: bool = False) -> None:
         super().__init__(text, position, size, font_size, visible)
         self.is_highlighted = is_highlighted
 

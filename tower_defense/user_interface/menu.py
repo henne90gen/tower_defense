@@ -53,7 +53,7 @@ class MainMenu:
 
 
 class MapMenu:
-    def __init__(self, map_path: str = None):
+    def __init__(self, map_path: str = None) -> None:
         self.position = Vector()
         self.map_path = map_path
         if self.map_path is None:

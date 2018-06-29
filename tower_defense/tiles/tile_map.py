@@ -1,7 +1,7 @@
 import copy
 import os
 import pickle
-from typing import Dict
+from typing import Dict, Tuple
 
 import pyglet
 
@@ -23,8 +23,8 @@ class TileMap:
     @staticmethod
     def generate_tiles(max_tiles: Vector, tile_size: Vector) -> dict:
         tiles = {}
-        for x in range(max_tiles.x):
-            for y in range(max_tiles.y):
+        for x in range(int(max_tiles.x)):
+            for y in range(int(max_tiles.y)):
                 tile = Tile(Vector(x, y), tile_size, TileType.BUILDING_GROUND)
                 tiles[(x, y)] = tile
         return tiles
@@ -217,7 +217,7 @@ class TileMap:
             self.tiles[node].directions = directions
 
     @staticmethod
-    def remove_node_from_open_directions(node: (int, int), open_directions: list):
+    def remove_node_from_open_directions(node: Tuple[int, int], open_directions: list):
         for n in open_directions.copy():
             if n[0] == node:
                 open_directions.remove(n)
@@ -231,7 +231,7 @@ class TileMap:
         return None
 
     def get_tile_graph(self) -> dict:
-        graph = {}
+        graph: dict = {}
         for position in self.tiles:
             if self.tiles[position].is_walkable:
                 graph[position] = []
@@ -287,6 +287,8 @@ class EditorTileMap(TileMap):
 
                 return True
 
+        return False
+
 
 class GameTileMap(TileMap):
     def __init__(self):
@@ -326,3 +328,4 @@ class GameTileMap(TileMap):
                         continue
                     self.tiles[other_tile].highlighted = False
                 return True
+        return False

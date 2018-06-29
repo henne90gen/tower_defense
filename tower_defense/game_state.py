@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple, Optional
 
 import pyglet
 
@@ -49,7 +49,7 @@ class GameState:
         self.tile_map.load(self, base_path + "/maps/basic.map")
         self.textures.load(base_path)
 
-    def world_to_window_space(self, position: Vector, size: Vector, center_position: bool = False) -> Vector:
+    def world_to_window_space(self, position: Vector, size: Vector, center_position: bool = False) -> Optional[Vector]:
         if center_position:
             position = Vector(position.x - size.x / 2, position.y - size.y / 2)
 
@@ -61,18 +61,16 @@ class GameState:
 
         return position
 
-    def world_to_index_space(self, position: Vector) -> (int, int):
+    def world_to_index_space(self, position: Vector) -> Tuple[int, int]:
         return int(position.x / self.tile_map.tile_size.x), int(position.y / self.tile_map.tile_size.y)
 
     # noinspection PyUnresolvedReferences
     def index_to_world_space(self, index: Vector) -> Vector:
         # TODO change indexes to Vector objects
         if type(index) == tuple:
-            x = index[0]
-            y = index[1]
-        else:
-            x = index.x
-            y = index.y
+            index = Vector(point=index)
+        x = index.x
+        y = index.y
         return Vector(x * self.tile_map.tile_size.x, y * self.tile_map.tile_size.y)
 
     def window_to_world_space(self, position: Vector) -> Vector:

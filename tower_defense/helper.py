@@ -1,5 +1,5 @@
 import math
-from typing import Callable
+from typing import Callable, Tuple
 
 import os
 
@@ -26,7 +26,7 @@ class MouseClick:
 
 
 class Vector:
-    def __init__(self, x: float = 0, y: float = 0, point: (float, float) = None):
+    def __init__(self, x: float = 0, y: float = 0, point: Tuple[float, float] = None) -> None:
         if point is not None:
             self.x = point[0]
             self.y = point[1]

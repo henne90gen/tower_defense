@@ -1,5 +1,5 @@
 import os
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 import pyglet
 from pyglet import gl
@@ -9,7 +9,7 @@ from .helper import Vector, get_res_path
 
 
 class Textures:
-    def __init__(self):
+    def __init__(self) -> None:
         self.tiles: Dict[TileType, pyglet.graphics.TextureGroup] = {}
         self.entities: Dict[EntityType, pyglet.graphics.TextureGroup] = {}
         self.bullets: Dict[BulletType, pyglet.graphics.TextureGroup] = {}
@@ -30,7 +30,8 @@ class Textures:
         boulder_texture = load_image('boulder.png')
         self.entities = {
             EntityType.LARGE_BOULDER: pyglet.graphics.TextureGroup(boulder_texture),
-            EntityType.SMALL_BOULDER: pyglet.graphics.TextureGroup(boulder_texture)
+            EntityType.SMALL_BOULDER: pyglet.graphics.TextureGroup(
+                boulder_texture)
         }
 
         # TODO find bullet texture
@@ -63,7 +64,7 @@ class Renderer:
     @staticmethod
     def textured_rectangle(batch: pyglet.graphics.Batch, texture_group: pyglet.graphics.TextureGroup, position: Vector,
                            size: Vector, tex_max: float = 1.0, tex_min: float = 0.0,
-                           texture_coords: List[int] = None):
+                           texture_coords: List[float] = None):
         """
         :param batch:
         :param texture_group:
@@ -85,10 +86,11 @@ class Renderer:
                               tex_max, tex_max,
                               tex_min, tex_max,
                               tex_min, tex_min]
-        batch.add(4, pyglet.graphics.GL_QUADS, texture_group, ('v2f/static', vertices), ('t2f/static', texture_coords))
+        batch.add(4, pyglet.graphics.GL_QUADS, texture_group,
+                  ('v2f/static', vertices), ('t2f/static', texture_coords))
 
     @staticmethod
-    def colored_rectangle(batch: pyglet.graphics.Batch, color: (int, int, int), position: Vector, size: Vector,
+    def colored_rectangle(batch: pyglet.graphics.Batch, color: Tuple[int, int, int], position: Vector, size: Vector,
                           angle: float = 0, group: pyglet.graphics.Group = None):
         """
         :param batch:
@@ -128,7 +130,8 @@ class Renderer:
         Renderer.colored_rectangle(batch, color, bottom_left, size)
 
         # top
-        bottom_left = position + Vector(border_width, rect_size.y - border_width)
+        bottom_left = position + \
+            Vector(border_width, rect_size.y - border_width)
         size = Vector(rect_size.x - border_width, border_width)
         Renderer.colored_rectangle(batch, color, bottom_left, size)
 
@@ -139,7 +142,7 @@ class Renderer:
 
 
 class MovementGroup(pyglet.graphics.Group):
-    def __init__(self, angle: float, position: Vector, parent: pyglet.graphics.Group = None):
+    def __init__(self, angle: float, position: Vector, parent: pyglet.graphics.Group = None) -> None:
         super().__init__(parent)
         self.angle = angle
         self.position = position
