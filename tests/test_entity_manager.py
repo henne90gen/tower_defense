@@ -122,6 +122,7 @@ class EditorEntityManagerTest(unittest.TestCase):
 
     def test_update_reset_spawn_timer(self):
         game_state = GameState()
+        game_state.tile_map.tiles[(1, 0)].tile_type = TileType.START
         game_state.tile_map.tiles[(0, 0)].tile_type = TileType.FINISH
 
         entity_manager = EditorEntityManager()

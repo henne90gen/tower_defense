@@ -67,7 +67,7 @@ class GameState:
     def index_to_world_space(self, index: Vector) -> Vector:
         # TODO change indexes to Vector objects
         if type(index) == tuple:
-            index = Vector(point=index)
+            index = Vector(point=index)  # type: ignore
         x = index.x
         y = index.y
         return Vector(x * self.tile_map.tile_size.x, y * self.tile_map.tile_size.y)
@@ -91,8 +91,10 @@ class GameState:
         if self.key_presses.right:
             self.world_offset.x -= scroll_speed
 
-        rect_size = Vector(self.tile_map.tile_map_width, self.tile_map.tile_map_height)
-        self.world_offset = constrain_rect_to_bounds(self.window_size, self.world_offset, rect_size)
+        rect_size = Vector(self.tile_map.tile_map_width,
+                           self.tile_map.tile_map_height)
+        self.world_offset = constrain_rect_to_bounds(
+            self.window_size, self.world_offset, rect_size)
 
     def tick_editor(self):
         if type(self.entity_manager) != em.EditorEntityManager:

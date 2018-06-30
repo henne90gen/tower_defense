@@ -1,5 +1,5 @@
 import os
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 import pyglet
 
@@ -37,54 +37,51 @@ class NewMapDialog(Dialog):
         self.position = Vector(200, 0)
         text_width = 150
         text_height = 40
-
-        self.components = {
-            'width_text': Label("Width:", Vector(0, 0), Vector(text_width, text_height)),
-            'width_input': Input(Vector(text_width, 0), Vector(300, text_height), has_focus=True),
-
-            'height_text': Label("Height:",
-                                         Vector(0, -text_height), Vector(text_width, text_height)),
-            'height_input': Input(Vector(text_width, -text_height), Vector(300, text_height)),
-
-            'name_text': Label("Name:",
-                                       Vector(0, -text_height * 2), Vector(text_width, text_height)),
-            'name_input': Input(Vector(text_width, -text_height * 2), Vector(300, text_height)),
-
-            'submit_button': Button("Create",
-                                           Vector(0, -text_height * 3), Vector(text_width, text_height)),
-            'cancel_button': Button("Cancel", Vector(text_width, -text_height * 3),
-                                           Vector(text_width, text_height))
+        self.labels: Dict[str, Label] = {
+            'width': Label("Width:", Vector(0, 0), Vector(text_width, text_height)),
+            'height': Label("Height:", Vector(0, -text_height), Vector(text_width, text_height)),
+            'name': Label("Name:", Vector(0, -text_height * 2), Vector(text_width, text_height)),
+        }
+        self.inputs: Dict[str, Input] = {
+            'width': Input(Vector(text_width, 0), Vector(300, text_height), has_focus=True),
+            'height': Input(Vector(text_width, -text_height), Vector(300, text_height)),
+            'name': Input(Vector(text_width, -text_height * 2), Vector(300, text_height)),
+        }
+        self.buttons: Dict[str, Button] = {
+            'submit': Button("Create", Vector(0, -text_height * 3), Vector(text_width, text_height)),
+            'cancel': Button("Cancel", Vector(text_width, -text_height * 3), Vector(text_width, text_height))
         }
 
         self.handlers = {
-            'width_input': lambda x: x,
-            'height_input': lambda x: x,
-            'name_input': lambda x: x,
-            'submit_button': self.submit_func,
-            'cancel_button': self.cancel_func
+            'submit': self.submit_func,
+            'cancel': self.cancel_func
         }
 
     def open(self, game_state):
         super().open(game_state)
-        self.components['width_input'].update(text="10")
-        self.components['height_input'].update(text="10")
-        self.components['name_input'].update(text="")
+        self.inputs['width'].update(text="10")
+        self.inputs['height'].update(text="10")
+        self.inputs['name'].update(text="")
 
     def render(self):
         if self.visible:
-            for component in self.components:
-                self.components[component].render(self.position)
+            for label in self.labels:
+                self.labels[label].render(self.position)
+            for input_ in self.inputs:
+                self.inputs[input_].render(self.position)
+            for button in self.buttons:
+                self.buttons[button].render(self.position)
 
     def submit_func(self, game_state):
         try:
-            new_width = int(self.components['width_input'].text)
-            new_height = int(self.components['height_input'].text)
+            new_width = int(self.inputs['width'].text)
+            new_height = int(self.inputs['height'].text)
         except Exception as e:
             print(e)
             return
-        if self.components['name_input'].text:
+        if self.inputs['name'].text:
             file_name = os.path.join(
-                get_maps_path(), self.components['name_input'].text + '.map')
+                get_maps_path(), self.inputs['name'].text + '.map')
             game_state.tile_map.new(game_state, file_name,
                                     Vector(new_width, new_height))
         self.visible = False
@@ -95,30 +92,28 @@ class NewMapDialog(Dialog):
     def update(self, game_state):
         super().update(game_state)
 
-        for component in self.components:
-            if 'input' in component:
-                self.components[component].add_text(game_state.key_presses)
+        for input_ in self.inputs:
+            self.inputs[input_].add_text(game_state.key_presses)
 
         process_clicks(game_state, self.mouse_click_handler,
                        False, self.position)
 
     def mouse_click_handler(self, game_state, click: MouseClick) -> bool:
-        for component in self.components:
-            if component in self.handlers:
-                if self.components[component].is_clicked(click):
-                    if 'input' in component:
-                        self.give_exclusive_focus(component)
-                    else:
-                        self.handlers[component](game_state)
-                    return True
+        for button in self.buttons:
+            if self.buttons[button].is_clicked(click):
+                self.handlers[button](game_state)
+                return True
+        for input_ in self.inputs:
+            if self.inputs[input_].is_clicked(click):
+                self.give_exclusive_focus(input_)
+                return True
         return False
 
-    def give_exclusive_focus(self, component: str):
-        for other_component in self.components:
-            if component == other_component and 'input' in component:
+    def give_exclusive_focus(self, input_: str):
+        for other_input in self.inputs:
+            if input_ == other_input:
                 continue
-            if 'input' in other_component:
-                self.components[other_component].has_focus = False
+            self.inputs[other_input].has_focus = False
 
 
 class LoadMapDialog(Dialog):

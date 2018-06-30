@@ -1,12 +1,11 @@
 import math
-from typing import Optional
+from typing import Generator
 
 import pyglet
 
 from ..game_types import BuildingType, TileType
 from ..graphics import Renderer, MovementGroup
 from ..helper import Vector, rect_contains_point
-from ..entities.entity import Entity
 
 
 class Building:
@@ -79,7 +78,7 @@ class Building:
         world_position = game_state.index_to_world_space(self.position)
         return world_position + self.size / 2
 
-    def get_target(self, game_state) -> Optional[Entity]:
+    def get_target(self, game_state) -> Generator:
         """
         Returns the position and direction vector of the closest entity.
         If no entity is in range, None is returned.
@@ -146,7 +145,7 @@ class Hammer(Building):
         if position is None:
             return
 
-        texture = game_state.textures.buildings['platform'].texture
+        texture = game_state.textures.buildings[BuildingType.PLATFORM].texture
         group = pyglet.graphics.TextureGroup(texture, parent=background)
         Renderer.textured_rectangle(batch, group, position, self.size,
                                     tex_max=1.0)
@@ -240,7 +239,7 @@ class Drill(Building):
         if position is None:
             return
 
-        texture = game_state.textures.buildings['platform'].texture
+        texture = game_state.textures.buildings[BuildingType.PLATFORM].texture
         group = pyglet.graphics.TextureGroup(texture, parent=background)
         Renderer.textured_rectangle(batch, group, position, self.size,
                                     tex_max=1.0)

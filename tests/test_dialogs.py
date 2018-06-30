@@ -53,7 +53,7 @@ class NewMapDialogTest(unittest.TestCase):
         self.assertEqual(0, len(was_called))
 
         new_map_dialog = NewMapDialog(visible=True)
-        new_map_dialog.components = {"test": test_object}
+        new_map_dialog.labels = {"test": test_object}
         new_map_dialog.render()
         self.assertEqual(1, len(was_called))
 
@@ -68,12 +68,7 @@ class NewMapDialogTest(unittest.TestCase):
         test_object.add_text = dummy
 
         new_map_dialog = NewMapDialog()
-        new_map_dialog.components = {"test": test_object}
-        new_map_dialog.update(game_state)
-        self.assertEqual(0, len(was_called))
-
-        new_map_dialog = NewMapDialog()
-        new_map_dialog.components = {"test_input": test_object}
+        new_map_dialog.inputs = {"test": test_object}
         new_map_dialog.update(game_state)
         self.assertEqual(1, len(was_called))
 
@@ -85,8 +80,8 @@ class NewMapDialogTest(unittest.TestCase):
         test_object2.has_focus = True
 
         new_map_dialog = NewMapDialog()
-        new_map_dialog.components = {"test1_input": test_object1, "test2_input": test_object2}
-        new_map_dialog.give_exclusive_focus("test1_input")
+        new_map_dialog.inputs = {"test1": test_object1, "test2": test_object2}
+        new_map_dialog.give_exclusive_focus("test1")
         self.assertFalse(test_object2.has_focus)
         self.assertTrue(test_object1.has_focus)
 
@@ -112,7 +107,7 @@ class NewMapDialogTest(unittest.TestCase):
         name_input.text = "test"
 
         new_map_dialog = NewMapDialog()
-        new_map_dialog.components = {"width_input": width_input, "height_input": height_input, "name_input": name_input}
+        new_map_dialog.inputs = {"width": width_input, "height": height_input, "name": name_input}
         new_map_dialog.submit_func(game_state)
         self.assertFalse(new_map_dialog.visible)
         self.assertEqual(1, len(was_called))
@@ -162,14 +157,11 @@ class NewMapDialogTest(unittest.TestCase):
     def test_open(self):
         game_state = GameState()
         width_input = Input(Vector(), Vector())
-        # width_input.text = "5"
         height_input = Input(Vector(), Vector())
-        # height_input.text = "5"
         name_input = Input(Vector(), Vector())
-        # name_input.text = ""
 
         new_map_dialog = NewMapDialog()
-        new_map_dialog.components = {"width_input": width_input, "height_input": height_input, "name_input": name_input}
+        new_map_dialog.inputs = {"width": width_input, "height": height_input, "name": name_input}
         new_map_dialog.open(game_state)
         self.assertTrue(new_map_dialog.visible)
         self.assertEqual("10", width_input.text)
@@ -197,7 +189,7 @@ class NewMapDialogTest(unittest.TestCase):
 
         new_map_dialog = NewMapDialog()
         new_map_dialog.give_exclusive_focus = dummy
-        new_map_dialog.components = {"width_input": width_input}
+        new_map_dialog.inputs = {"width": width_input}
         actual = new_map_dialog.mouse_click_handler(game_state, click)
         self.assertTrue(actual)
         self.assertEqual(2, len(was_called))
@@ -209,7 +201,7 @@ class NewMapDialogTest(unittest.TestCase):
         was_called.clear()
         new_map_dialog = NewMapDialog()
         new_map_dialog.give_exclusive_focus = dummy
-        new_map_dialog.components = {"submit_button": button}
+        new_map_dialog.buttons = {"submit": button}
         actual = new_map_dialog.mouse_click_handler(game_state, click)
         self.assertTrue(actual)
         self.assertEqual(1, len(was_called))

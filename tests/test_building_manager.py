@@ -1,6 +1,6 @@
 import unittest
 
-from tower_defense.buildings.building import Laser, Drill, Catapult, Building
+from tower_defense.buildings.building import Laser, Drill, Hammer, Building
 from tower_defense.buildings.building_manager import BuildingManager
 from tower_defense.game_state import GameState
 from tower_defense.game_types import BuildingType
@@ -80,7 +80,7 @@ class BuildingManagerTest(unittest.TestCase):
         self.assertEqual(Drill, type(building_manager.buildings[(1, 0)]))
 
         building_manager.spawn_building(game_state, tile_index, BuildingType.HAMMER)
-        self.assertEqual(Catapult, type(building_manager.buildings[(1, 0)]))
+        self.assertEqual(Hammer, type(building_manager.buildings[(1, 0)]))
 
         building_manager.spawn_building(game_state, tile_index, -1)
         self.assertEqual(Building, type(building_manager.buildings[(1, 0)]))

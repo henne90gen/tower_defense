@@ -26,6 +26,7 @@ class BuildingType(Enum):
     LASER = 0
     HAMMER = 1
     DRILL = 2
+    PLATFORM = 3
 
 
 class BulletType(Enum):

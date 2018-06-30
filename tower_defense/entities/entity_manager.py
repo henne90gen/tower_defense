@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Tuple
 
 import pyglet
 
@@ -13,7 +13,8 @@ class EntityManager:
         # holds a dictionary similar to the one in TileMap, the only difference being that this one doesn't have tiles
         # as values, but rather a list with the directions associated with that tile and a counter with each direction
         # The counter indicates how many time a certain direction has been taken already
-        self.directions_graph: Dict[Tuple[int, int], List[Tuple[Tuple[int, int], int]]] = {}
+        self.directions_graph: Dict[Tuple[int, int],
+                                    List[Tuple[Tuple[int, int], int]]] = {}
         self.spawn_delay = 150
         self.spawn_timer = self.spawn_delay
 
@@ -32,12 +33,18 @@ class EntityManager:
             for tile_index in game_state.tile_map.tiles:
                 tile = game_state.tile_map.tiles[tile_index]
                 if tile.tile_type == TileType.START:
-                    position = tile.world_position + (game_state.tile_map.tile_size / 2)
+                    position = tile.world_position + \
+                        (game_state.tile_map.tile_size / 2)
                     break
+
+        if position is None:
+            # still no position, we can't spawn an entity
+            return
 
         entity = Entity(position, game_state.tile_map.tile_size, entity_type)
         if entity_type == EntityType.SMALL_BOULDER:
-            entity = SmallBoulder(position, game_state.tile_map.tile_size / 2, path_side)
+            entity = SmallBoulder(
+                position, game_state.tile_map.tile_size / 2, path_side)
         self.entities.append(entity)
 
     def update(self, game_state):
@@ -57,8 +64,10 @@ class EntityManager:
                 self.entities.remove(entity)
             elif entity.health <= 0:
                 if entity.entity_type == EntityType.LARGE_BOULDER:
-                    self.spawn_entity(game_state, EntityType.SMALL_BOULDER, entity.position, path_side=-1)
-                    self.spawn_entity(game_state, EntityType.SMALL_BOULDER, entity.position, path_side=1)
+                    self.spawn_entity(
+                        game_state, EntityType.SMALL_BOULDER, entity.position, path_side=-1)
+                    self.spawn_entity(
+                        game_state, EntityType.SMALL_BOULDER, entity.position, path_side=1)
                 self.entities.remove(entity)
 
     def generate_directions_graph(self, game_state):
