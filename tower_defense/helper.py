@@ -20,7 +20,7 @@ class MouseClick:
         self.button = None
 
     def __eq__(self, other):
-        if type(other) != MouseClick:
+        if not isinstance(other, MouseClick):
             return False
         return self.position == other.position and self.button == other.button
 
@@ -53,7 +53,7 @@ class Vector:
         return not self.__eq__(other)
 
     def __add__(self, other):
-        if type(other) == tuple:
+        if isinstance(other, tuple):
             return self.__radd__(other)
         return Vector(self.x + other.x, self.y + other.y)
 
@@ -61,7 +61,7 @@ class Vector:
         return Vector(self.x + other[0], self.y + other[1])
 
     def __sub__(self, other):
-        if type(other) == tuple:
+        if isinstance(other, tuple):
             return Vector(self.x - other[0], self.y - other[1])
         return Vector(self.x - other.x, self.y - other.y)
 
@@ -69,16 +69,19 @@ class Vector:
         return Vector(other[0] - self.x, other[1] - self.y)
 
     def __mul__(self, other):
-        if type(other) == float or type(other) == int:
+        if isinstance(other, float) or isinstance(other, int):
             return Vector(self.x * other, self.y * other)
+        raise ValueError("Factor must be float or int")
 
     def __truediv__(self, other):
-        if type(other) == float or type(other) == int:
+        if isinstance(other, float) or isinstance(other, int):
             return Vector(self.x / other, self.y / other)
+        raise ValueError("Dividend must be float or int")
 
     def __floordiv__(self, other):
-        if type(other) == float or type(other) == int:
+        if isinstance(other, float) or isinstance(other, int):
             return Vector(self.x // other, self.y // other)
+        raise ValueError("Divident must be float or int")
 
 
 def rect_contains_point(point: Vector, rect_position: Vector, rect_size: Vector):

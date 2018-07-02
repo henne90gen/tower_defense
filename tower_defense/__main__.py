@@ -45,7 +45,7 @@ def handle_key(symbol, modifiers, key_down):
         kp.back_space = key_down
     elif key_down:
         text = pyglet.window.key.symbol_string(symbol)
-        if len(text[1:]) > 0 and text[1:] in "0123456789":
+        if text[1:] and text[1:] in "0123456789":
             # numbers come out as e.g. '_1'
             text = text[1:]
         if 'NUM_' in text:

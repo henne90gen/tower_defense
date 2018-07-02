@@ -76,8 +76,8 @@ class NewMapDialog(Dialog):
         try:
             new_width = int(self.inputs['width'].text)
             new_height = int(self.inputs['height'].text)
-        except Exception as e:
-            print(e)
+        except Exception as err:
+            print(err)
             return
         if self.inputs['name'].text:
             file_name = os.path.join(
@@ -191,17 +191,17 @@ class BuildingDialog(Dialog):
         self.position = Vector()
 
         position = Vector(0, game_state.window_size.y)
-        for index, bt in enumerate(BuildingType):
+        for index, building_type in enumerate(BuildingType):
             highlight = index == 0
-            self.building_types[bt] = HighlightableLabel(str(bt)[13:], position, self.button_size,
-                                                         is_highlighted=highlight)
+            self.building_types[building_type] = HighlightableLabel(str(building_type)[13:], position, self.button_size,
+                                                                    is_highlighted=highlight)
             position -= Vector(0, self.button_size.y)
 
     def build_func(self, game_state):
         building_type = None
-        for bt in self.building_types:
-            if self.building_types[bt].is_highlighted:
-                building_type = bt
+        for building_type in self.building_types:
+            if self.building_types[building_type].is_highlighted:
+                building_type = building_type
         game_state.building_manager.spawn_building(
             game_state, game_state.tile_map.highlighted_tile, building_type)
 
@@ -224,8 +224,8 @@ class BuildingDialog(Dialog):
         for component in self.components:
             self.components[component].render(self.position)
 
-        for bt in self.building_types:
-            self.building_types[bt].render(self.position)
+        for building_type in self.building_types:
+            self.building_types[building_type].render(self.position)
 
     def update(self, game_state):
         if not self.visible:
@@ -247,9 +247,9 @@ class BuildingDialog(Dialog):
                        False, self.position)
 
     def highlight_building(self, building_type):
-        for bt in self.building_types:
-            if bt != building_type:
-                self.building_types[bt].is_highlighted = False
+        for building_type in self.building_types:
+            if building_type != building_type:
+                self.building_types[building_type].is_highlighted = False
 
     def mouse_click_handler(self, game_state, click: MouseClick) -> bool:
         for component in self.components:
@@ -257,9 +257,9 @@ class BuildingDialog(Dialog):
                 self.handlers[component](game_state)
                 return True
 
-        for bt in self.building_types:
-            if self.building_types[bt].is_clicked(click):
-                self.highlight_building(bt)
+        for building_type in self.building_types:
+            if self.building_types[building_type].is_clicked(click):
+                self.highlight_building(building_type)
                 return True
 
         return rect_contains_point(click.position, Vector(0, game_state.window_size.y), self.background_size)

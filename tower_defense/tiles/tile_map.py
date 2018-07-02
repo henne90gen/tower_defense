@@ -49,7 +49,7 @@ class TileMap:
                 self.tiles[tile].size = self.tile_size
 
     def save(self):
-        if len(self.path) > 0:
+        if self.path:
             with open(self.path, "wb") as f:
                 pickle.dump((self.tiles, self.max_tiles), f)
                 print("Saved tile map", self.path)
@@ -139,7 +139,7 @@ class TileMap:
             current_node = start_node
             while True:
                 open_directions = temp_paths[current_node]['open_directions']
-                if len(open_directions) > 0:
+                if open_directions:
                     # there are possible directions to go in
 
                     direction = open_directions[0]
@@ -161,7 +161,7 @@ class TileMap:
                 elif current_node == finish_node:
                     # path has successfully terminated
                     break
-                elif len(paths[current_node]['to_path']) > 0:
+                elif paths[current_node]['to_path']:
                     # path has met up with a path that is known to terminate successfully
                     break
                 elif current_node == start_node:
@@ -170,7 +170,7 @@ class TileMap:
                     break
                 else:
                     # go back to last intersection with directions not yet processed
-                    while len(temp_paths[current_node]['open_directions']) == 0:
+                    while not temp_paths[current_node]['open_directions']:
                         if current_node == start_node:
                             path = None
                             break
@@ -189,7 +189,7 @@ class TileMap:
                 if rest_path not in paths[node]['from_path']:
                     paths[node]['from_path'].append(rest_path)
 
-                if len(rest_path) > 0:
+                if rest_path:
                     rest_path = rest_path[1:]
 
                 if index > 0:
@@ -226,7 +226,7 @@ class TileMap:
     @staticmethod
     def select_start_node(paths):
         for node in paths:
-            if len(paths[node]['to_path']) > 0 and len(paths[node]['open_directions']) > 0:
+            if paths[node]['to_path'] and paths[node]['open_directions']:
                 return node
         return None
 

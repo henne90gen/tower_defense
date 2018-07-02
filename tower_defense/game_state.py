@@ -66,7 +66,7 @@ class GameState:
 
     def index_to_world_space(self, index: Vector) -> Vector:
         # TODO change indexes to Vector objects
-        if type(index) == tuple:
+        if isinstance(index, tuple):
             index = Vector(point=index)  # type: ignore
         x = index.x
         y = index.y
@@ -97,9 +97,9 @@ class GameState:
             self.window_size, self.world_offset, rect_size)
 
     def tick_editor(self):
-        if type(self.entity_manager) != em.EditorEntityManager:
+        if not isinstance(self.entity_manager, em.EditorEntityManager):
             self.entity_manager = em.EditorEntityManager()
-        if type(self.tile_map) != tm.EditorTileMap:
+        if not isinstance(self.tile_map, tm.EditorTileMap):
             path = self.tile_map.path
             self.tile_map = tm.EditorTileMap()
             self.tile_map.load(self, path)
@@ -115,9 +115,9 @@ class GameState:
         self.editor_ui.render()
 
     def tick_game(self):
-        if type(self.entity_manager) != em.GameEntityManager:
+        if not isinstance(self.entity_manager, em.GameEntityManager):
             self.entity_manager = em.GameEntityManager()
-        if type(self.tile_map) != tm.GameTileMap:
+        if not isinstance(self.tile_map, tm.GameTileMap):
             path = self.tile_map.path
             self.tile_map = tm.GameTileMap()
             self.tile_map.load(self, path)

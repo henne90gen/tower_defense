@@ -62,7 +62,8 @@ class EditorUI:
         else:
             text = "Entities" if game_state.entity_manager.should_spawn else "No Entities"
             self.components['entities_toggle'].update(text=text)
-            process_clicks(game_state, self.mouse_click_handler, False, offset=self.offset)
+            process_clicks(game_state, self.mouse_click_handler,
+                           False, offset=self.offset)
 
     def mouse_click_handler(self, game_state, click):
         for component in self.handlers:
@@ -104,18 +105,19 @@ class GameUI:
 
     def update(self, game_state):
         self.offset.y = game_state.window_size.y
-        self.components['health_label'].update(text=str(game_state.player_health))
-        self.components['gold_label'].update(text=str(game_state.building_manager.gold))
-        self.components['current_wave_label'].update(text=str(game_state.entity_manager.wave_count))
+        self.components['health_label'].update(
+            text=str(game_state.player_health))
+        self.components['gold_label'].update(
+            text=str(game_state.building_manager.gold))
+        self.components['current_wave_label'].update(
+            text=str(game_state.entity_manager.wave_count))
 
-        self.components['next_wave_button'].update(disabled=game_state.entity_manager.wave_running)
+        self.components['next_wave_button'].update(
+            disabled=game_state.entity_manager.wave_running)
 
         self.components['game_over_label'].position.x = game_state.window_size.x / 2 - self.components[
             'game_over_label'].size.x / 2
-        if game_state.player_health <= 0:
-            self.components['game_over_label'].visible = True
-        else:
-            self.components['game_over_label'].visible = False
+        self.components['game_over_label'].visible = game_state.player_health <= 0
 
         if game_state.tile_map.highlighted_tile and not self.building_dialog.visible:
             self.building_dialog.open(game_state)
@@ -124,7 +126,8 @@ class GameUI:
 
         self.building_dialog.update(game_state)
 
-        process_clicks(game_state, self.mouse_click_handler, False, self.offset)
+        process_clicks(game_state, self.mouse_click_handler,
+                       False, self.offset)
 
     @staticmethod
     def next_wave_func(game_state):

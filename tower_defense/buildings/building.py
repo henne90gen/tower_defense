@@ -24,6 +24,8 @@ class Building:
         if self.building_type == BuildingType.LASER:
             return 1 / 30
 
+        raise Exception("Missing shooting frequency for", self.building_type)
+
     @property
     def range(self):
         if self.building_type == BuildingType.LASER:
@@ -53,7 +55,7 @@ class Building:
         position = game_state.world_to_window_space(
             self.world_position, self.size)
         if position is None:
-            return
+            return None
 
         if self.mouse_over:
             size = self.size / self.size.length()

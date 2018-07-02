@@ -4,7 +4,7 @@ from ..helper import Vector, MouseClick, KeyPresses, rect_contains_point
 
 
 class Widget:
-    def __init__(self, position: Vector, size: Vector, visible: bool=True) -> None:
+    def __init__(self, position: Vector, size: Vector, visible: bool = True) -> None:
         self.position = position
         self.size = size
         self.visible = visible
@@ -25,7 +25,7 @@ class Widget:
 
 
 class Label(Widget):
-    def __init__(self, text: str, position: Vector, size: Vector, font_size: int = 25, visible: bool=True) -> None:
+    def __init__(self, text: str, position: Vector, size: Vector, font_size: int = 25, visible: bool = True) -> None:
         super().__init__(position, size, visible)
         self._text = text
         self._label = pyglet.text.Label(self._text,
@@ -107,7 +107,7 @@ class HighlightableLabel(Label):
 
 
 class Button(Label):
-    def __init__(self, text: str, position: Vector, size: Vector, font_size: int = 25, visible: bool=True) -> None:
+    def __init__(self, text: str, position: Vector, size: Vector, font_size: int = 25, visible: bool = True) -> None:
         super().__init__(text, position, size, font_size, visible=visible)
 
     def is_clicked(self, mouse_click: MouseClick) -> bool:

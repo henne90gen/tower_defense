@@ -32,7 +32,7 @@ class BuildingManager:
 
     def update(self, game_state):
         # TODO remove this at some point
-        if len(self.buildings) == 0:
+        if not self.buildings:
             self.spawn_building(game_state, (3, 4), BuildingType.HAMMER)
         #     self.spawn_building(game_state, (6, 2), BuildingType.LASER)
 

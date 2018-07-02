@@ -24,10 +24,11 @@ class Entity:
         tile_index = game_state.world_to_index_space(self.position)
         tile = game_state.tile_map.tiles[tile_index]
 
-        if len(tile.directions) == 0:
+        if not tile.directions:
             return
         if self.next_tile_index is None:
-            self.next_tile_index = game_state.world_to_index_space(self.position)
+            self.next_tile_index = game_state.world_to_index_space(
+                self.position)
 
         self.update_next_tile_index(game_state)
 
@@ -55,18 +56,22 @@ class Entity:
     def update_next_tile_index(self, game_state):
         if game_state.world_to_index_space(self.position) == self.next_tile_index:
             min_d = None
-            for d in game_state.entity_manager.directions_graph[self.next_tile_index]:
+            for direction in game_state.entity_manager.directions_graph[self.next_tile_index]:
                 if min_d is None:
-                    min_d = d, game_state.entity_manager.directions_graph[self.next_tile_index][d]
-                elif min_d[1] > game_state.entity_manager.directions_graph[self.next_tile_index][d]:
-                    min_d = d, game_state.entity_manager.directions_graph[self.next_tile_index][d]
+                    min_d = direction, game_state.entity_manager.directions_graph[
+                        self.next_tile_index][direction]
+                elif min_d[1] > game_state.entity_manager.directions_graph[self.next_tile_index][direction]:
+                    min_d = direction, game_state.entity_manager.directions_graph[
+                        self.next_tile_index][direction]
             if min_d:
                 direction = min_d[0]
                 game_state.entity_manager.directions_graph[self.next_tile_index][direction] = min_d[1] + 1
-                self.next_tile_index = self.next_tile_index[0] + direction[0], self.next_tile_index[1] + direction[1]
+                self.next_tile_index = self.next_tile_index[0] + \
+                    direction[0], self.next_tile_index[1] + direction[1]
 
     def render(self, game_state, batch: pyglet.graphics.Batch):
-        position = game_state.world_to_window_space(self.position, self.size, True)
+        position = game_state.world_to_window_space(
+            self.position, self.size, True)
         if position is None:
             return
 

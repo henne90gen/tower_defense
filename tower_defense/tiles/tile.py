@@ -20,7 +20,7 @@ class Tile:
         self.timer = 0
 
     def __eq__(self, other):
-        if type(other) != Tile:
+        if not isinstance(other, Tile):
             return False
         return self.position == other.position and \
             self.size == other.size and \
@@ -83,7 +83,7 @@ class Tile:
             return
 
         x, y = screen_coordinates.x, screen_coordinates.y
-        if len(self.directions) == 0:
+        if not self.directions:
             return
         if self.direction_index >= len(self.directions):
             self.direction_index = 0

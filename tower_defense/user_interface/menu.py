@@ -29,8 +29,10 @@ class MainMenu:
             self.components[component].render(self.position)
 
     def update(self, game_state):
-        self.position = Vector(game_state.window_size.x / 2 - 150, game_state.window_size.y / 2 + 200)
-        process_clicks(game_state, self.mouse_click_handler, False, self.position)
+        self.position = Vector(game_state.window_size.x /
+                               2 - 150, game_state.window_size.y / 2 + 200)
+        process_clicks(game_state, self.mouse_click_handler,
+                       False, self.position)
 
     @staticmethod
     def game_func(game_state):
@@ -84,23 +86,27 @@ class MapMenu:
             game_state.mode = GameMode.EDITOR
 
     def update(self, game_state):
-        self.position = Vector(game_state.window_size.x / 2 - 150, game_state.window_size.y / 2 + 200)
+        self.position = Vector(game_state.window_size.x /
+                               2 - 150, game_state.window_size.y / 2 + 200)
 
         if game_state.mode == GameMode.MAP_CHOICE_EDITOR and self.new_dialog.visible:
             self.new_dialog.update(game_state)
             return
 
-        if len(self.maps) == 0:
+        if not self.maps:
             self.refresh_maps(self.map_path)
 
         offset = 0
         if game_state.mode == GameMode.MAP_CHOICE_EDITOR:
-            self.new_button.position = Vector(y=-self.button_size.y * len(self.maps))
+            self.new_button.position = Vector(
+                y=-self.button_size.y * len(self.maps))
             offset = 1
 
-        self.back_button.position = Vector(y=-self.button_size.y * (len(self.maps) + offset))
+        self.back_button.position = Vector(
+            y=-self.button_size.y * (len(self.maps) + offset))
 
-        process_clicks(game_state, self.mouse_click_handler, False, self.position)
+        process_clicks(game_state, self.mouse_click_handler,
+                       False, self.position)
 
     def mouse_click_handler(self, game_state, click: MouseClick) -> bool:
         if self.back_button.is_clicked(click):
@@ -111,9 +117,9 @@ class MapMenu:
             self.new_func(game_state)
             return True
 
-        for m in self.maps:
-            if m.is_clicked(click):
-                self.load_func(game_state, m.text)
+        for map_ in self.maps:
+            if map_.is_clicked(click):
+                self.load_func(game_state, map_.text)
                 return True
 
         return False
@@ -122,8 +128,9 @@ class MapMenu:
         maps = maps_list(maps_path)
         self.maps = []
 
-        for index, m in enumerate(maps):
-            self.maps.append(Button(m, Vector(y=-self.button_size.y * index), self.button_size))
+        for index, map_ in enumerate(maps):
+            self.maps.append(
+                Button(map_, Vector(y=-self.button_size.y * index), self.button_size))
 
     def render(self, game_state):
         if game_state.mode == GameMode.MAP_CHOICE_EDITOR:
@@ -133,5 +140,5 @@ class MapMenu:
 
         self.back_button.render(self.position)
 
-        for m in self.maps:
-            m.render(self.position)
+        for map_ in self.maps:
+            map_.render(self.position)
