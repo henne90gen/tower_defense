@@ -1,20 +1,23 @@
 language:
-  - python
-
+- python
 python:
-  - 3.6
-
+- 3.6
 install:
-  - pip install coveralls
-
+- pip install coveralls
 before_script:
-  - "export DISPLAY=:0.0"
-  - "sh -e /etc/init.d/xvfb start"
-  - sleep 3 # give xvfb some time to start
-  - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :0 -ac -screen 0 1280x1024x24"
-
+- export DISPLAY=:0.0
+- sh -e /etc/init.d/xvfb start
+- sleep 3
+- "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile
+  --background --exec /usr/bin/Xvfb -- :0 -ac -screen 0 1280x1024x24"
 script:
-  - make all
-
+- make all
 after_success:
-  - coveralls
+- coveralls
+deploy:
+  provider: releases
+  api_key:
+    secure: q58ACfcw9HtwlDNnTc8BPrAwGwVm1vFtiXUBho1Xo0x7aHhcKOXQnViEFK4wn8OFEmg5JN2DrHZ3VkDyCLDgyfnAFR7Y7+v2sCoKI5ORk4UjamOdQf6SRhXOXi5KSLkQ+AAHvRwlTCLKcAHb8E5VtlYi71CFjuniFAMNDZaORPXv+CEOfhef8UPaAlC5p1FuOpjLzB2Rzr6cm2zej/iOMxifNEDjBtN2APyWEMzSjpX8wUHh2LfGb40dEXFNz9/cPTWDPesRCkejkykbrpc3SOlvTdwJDe1/rcv7FOcaomzoGRJ9kXPzmR6NnaZ/c9nwtxG8nCHJkWTZwoDwdEzgRa1ORUtgtM/9t9IJMP5i8LbxyHNpU6oACZY0SOlJ/vaneREzeNk/eLxFQHXID3vU+usyeElz4FBiAR8aHpasTgkEgbXuGpAwnfOfL04rgTFcVkXjMy6hq8EHYWt3UOT9vTvY/eLez1hdtDcQQ1xQoCQSD69PcVNMiVx8W/BVQJfH6kXHqTXZTmKHzWr2Xlkt8JjVh5cmk5Fukys9vWjJGHrBVCh0vpOYCOcx7ikpjPwcs3O7XF5xfrXUfbOjAQQLD4SD3hJG/Xpj6c4UNcTbUabkC4p6Z8Ap12SwBIqzDKd+YalnRlvRbSfyO6cLTKLRr12mTOLmUj/CrQbn1YzGJ9A=
+  file: bin/dist/tower_defense
+  on:
+    repo: henne90gen/tower_defense
