@@ -96,7 +96,8 @@ def on_mouse_press(x, y, button, modifiers):
 
 @window.event
 def on_draw(_=None):
-    hot_reload.reload_all(whitelist=module_whitelist, debug=True)
+    whitelist = list(map(lambda m: f'tower_defense.{m}', module_whitelist))
+    hot_reload.reload_all(whitelist, debug=False)
 
     window.clear()
 

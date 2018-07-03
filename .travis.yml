@@ -21,3 +21,4 @@ deploy:
   file: bin/dist/tower_defense
   on:
     repo: henne90gen/tower_defense
+    tags: true
