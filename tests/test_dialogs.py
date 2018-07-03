@@ -214,7 +214,7 @@ class LoadMapDialogTest(unittest.TestCase):
         load_map_dialog = LoadMapDialog()
         load_map_dialog.update(game_state)
 
-    @unittest.skip
+    @unittest.skip("Fix this")
     def test_refresh_maps(self):
         load_map_dialog = LoadMapDialog()
         load_map_dialog.refresh_maps("./tests/maps")

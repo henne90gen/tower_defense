@@ -4,7 +4,7 @@ from tower_defense.buildings.building import Laser, Drill, Hammer, Building
 from tower_defense.buildings.building_manager import BuildingManager
 from tower_defense.game_state import GameState
 from tower_defense.game_types import BuildingType
-from tower_defense.helper import Vector, MouseClick
+from tower_defense.helper import Vector
 
 
 class Object(object):

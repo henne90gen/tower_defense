@@ -12,11 +12,13 @@ class ButtonTest(unittest.TestCase):
         text_component = Button("Hello", Vector(0, 10), Vector(10, 10))
         self.assertTrue(text_component.is_clicked(click))
 
-        text_component = Button("Hello", Vector(0, 10), Vector(10, 10), visible=False)
+        text_component = Button("Hello", Vector(
+            0, 10), Vector(10, 10), visible=False)
         self.assertFalse(text_component.is_clicked(click))
 
         text_component = Button("Hello", Vector(), Vector(10, 10))
         self.assertFalse(text_component.is_clicked(click))
+
 
 class LabelTest(unittest.TestCase):
     def test_render(self):
@@ -38,7 +40,6 @@ class LabelTest(unittest.TestCase):
         text_component = Label("Hello", Vector(), Vector())
         text_component.toggle_visibility()
         self.assertFalse(text_component.visible)
-
 
 
 class InputTest(unittest.TestCase):
@@ -84,7 +85,8 @@ class HighlightComponentTest(unittest.TestCase):
         click = MouseClick()
         click.position = Vector(1, 1)
 
-        highlight_component = HighlightableLabel("", Vector(0, 10), Vector(10, 10))
+        highlight_component = HighlightableLabel(
+            "", Vector(0, 10), Vector(10, 10))
         highlight_component.is_clicked(click)
         self.assertTrue(highlight_component.is_highlighted)
 
@@ -98,7 +100,8 @@ class HighlightComponentTest(unittest.TestCase):
         def dummy(*args):
             was_called.append(0)
 
-        highlight_component = HighlightableLabel("", Vector(), Vector(10, 10), visible=False)
+        highlight_component = HighlightableLabel(
+            "", Vector(), Vector(10, 10), visible=False)
         highlight_component.render_highlight = dummy
         highlight_component.render(Vector())
         self.assertEqual(0, len(was_called))

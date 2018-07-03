@@ -1,9 +1,6 @@
 import unittest
 
-import pyglet
-
 from tower_defense.game_state import GameState
-from tower_defense.game_types import GameMode
 from tower_defense.helper import Vector
 from tower_defense.user_interface.menu import MapMenu
 

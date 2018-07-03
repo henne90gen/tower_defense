@@ -1,4 +1,3 @@
-import shutil
 from copy import deepcopy
 from unittest import TestCase
 
@@ -52,7 +51,8 @@ class TileMapTest(TestCase):
         try:
             tile_map.save()
             self.assertTrue(os.path.exists(test_map))
-            tile_map.load(game_state, test_map)  # make sure it can be loaded again
+            # make sure it can be loaded again
+            tile_map.load(game_state, test_map)
         finally:
             os.remove(test_map)
 
@@ -222,7 +222,7 @@ class GameTileMapTest(TestCase):
         self.assertFalse(tile_map.tiles[(0, 0)].highlighted)
 
         tile_map = GameTileMap()
-        tile_map.tiles[(0,0)].tile_type = TileType.PATH
+        tile_map.tiles[(0, 0)].tile_type = TileType.PATH
         click = MouseClick()
         click.position = Vector(1, 1)
         click.button = 1
