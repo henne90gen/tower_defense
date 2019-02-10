@@ -28,7 +28,7 @@ pyglet.gl.glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
 
 
 def handle_key(symbol, modifiers, key_down):
-    print("KeyEvent", key_down, symbol, modifiers)
+    # print("KeyEvent", key_down, symbol, modifiers)
 
     kp = gs.key_presses
 
@@ -87,7 +87,7 @@ def on_mouse_motion(x, y, dx, dy):
 
 @window.event
 def on_mouse_press(x, y, button, modifiers):
-    print("MousePress", x, y, button, modifiers)
+    # print("MousePress", x, y, button, modifiers)
     mouse_click = helper.MouseClick()
     mouse_click.position = helper.Vector(x, y)
     mouse_click.button = button
@@ -97,7 +97,7 @@ def on_mouse_press(x, y, button, modifiers):
 @window.event
 def on_draw(_=None):
     whitelist = list(map(lambda m: f'tower_defense.{m}', module_whitelist))
-    hot_reload.reload_all(whitelist, debug=False)
+    # hot_reload.reload_all(whitelist, debug=False)
 
     window.clear()
 

@@ -202,6 +202,7 @@ class BuildingDialog(Dialog):
         for building_type in self.building_types:
             if self.building_types[building_type].is_highlighted:
                 building_type = building_type
+                break
         game_state.building_manager.spawn_building(
             game_state, game_state.tile_map.highlighted_tile, building_type)
 
@@ -247,9 +248,8 @@ class BuildingDialog(Dialog):
                        False, self.position)
 
     def highlight_building(self, building_type):
-        for building_type in self.building_types:
-            if building_type != building_type:
-                self.building_types[building_type].is_highlighted = False
+        for b_type in self.building_types:
+            self.building_types[b_type].is_highlighted = b_type == building_type
 
     def mouse_click_handler(self, game_state, click: MouseClick) -> bool:
         for component in self.components:
